@@ -447,6 +447,8 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                     "15:20",
                     isLocked: true,
                   ),
+                  const SizedBox(height: 12),
+                  _buildQuizItem(context, "Kuis Evaluasi Modul"),
                 ],
               ),
             ),
@@ -539,6 +541,45 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuizItem(BuildContext context, String title) {
+    return GestureDetector(
+      onTap: () => context.push('/quiz'),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.orange.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.orange.shade200),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.orange.shade100,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.assignment_rounded, color: Colors.orange.shade700, size: 20),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange.shade900,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: Colors.orange.shade700),
+          ],
         ),
       ),
     );

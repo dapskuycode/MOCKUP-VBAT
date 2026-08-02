@@ -14,6 +14,7 @@ import 'package:vbat_ponsel/features/belajar/presentation/pages/course_detail_pa
 import 'package:vbat_ponsel/features/belajar/presentation/pages/video_player_page.dart';
 import 'package:vbat_ponsel/features/belajar/presentation/pages/learning_dashboard_page.dart';
 import 'package:vbat_ponsel/features/belajar/presentation/pages/certificate_page.dart';
+import 'package:vbat_ponsel/features/belajar/presentation/pages/quiz_page.dart';
 import 'package:vbat_ponsel/features/forum/presentation/pages/forum_page.dart';
 import 'package:vbat_ponsel/features/forum/presentation/pages/forum_detail_page.dart';
 import 'package:vbat_ponsel/features/forum/presentation/pages/create_thread_page.dart';
@@ -91,6 +92,10 @@ class AppRouter {
       GoRoute(
         path: '/certificate',
         builder: (context, state) => const CertificatePage(),
+      ),
+      GoRoute(
+        path: '/quiz',
+        builder: (context, state) => const QuizPage(),
       ),
       GoRoute(
         path: '/forum',

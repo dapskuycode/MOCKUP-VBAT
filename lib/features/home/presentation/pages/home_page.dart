@@ -1216,14 +1216,30 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Row(
                           children: [
-                            Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: color.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(sol["icon"] as IconData, color: color, size: 18),
+                            Stack(
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: color.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(sol["icon"] as IconData, color: color, size: 18),
+                                ),
+                                Positioned(
+                                  right: 0,
+                                  bottom: 0,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade300,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(Icons.lock_rounded, color: Colors.grey.shade700, size: 10),
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(width: 8),
                             Expanded(

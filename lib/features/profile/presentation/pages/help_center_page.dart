@@ -93,9 +93,9 @@ class HelpCenterPage extends StatelessWidget {
                     child: _buildContactCard(
                       context,
                       icon: Icons.chat_rounded,
-                      title: "Live Chat",
-                      subtitle: "Tanya admin VBat",
-                      color: _orangeCTA,
+                      title: "Chat Pak Tomi",
+                      subtitle: "(Premium Only)",
+                      color: const Color(0xFF22C55E), // using green for WhatsApp vibe
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -103,8 +103,8 @@ class HelpCenterPage extends StatelessWidget {
                     child: _buildContactCard(
                       context,
                       icon: Icons.email_rounded,
-                      title: "Email",
-                      subtitle: "Kirim pesan",
+                      title: "Email Bantuan",
+                      subtitle: "Kirim pesan umum",
                       color: _primaryBlue,
                     ),
                   ),

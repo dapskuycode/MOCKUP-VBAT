@@ -749,166 +749,152 @@ class _ShopPageState extends State<ShopPage> {
       onTap: () => context.push('/product-detail', extra: product),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.shade100),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 4,
-              offset: const Offset(0, 1),
-            ),
-          ],
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.grey.shade200, // placeholder background
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        clipBehavior: Clip.antiAlias, // ensure image respects border radius
+        child: Stack(
           children: [
-            // Image Area
-            AspectRatio(
-              aspectRatio: 1.0,
-              child: Stack(
+            // 1. Background Image Full Card
+            Positioned.fill(
+              child: Image.asset(
+                image,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Center(child: Icon(Icons.image, color: Colors.grey)),
+              ),
+            ),
+            // 2. Gradient Overlay for text readability
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.2),
+                      Colors.black.withValues(alpha: 0.8),
+                    ],
+                    stops: const [0.3, 0.6, 1.0],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+              ),
+            ),
+            // 3. Badges at top
+            Positioned(
+              top: 8,
+              left: 8,
+              right: 8,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // PRODUK Badge
                   Container(
-                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                      color: _primaryBlue,
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                      child: Image.asset(
-                        image,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Center(child: Icon(Icons.image, color: Colors.grey)),
+                    child: const Text(
+                      "PRODUK",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  // Promo tag
-                  if (isPromoXtra)
-                    Positioned(
-                      top: 6,
-                      left: 6,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.amber,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Text(
-                          "PROMO XTRA",
-                          style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ),
-                  // Free shipping badge at bottom
+                  // MITRA Badge (optional, let's show if it hasFreeShipping to simulate)
                   if (hasFreeShipping)
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade600,
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.local_shipping_outlined, color: Colors.white, size: 10),
-                            SizedBox(width: 3),
-                            Text(
-                              "Gratis Ongkir",
-                              style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.amber,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.verified, color: Colors.white, size: 10),
+                          SizedBox(width: 4),
+                          Text(
+                            "MITRA",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                 ],
               ),
             ),
-            // Info Area
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Nama produk - max 2 baris
-                    Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: _textDark,
-                        height: 1.3,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    // Rating & sold
-                    Row(
-                      children: [
-                        const Icon(Icons.star_rounded, color: Colors.amber, size: 12),
-                        const SizedBox(width: 2),
-                        Text(
-                          rating,
-                          style: TextStyle(fontSize: 10, color: _textGray),
+            // 4. Info Area at bottom
+            Positioned(
+              left: 12,
+              right: 12,
+              bottom: 12,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Store/Brand Name (using a generic yellow store title for now as mockup)
+                  Row(
+                    children: [
+                      const Icon(Icons.storefront_rounded, color: Colors.amber, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        "TITAN Tools", // Mocked store name
+                        style: const TextStyle(
+                          color: Colors.amber,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
                         ),
-                        Text(
-                          " • $sold terjual",
-                          style: TextStyle(fontSize: 10, color: _textGray),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  // Product Name
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  // Rating & Sold
+                  Row(
+                    children: [
+                      const Icon(Icons.star_rounded, color: Colors.amber, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        "$rating • $sold terjual",
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 10,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    // Harga - paling menonjol
-                    Text(
-                      price,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: _primaryBlue,
-                        fontSize: 14,
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  // Price
+                  Text(
+                    price.replaceAll("Rp", "").replaceAll(".", "."), // keep as is, just styled
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                    // Lokasi & COD
-                    Padding(
-                      padding: const EdgeInsets.only(top: 3),
-                      child: Row(
-                        children: [
-                          Icon(Icons.location_on_outlined, size: 10, color: _textGray),
-                          const SizedBox(width: 2),
-                          Expanded(
-                            child: Text(
-                              location,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 9, color: _textGray),
-                            ),
-                          ),
-                          if (hasCOD) ...[
-                            const SizedBox(width: 4),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.green, width: 0.5),
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                              child: const Text(
-                                "COD",
-                                style: TextStyle(fontSize: 7, color: Colors.green, fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
