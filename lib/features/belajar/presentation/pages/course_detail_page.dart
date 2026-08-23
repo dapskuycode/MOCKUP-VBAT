@@ -14,8 +14,12 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   final Color _textDark = const Color(0xFF001944);
   final Color _textGray = const Color(0xFF737782);
   final Color _orangeCTA = const Color(0xFFF97316);
+  final Color _greenSuccess = const Color(0xFF22C55E);
 
   int _selectedTabIndex = 0;
+  
+  // State untuk dummy unlock sequential (0: awal, 1: vid1 selesai, 2: vid2 selesai, 3: vid3 selesai, 4: kuis selesai)
+  int _completedStep = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +37,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withOpacity(0.05),
               blurRadius: 10,
               offset: const Offset(0, -4),
             ),
@@ -123,14 +127,12 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Gambar background video
                     Opacity(
                       opacity: 0.8,
                       child: Container(
                         color: Colors.grey.shade800,
-                      ), // Ganti dgn Image.network jika ada API
+                      ),
                     ),
-                    // Tombol Play
                     Center(
                       child: GestureDetector(
                         onTap: () => context.push('/video-player', extra: {'title': 'Mastering iPhone 13 Screen Repair'}),
@@ -138,11 +140,11 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                           width: 64,
                           height: 64,
                           decoration: BoxDecoration(
-                            color: _primaryBlue.withValues(alpha: 0.9),
+                            color: _primaryBlue.withOpacity(0.9),
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
+                                color: Colors.black.withOpacity(0.3),
                                 blurRadius: 8,
                               ),
                             ],
@@ -155,7 +157,6 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                         ),
                       ),
                     ),
-                    // Badges
                     Positioned(
                       top: 12,
                       left: 12,
@@ -165,7 +166,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _primaryBlue.withValues(alpha: 0.9),
+                          color: _primaryBlue.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Text(
@@ -241,7 +242,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                         icon: const Icon(Icons.dashboard_rounded, size: 16),
                         label: const Text("Dashboard", style: TextStyle(fontSize: 12)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: _primaryBlue.withValues(alpha: 0.1),
+                          backgroundColor: _primaryBlue.withOpacity(0.1),
                           foregroundColor: _primaryBlue,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -253,7 +254,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                         icon: const Icon(Icons.emoji_events_rounded, size: 16),
                         label: const Text("Sertifikat", style: TextStyle(fontSize: 12)),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber.withValues(alpha: 0.1),
+                          backgroundColor: Colors.amber.withOpacity(0.1),
                           foregroundColor: Colors.amber.shade800,
                           elevation: 0,
                           padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -263,7 +264,6 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Instructor Row & Status Akses
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -306,10 +306,10 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: _orangeCTA.withValues(alpha: 0.1),
+                          color: _orangeCTA.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
-                            color: _orangeCTA.withValues(alpha: 0.3),
+                            color: _orangeCTA.withOpacity(0.3),
                           ),
                         ),
                         child: Text(
@@ -324,8 +324,30 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  
+                  // Dummy button to simulate progress
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              if (_completedStep < 5) _completedStep++;
+                              else _completedStep = 0;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.grey.shade200,
+                            foregroundColor: Colors.black87,
+                            elevation: 0,
+                          ),
+                          child: Text(_completedStep < 5 ? "Simulate: Selesaikan Materi (${_completedStep}/5)" : "Reset Progress"),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
 
-                  // Stats Row
                   Row(
                     children: [
                       const Icon(
@@ -396,6 +418,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           ),
 
           // --- 5. Daftar Materi (Curriculum) ---
+          if (_selectedTabIndex == 0)
           SliverToBoxAdapter(
             child: Container(
               color: Colors.white,
@@ -417,20 +440,40 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                     "Pengenalan Alat & K3",
                     "12:45",
                     isLocked: false,
+                    isCompleted: _completedStep >= 1,
                   ),
                   _buildCurriculumItem(
                     context,
                     "Teardown iPhone 13",
                     "24:10",
-                    isLocked: true,
+                    isLocked: _completedStep < 1,
+                    isCompleted: _completedStep >= 2,
                   ),
                   _buildCurriculumItem(
                     context,
                     "Pemisahan LCD dari Bezel",
                     "18:30",
-                    isLocked: true,
+                    isLocked: _completedStep < 2,
+                    isCompleted: _completedStep >= 3,
                   ),
  
+                  const SizedBox(height: 24),
+                  Text(
+                    "Evaluasi",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: _textDark,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _buildQuizItem(
+                    context, 
+                    "Kuis Evaluasi Modul 1", 
+                    isLocked: _completedStep < 3,
+                    isCompleted: _completedStep >= 4,
+                  ),
+                  
                   const SizedBox(height: 24),
                   Text(
                     "Modul 2: Pemasangan",
@@ -445,10 +488,9 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                     context,
                     "Pemasangan True Tone",
                     "15:20",
-                    isLocked: true,
+                    isLocked: _completedStep < 4,
+                    isCompleted: _completedStep >= 5,
                   ),
-                  const SizedBox(height: 12),
-                  _buildQuizItem(context, "Kuis Evaluasi Modul"),
                 ],
               ),
             ),
@@ -546,16 +588,22 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     );
   }
 
-  Widget _buildQuizItem(BuildContext context, String title) {
+  Widget _buildQuizItem(BuildContext context, String title, {required bool isLocked, required bool isCompleted}) {
     return GestureDetector(
-      onTap: () => context.push('/quiz'),
+      onTap: () {
+        if (!isLocked) {
+           context.push('/quiz');
+        } else {
+           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Selesaikan video sebelumnya terlebih dahulu!")));
+        }
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.orange.shade50,
+          color: isLocked ? Colors.grey.shade100 : (isCompleted ? _greenSuccess.withOpacity(0.1) : Colors.orange.shade50),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.orange.shade200),
+          border: Border.all(color: isLocked ? Colors.grey.shade300 : (isCompleted ? _greenSuccess.withOpacity(0.3) : Colors.orange.shade200)),
         ),
         child: Row(
           children: [
@@ -563,10 +611,14 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.orange.shade100,
+                color: isLocked ? Colors.grey.shade300 : (isCompleted ? _greenSuccess.withOpacity(0.2) : Colors.orange.shade100),
                 shape: BoxShape.circle,
               ),
-              child: Icon(Icons.assignment_rounded, color: Colors.orange.shade700, size: 20),
+              child: Icon(
+                isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_circle_rounded : Icons.assignment_rounded), 
+                color: isLocked ? Colors.grey.shade600 : (isCompleted ? _greenSuccess : Colors.orange.shade700), 
+                size: 20
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -574,11 +626,11 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 title,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Colors.orange.shade900,
+                  color: isLocked ? Colors.grey.shade500 : (isCompleted ? _greenSuccess : Colors.orange.shade900),
                 ),
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: Colors.orange.shade700),
+            Icon(Icons.chevron_right_rounded, color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.orange.shade700)),
           ],
         ),
       ),
@@ -590,16 +642,23 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     String title,
     String duration, {
     required bool isLocked,
+    required bool isCompleted,
   }) {
     return GestureDetector(
-      onTap: () => context.push('/video-player', extra: {'title': 'Mastering iPhone 13 Screen Repair'}),
+      onTap: () {
+        if (!isLocked) {
+          context.push('/video-player', extra: {'title': title});
+        } else {
+           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Materi ini masih terkunci. Selesaikan materi sebelumnya!")));
+        }
+      },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isLocked ? Colors.grey.shade50 : Colors.white,
+          color: isLocked ? Colors.grey.shade50 : (isCompleted ? _greenSuccess.withOpacity(0.05) : Colors.white),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: isLocked ? Colors.grey.shade200 : (isCompleted ? _greenSuccess.withOpacity(0.2) : Colors.grey.shade300)),
         ),
       child: Row(
         children: [
@@ -609,12 +668,12 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             decoration: BoxDecoration(
               color: isLocked
                   ? Colors.grey.shade300
-                  : _primaryBlue.withValues(alpha: 0.1),
+                  : (isCompleted ? _greenSuccess.withOpacity(0.2) : _primaryBlue.withOpacity(0.1)),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
-              isLocked ? Icons.lock_rounded : Icons.play_arrow_rounded,
-              color: isLocked ? Colors.grey.shade600 : _primaryBlue,
+              isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_circle_rounded : Icons.play_arrow_rounded),
+              color: isLocked ? Colors.grey.shade600 : (isCompleted ? _greenSuccess : _primaryBlue),
             ),
           ),
           const SizedBox(width: 12),
@@ -744,7 +803,6 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   }
 }
 
-// Delegate kustom untuk membuat TABS tetap menempel (sticky) di CustomScrollView
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   final double minHeight;
   final double maxHeight;

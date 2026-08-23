@@ -22,46 +22,26 @@ class _VideoPreviewWidgetState extends State<VideoPreviewWidget> {
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset(widget.videoUrl)
-      ..initialize().then((_) {
-        if (mounted) {
-          setState(() {
-            _isInitialized = true;
-          });
-          _controller.setVolume(0); // Muted for preview
-          _controller.setLooping(true);
-          _controller.play();
-        }
-      });
+    // Dinonaktifkan untuk mencegah crash MediaCodec pada Android karena 
+    // banyaknya instance video player yang dibuat secara bersamaan pada list
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isInitialized) {
-      return SizedBox.expand(
-        child: FittedBox(
-          fit: BoxFit.cover,
-          child: SizedBox(
-            width: _controller.value.size.width,
-            height: _controller.value.size.height,
-            child: VideoPlayer(_controller),
-          ),
-        ),
-      );
-    } else {
-      return Image.asset(
-        widget.fallbackImage,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => const Center(
+    return Image.asset(
+      widget.fallbackImage,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => Container(
+        color: Colors.grey.shade300,
+        child: const Center(
           child: Icon(Icons.play_circle_fill_rounded, color: Colors.grey, size: 36),
         ),
-      );
-    }
+      ),
+    );
   }
 }

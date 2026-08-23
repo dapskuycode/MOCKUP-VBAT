@@ -17,13 +17,26 @@ class _LearningPageState extends State<LearningPage> {
   final Color _textDark = const Color(0xFF001944);
   final Color _textGray = const Color(0xFF737782);
   final Color _greenSuccess = const Color(0xFF22C55E);
+  final Color _orangeCTA = const Color(0xFFFD761A);
 
+  String _selectedClass = "Kelas Android";
+  String _selectedBundlingFilter = "Semua";
   String _selectedBrand = "Semua";
   String _selectedCategory = "Semua";
+
+  // Dummy state untuk demonstrasi buka Hardware Solution
+  bool _isClassCompleted = false;
 
   final ScrollController _scrollController = ScrollController();
   int _displayedCount = 4;
   bool _isLoadingMore = false;
+
+  final List<String> _classes = [
+    "Kelas Android",
+    "Kelas iPhone",
+    "Paket Bundling",
+    "Hardware Solution",
+  ];
 
   final List<Map<String, String>> _brands = [
     {"name": "Semua", "logo": ""},
@@ -161,10 +174,25 @@ class _LearningPageState extends State<LearningPage> {
   }
 
   List<Map<String, dynamic>> get _filteredCourses {
+    if (_selectedClass == "Hardware Solution" && !_isClassCompleted) return [];
+
     return _allCourses.where((course) {
-      final matchBrand = _selectedBrand == "Semua" || course["brand"] == _selectedBrand;
+      final isApple = course["brand"] == "Apple";
+      
+      bool matchClass = true;
+      if (_selectedClass == "Kelas Android") {
+        matchClass = !isApple;
+      } else if (_selectedClass == "Kelas iPhone") {
+        matchClass = isApple;
+      } else if (_selectedClass == "Paket Bundling") {
+        if (_selectedBundlingFilter == "Android") matchClass = !isApple;
+        if (_selectedBundlingFilter == "iPhone") matchClass = isApple;
+      } else if (_selectedClass == "Hardware Solution") {
+        matchClass = _selectedBrand == "Semua" || course["brand"] == _selectedBrand;
+      }
+
       final matchCategory = _selectedCategory == "Semua" || course["category"] == _selectedCategory;
-      return matchBrand && matchCategory;
+      return matchClass && matchCategory;
     }).toList();
   }
 
@@ -182,89 +210,100 @@ class _LearningPageState extends State<LearningPage> {
           // --- 1. Header ---
           const HomeHeaderSliver(),
 
-          // --- 3. Brand Selector (Pindahan dari BrandPage) ---
+          // --- 2. Class Selector (Ruangguru Style) ---
           SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: Text(
-                    "PILIH BRAND HP",
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: _primaryBlue,
-                      letterSpacing: 1,
-                    ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "PILIH KELAS",
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: _primaryBlue,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      // Dummy toggle untuk demonstrasi unlock HS
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isClassCompleted = !_isClassCompleted;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(_isClassCompleted ? "Progress 100%. Hardware Solution terbuka!" : "Progress direset. Hardware Solution terkunci."),
+                              duration: const Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          "Toggle 100%",
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
-                  height: 90,
+                  height: 44,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     physics: const BouncingScrollPhysics(),
-                    itemCount: _brands.length,
+                    itemCount: _classes.length,
                     itemBuilder: (context, index) {
-                      final brand = _brands[index];
-                      final isSelected = _selectedBrand == brand["name"];
+                      final className = _classes[index];
+                      final isSelected = _selectedClass == className;
                       return GestureDetector(
                         onTap: () {
                           setState(() {
-                            _selectedBrand = brand["name"]!;
+                            _selectedClass = className;
                             _displayedCount = 4; // Reset count
                           });
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 14),
-                          child: Column(
-                            children: [
-                              Container(
-                                width: 54,
-                                height: 54,
-                                decoration: BoxDecoration(
-                                  color: isSelected ? _primaryBlue : Colors.white,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: isSelected ? _primaryBlue : Colors.grey.shade200,
-                                    width: 2,
-                                  ),
-                                  boxShadow: [
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: isSelected ? _primaryBlue : Colors.white,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(
+                              color: isSelected ? Colors.transparent : Colors.grey.shade300,
+                            ),
+                            boxShadow: isSelected
+                                ? [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: isSelected ? 0.15 : 0.02),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
+                                      color: _primaryBlue.withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    )
+                                  ]
+                                : [],
+                          ),
+                          alignment: Alignment.center,
+                          child: Row(
+                            children: [
+                              if (className == "Hardware Solution" && !_isClassCompleted)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: Icon(Icons.lock_rounded, size: 14, color: isSelected ? Colors.white70 : Colors.grey.shade500),
                                 ),
-                                child: Center(
-                                  child: brand["name"] == "Semua"
-                                      ? Icon(
-                                          Icons.all_inclusive_rounded,
-                                          color: isSelected ? Colors.white : _primaryBlue,
-                                          size: 24,
-                                        )
-                                      : Image.asset(
-                                          'assets/images/${brand["logo"]}',
-                                          width: 32,
-                                          height: 32,
-                                          errorBuilder: (context, error, stackTrace) => Icon(
-                                            Icons.phone_android_rounded,
-                                            color: isSelected ? Colors.white : Colors.grey.shade600,
-                                            size: 24,
-                                          ),
-                                        ),
-                                ),
-                              ),
-                              const SizedBox(height: 6),
                               Text(
-                                brand["name"]!,
+                                className,
                                 style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                  color: isSelected ? _primaryBlue : _textDark,
+                                  fontSize: 13,
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                  color: isSelected ? Colors.white : _textDark,
                                 ),
                               ),
                             ],
@@ -274,12 +313,101 @@ class _LearningPageState extends State<LearningPage> {
                     },
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 16),
+
+                // Sub-filter untuk Bundling
+                if (_selectedClass == "Paket Bundling")
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Row(
+                      children: [
+                        _buildBundlingFilter("Semua"),
+                        _buildBundlingFilter("Android"),
+                        _buildBundlingFilter("iPhone"),
+                      ],
+                    ),
+                  ),
+
+                // Brand Selector untuk Hardware Solution
+                if (_selectedClass == "Hardware Solution" && _isClassCompleted)
+                  _buildBrandSelector(),
               ],
             ),
           ),
 
+          // --- 3. Locked State Hardware Solution ---
+          if (_selectedClass == "Hardware Solution" && !_isClassCompleted)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey.shade200),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: _orangeCTA.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.lock_rounded, size: 48, color: _orangeCTA),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Hardware Solution Terkunci",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: _textDark,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "Akses dokumen Hardware Solution hanya akan terbuka otomatis setelah Anda menyelesaikan 100% materi video dan kuis pada kelas terkait.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: _textGray,
+                          height: 1.4,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _selectedClass = "Kelas Android";
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _primaryBlue,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text("Lanjutkan Belajar"),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
           // --- 4. Jalur Belajar (Learning Path) ---
+          if (_selectedClass != "Hardware Solution" || _isClassCompleted)
           SliverToBoxAdapter(
             child: Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -287,13 +415,13 @@ class _LearningPageState extends State<LearningPage> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: _primaryBlue.withValues(alpha: 0.15)),
+                border: Border.all(color: _primaryBlue.withOpacity(0.15)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "JALUR BELAJAR ${_selectedBrand.toUpperCase()}",
+                    "JALUR BELAJAR ${_selectedClass == 'Paket Bundling' ? 'BUNDLING' : _selectedClass.toUpperCase()}",
                     style: TextStyle(
                       color: _primaryBlue,
                       fontSize: 10,
@@ -308,7 +436,7 @@ class _LearningPageState extends State<LearningPage> {
                       Expanded(
                         child: Container(
                           height: 1,
-                          color: _primaryBlue.withValues(alpha: 0.3),
+                          color: _primaryBlue.withOpacity(0.3),
                         ),
                       ),
                       _buildPathStep(
@@ -332,6 +460,7 @@ class _LearningPageState extends State<LearningPage> {
           ),
 
           // --- 5. Kategori Filter (Scroll Horizontal) ---
+          if (_selectedClass != "Hardware Solution" || _isClassCompleted)
           SliverToBoxAdapter(
             child: SizedBox(
               height: 60,
@@ -354,6 +483,7 @@ class _LearningPageState extends State<LearningPage> {
           ),
 
           // --- 6. Daftar Kursus (Dynamic dengan Infinite Scroll) ---
+          if (_selectedClass != "Hardware Solution" || _isClassCompleted)
           itemsToShow.isEmpty
               ? SliverToBoxAdapter(
                   child: Padding(
@@ -408,9 +538,9 @@ class _LearningPageState extends State<LearningPage> {
                                   : Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                       decoration: BoxDecoration(
-                                        color: _greenSuccess.withValues(alpha: 0.1),
+                                        color: _greenSuccess.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: _greenSuccess.withValues(alpha: 0.3)),
+                                        border: Border.all(color: _greenSuccess.withOpacity(0.3)),
                                       ),
                                       child: Text(
                                         "GRATIS",
@@ -425,7 +555,7 @@ class _LearningPageState extends State<LearningPage> {
                 ),
 
           // Loading indicator
-          if (_isLoadingMore && filtered.length > _displayedCount)
+          if (_isLoadingMore && filtered.length > _displayedCount && (_selectedClass != "Hardware Solution" || _isClassCompleted))
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -451,8 +581,8 @@ class _LearningPageState extends State<LearningPage> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      _primaryBlue.withValues(alpha: 0.9),
-                      _primaryBlue.withValues(alpha: 0.5),
+                      _primaryBlue.withOpacity(0.9),
+                      _primaryBlue.withOpacity(0.5),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
@@ -468,7 +598,7 @@ class _LearningPageState extends State<LearningPage> {
                           Text(
                             "SPONSOR",
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
+                              color: Colors.white.withOpacity(0.7),
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
                               letterSpacing: 1,
@@ -489,7 +619,7 @@ class _LearningPageState extends State<LearningPage> {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: Colors.white.withOpacity(0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -512,7 +642,131 @@ class _LearningPageState extends State<LearningPage> {
     );
   }
 
+  // --- Sub Widget Helpers ---
 
+  Widget _buildBundlingFilter(String label) {
+    final isSelected = _selectedBundlingFilter == label;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedBundlingFilter = label;
+          _displayedCount = 4;
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: isSelected ? _textDark : Colors.grey.shade200,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+            color: isSelected ? Colors.white : _textGray,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBrandSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Text(
+            "PILIH BRAND HP",
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: _textDark,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+        SizedBox(
+          height: 90,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            physics: const BouncingScrollPhysics(),
+            itemCount: _brands.length,
+            itemBuilder: (context, index) {
+              final brand = _brands[index];
+              final isSelected = _selectedBrand == brand["name"];
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedBrand = brand["name"]!;
+                    _displayedCount = 4;
+                  });
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 14),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 54,
+                        height: 54,
+                        decoration: BoxDecoration(
+                          color: isSelected ? _primaryBlue : Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected ? _primaryBlue : Colors.grey.shade200,
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(isSelected ? 0.15 : 0.02),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: brand["name"] == "Semua"
+                              ? Icon(
+                                  Icons.all_inclusive_rounded,
+                                  color: isSelected ? Colors.white : _primaryBlue,
+                                  size: 24,
+                                )
+                              : Image.asset(
+                                  'assets/images/${brand["logo"]}',
+                                  width: 32,
+                                  height: 32,
+                                  errorBuilder: (context, error, stackTrace) => Icon(
+                                    Icons.phone_android_rounded,
+                                    color: isSelected ? Colors.white : Colors.grey.shade600,
+                                    size: 24,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        brand["name"]!,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected ? _primaryBlue : _textDark,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
 
   Widget _buildPathStep(
     String label, {
@@ -538,7 +792,7 @@ class _LearningPageState extends State<LearningPage> {
             boxShadow: isCompleted || isCurrent
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
+                      color: Colors.black.withOpacity(0.1),
                       blurRadius: 4,
                     ),
                   ]
@@ -666,7 +920,7 @@ class _LearningPageState extends State<LearningPage> {
           border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.02),
+              color: Colors.black.withOpacity(0.02),
               blurRadius: 4,
             ),
           ],
@@ -698,7 +952,7 @@ class _LearningPageState extends State<LearningPage> {
                   if (isLocked)
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.6),
+                        color: Colors.white.withOpacity(0.6),
                         borderRadius: const BorderRadius.horizontal(
                           left: Radius.circular(24),
                         ),

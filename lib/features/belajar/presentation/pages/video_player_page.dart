@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
+import 'package:youtube_explode_dart/youtube_explode_dart.dart' as yt;
 
 class VideoPlayerPage extends StatefulWidget {
   final String? title;
@@ -15,158 +16,145 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   final Color _bgLight = const Color(0xFFF5F7FA);
   final Color _textDark = const Color(0xFF001944);
   final Color _textGray = const Color(0xFF737782);
-  final Color _orangeCTA = const Color(0xFFFD761A);
   final Color _greenSuccess = const Color(0xFF22C55E);
 
-  bool _isFullscreen = false;
-
-  late VideoPlayerController _controller;
-  bool _isInitialized = false;
+  VideoPlayerController? _controller;
+  bool _isPlayerReady = false;
+  bool _isVideoCompleted = false;
+  bool _isPlaying = false;
+  double _currentPosition = 0;
+  double _duration = 1; // avoid division by 0
+  bool _isFullScreen = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.asset("assets/videos/VIDEO-2026-07-26-21-31-11.mp4")
-      ..addListener(() => setState(() {}))
-      ..initialize().then((_) {
-        if (mounted) {
+    _initVideo();
+  }
+
+  Future<void> _initVideo() async {
+    final ytExplode = yt.YoutubeExplode();
+    try {
+      const videoId = 'YHAV-1jWRrY';
+      var manifest = await ytExplode.videos.streamsClient.getManifest(videoId);
+      var streamInfo = manifest.muxed.withHighestBitrate();
+      
+      _controller = VideoPlayerController.networkUrl(streamInfo.url)
+        ..initialize().then((_) {
+          if (!mounted) return;
           setState(() {
-            _isInitialized = true;
+            _duration = _controller!.value.duration.inSeconds.toDouble();
+            if (_duration == 0) _duration = 1;
+            _isPlayerReady = true;
+            _isPlaying = true;
           });
-          _controller.play();
-        }
-      });
+          _controller!.play();
+          
+          _controller!.addListener(_videoListener);
+        });
+    } catch (e) {
+      debugPrint("Error loading youtube video: $e");
+    } finally {
+      ytExplode.close();
+    }
+  }
+
+  void _videoListener() {
+    if (!mounted || _controller == null) return;
+    setState(() {
+      _currentPosition = _controller!.value.position.inSeconds.toDouble();
+      _isPlaying = _controller!.value.isPlaying;
+      
+      if (_currentPosition >= _duration - 1 && _duration > 1 && !_isVideoCompleted) {
+        _isVideoCompleted = true;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Selamat! Materi ini telah selesai."),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.removeListener(_videoListener);
+    _controller?.dispose();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
 
-  void _toggleFullscreen() {
+  void _toggleFullScreen() {
     setState(() {
-      _isFullscreen = !_isFullscreen;
+      _isFullScreen = !_isFullScreen;
+      if (_isFullScreen) {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeRight,
+          DeviceOrientation.landscapeLeft,
+        ]);
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      } else {
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      }
     });
-    if (_isFullscreen) {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeRight,
-        DeviceOrientation.landscapeLeft,
-      ]);
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-    } else {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    }
-  }
-
-  void _showSettingsModal() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text("Pengaturan Video", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              ),
-              ListTile(
-                leading: const Icon(Icons.speed_rounded),
-                title: const Text("Kecepatan Pemutaran"),
-                trailing: const Text("Normal", style: TextStyle(color: Colors.grey)),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Buka modal opsi kecepatan
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.high_quality_rounded),
-                title: const Text("Kualitas Video"),
-                trailing: const Text("Otomatis (1080p)", style: TextStyle(color: Colors.grey)),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  String _formatDuration(Duration d) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final minutes = twoDigits(d.inMinutes.remainder(60));
-    final seconds = twoDigits(d.inSeconds.remainder(60));
-    return "$minutes:$seconds";
   }
 
   @override
   Widget build(BuildContext context) {
+    // Jika fullscreen, tampilkan hanya video player (mengisi layar)
+    if (_isFullScreen) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: _buildVideoPlayerArea(),
+      );
+    }
+
     return Scaffold(
       backgroundColor: _bgLight,
       body: SafeArea(
         child: Column(
           children: [
-            // --- 1. Top Bar (Simple) ---
-            if (!_isFullscreen)
-              Container(
-                height: 56,
-                color: _primaryBlue,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(
-                        Icons.arrow_back_rounded,
+            // --- 1. Top Bar ---
+            Container(
+              height: 56,
+              color: _primaryBlue,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  Expanded(
+                    child: Text(
+                      widget.title ?? "Mastering iPhone 13 Screen Repair",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
                         color: Colors.white,
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Expanded(
-                      child: Text(
-                        widget.title ?? "Mastering iPhone 13 Screen Repair",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(
-                      width: 48,
-                    ), // Spacer agar judul tetap di tengah
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 48),
+                ],
               ),
+            ),
 
-            // --- 2. Video Player Area ---
-            if (_isFullscreen)
-              Expanded(
-                child: _buildVideoPlayer(),
-              )
-            else
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: _buildVideoPlayer(),
-              ),
+            // --- 2. Video Player Area (Native MP4) ---
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: _buildVideoPlayerArea(),
+            ),
 
             // --- 3. Judul & Navigasi (Scrollable) ---
-            if (!_isFullscreen)
-              Expanded(
+            Expanded(
               child: ListView(
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.zero,
@@ -199,15 +187,13 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                     ),
                   ),
 
-                  // Section Header: Materi Kursus (tanpa tab diskusi & catatan)
+                  // Section Header: Materi Kursus
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border(
-                        bottom: BorderSide(color: Colors.grey.shade200),
-                      ),
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
                     ),
                     child: Row(
                       children: [
@@ -225,7 +211,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                     ),
                   ),
 
-                  // Playlist / List Materi (YouTube Style)
+                  // Playlist
                   Container(
                     color: Colors.white,
                     child: Column(
@@ -251,27 +237,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                           "22:10",
                           "15.2K views",
                           instructor: "Mas VBat",
-                        ),
-                        const Divider(height: 1),
-                        _buildPlaylistItem(
-                          "4. Pengukuran & Tracking Jalur Short VCC_MAIN",
-                          "35:00",
-                          "9.8K views",
-                          instructor: "Teknisi Senior",
-                        ),
-                        const Divider(height: 1),
-                        _buildPlaylistItem(
-                          "5. Praktek Soldering & Reballing IC CPU Snapdragon",
-                          "45:12",
-                          "18.4K views",
-                          instructor: "Mas VBat",
-                        ),
-                        const Divider(height: 1),
-                        _buildPlaylistItem(
-                          "6. Final Quality Control & Perakitan Ulang Device",
-                          "28:40",
-                          "6.4K views",
-                          instructor: "Instruktur Borneo",
+                          isLocked: true,
                         ),
                       ],
                     ),
@@ -284,7 +250,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                       children: [
                         Expanded(
                           child: OutlinedButton.icon(
-                            onPressed: null, // Disabled state
+                            onPressed: null,
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               side: BorderSide(color: Colors.grey.shade300),
@@ -299,20 +265,27 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: OutlinedButton.icon(
-                            onPressed: () {
+                            onPressed: _isVideoCompleted ? () {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text("Memutar materi selanjutnya..."),
                                   duration: Duration(seconds: 2),
                                 ),
                               );
-                              _controller.seekTo(Duration.zero);
-                              _controller.play();
+                              _controller?.seekTo(Duration.zero);
+                              _controller?.play();
+                            } : () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Harap tonton video hingga selesai!"),
+                                  duration: Duration(seconds: 2),
+                                ),
+                              );
                             },
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
-                              side: BorderSide(color: _primaryBlue, width: 1.5),
-                              foregroundColor: _primaryBlue,
+                              side: BorderSide(color: _isVideoCompleted ? _primaryBlue : Colors.grey, width: 1.5),
+                              foregroundColor: _isVideoCompleted ? _primaryBlue : Colors.grey,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -336,141 +309,108 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     );
   }
 
-  // --- Helper Widgets ---
-
-  Widget _buildVideoPlayer() {
-    return Container(
-      color: Colors.black,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: Container(
-              color: Colors.black,
-              child: _isInitialized
-                  ? Center(
-                      child: AspectRatio(
-                        aspectRatio: _controller.value.aspectRatio,
-                        child: VideoPlayer(_controller),
-                      ),
-                    )
-                  : const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    ),
+  Widget _buildVideoPlayerArea() {
+    return Stack(
+      children: [
+        if (_isPlayerReady && _controller != null)
+          Center(
+            child: AspectRatio(
+              aspectRatio: _controller!.value.aspectRatio,
+              child: VideoPlayer(_controller!),
             ),
+          )
+        else
+          const Center(
+            child: CircularProgressIndicator(color: Colors.orange),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.black87, Colors.transparent],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+        
+        // Custom Overlay Controls di tengah (Hanya 3 tombol)
+        if (_isPlayerReady)
+          Positioned.fill(
+            child: Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _isInitialized 
-                          ? VideoProgressIndicator(
-                              _controller,
-                              allowScrubbing: true,
-                              colors: VideoProgressColors(
-                                playedColor: _orangeCTA,
-                                backgroundColor: Colors.white30,
-                                bufferedColor: Colors.white54,
-                              ),
-                            )
-                          : LinearProgressIndicator(
-                              value: 0,
-                              color: _orangeCTA,
-                              backgroundColor: Colors.white30,
-                              minHeight: 4,
-                              borderRadius: BorderRadius.circular(2),
-                            ),
+                  // Tombol mundur 10 detik
+                  GestureDetector(
+                    onTap: () {
+                      final newPos = (_currentPosition - 10).clamp(0.0, _duration);
+                      _controller?.seekTo(Duration(seconds: newPos.toInt()));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4),
+                        shape: BoxShape.circle,
                       ),
-                    ],
+                      child: const Icon(Icons.replay_10_rounded, color: Colors.white, size: 32),
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              if (_controller.value.isPlaying) {
-                                _controller.pause();
-                              } else {
-                                _controller.play();
-                              }
-                            },
-                            child: Icon(
-                              _controller.value.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          GestureDetector(
-                            onTap: () {
-                              final pos = _controller.value.position;
-                              _controller.seekTo(pos - const Duration(seconds: 10));
-                            },
-                            child: const Icon(Icons.replay_10_rounded, color: Colors.white, size: 24),
-                          ),
-                          const SizedBox(width: 16),
-                          GestureDetector(
-                            onTap: () {
-                              final pos = _controller.value.position;
-                              _controller.seekTo(pos + const Duration(seconds: 10));
-                            },
-                            child: const Icon(Icons.forward_10_rounded, color: Colors.white, size: 24),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            _isInitialized
-                                ? "${_formatDuration(_controller.value.position)} / ${_formatDuration(_controller.value.duration)}"
-                                : "00:00 / 00:00",
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+                  const SizedBox(width: 32),
+                  // Tombol Play / Pause
+                  GestureDetector(
+                    onTap: () {
+                      if (_isPlaying) {
+                        _controller?.pause();
+                      } else {
+                        _controller?.play();
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        shape: BoxShape.circle,
                       ),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: _showSettingsModal,
-                            child: const Icon(Icons.settings_rounded, color: Colors.white, size: 20),
-                          ),
-                          const SizedBox(width: 16),
-                          GestureDetector(
-                            onTap: _toggleFullscreen,
-                            child: Icon(
-                              _isFullscreen ? Icons.fullscreen_exit_rounded : Icons.fullscreen_rounded,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ],
+                      child: Icon(
+                        _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                        color: Colors.white,
+                        size: 48,
                       ),
-                    ],
+                    ),
+                  ),
+                  const SizedBox(width: 32),
+                  // Tombol maju 10 detik
+                  GestureDetector(
+                    onTap: () {
+                      final newPos = (_currentPosition + 10).clamp(0.0, _duration);
+                      _controller?.seekTo(Duration(seconds: newPos.toInt()));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.forward_10_rounded, color: Colors.white, size: 32),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-        ],
-      ),
+
+        // Tombol Fullscreen di pojok kanan atas
+        Positioned(
+          top: 16,
+          right: 16,
+          child: GestureDetector(
+            onTap: _toggleFullScreen,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                _isFullScreen ? Icons.fullscreen_exit_rounded : Icons.crop_rotate_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -486,6 +426,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   }) {
     return InkWell(
       onTap: () {
+        if (isLocked) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Materi terkunci.")));
+          return;
+        }
         if (!isActive) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -493,17 +437,16 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
               duration: const Duration(seconds: 2),
             ),
           );
-          _controller.seekTo(Duration.zero);
-          _controller.play();
+          _controller?.seekTo(Duration.zero);
+          _controller?.play();
         }
       },
       child: Container(
-        color: isActive ? _primaryBlue.withValues(alpha: 0.05) : Colors.white,
+        color: isActive ? _primaryBlue.withOpacity(0.05) : Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- 1. Thumbnail bergaya YouTube (Statis, tanpa preview video gerak) ---
             SizedBox(
               width: 130,
               height: 74,
@@ -522,14 +465,13 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                       ),
                     ),
                   ),
-                  // Badge Durasi di pojok kanan bawah thumbnail
                   Positioned(
                     bottom: 6,
                     right: 6,
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.85),
+                        color: Colors.black.withOpacity(0.85),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -542,11 +484,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                       ),
                     ),
                   ),
-                  // Overlay ikon play jika aktif
                   if (isActive)
                     Container(
                       decoration: BoxDecoration(
-                        color: _primaryBlue.withValues(alpha: 0.4),
+                        color: _primaryBlue.withOpacity(0.4),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Center(
@@ -557,7 +498,6 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
               ),
             ),
             const SizedBox(width: 12),
-            // --- 2. Judul & Info Kanan (YouTube Style) ---
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -607,7 +547,6 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                 ],
               ),
             ),
-            // --- 3. Ikon Menu 3-titik (YouTube Style) ---
             Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Icon(
