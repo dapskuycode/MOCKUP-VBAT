@@ -44,6 +44,64 @@ class _LearningPageState extends State<LearningPage> {
       return;
     }
 
+    if (category == 'Paket Bundling') {
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Akses Paket Bundling",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF001944),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Pilih kategori kelas yang ingin Anda pelajari saat ini:",
+                  style: TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+                const SizedBox(height: 24),
+                ListTile(
+                  leading: const Icon(Icons.android_rounded, color: Color(0xFF3DDC84)),
+                  title: const Text("Kelas Android", style: TextStyle(fontWeight: FontWeight.bold)),
+                  tileColor: Colors.grey.shade50,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push('/course-syllabus', extra: {'category': 'Kelas Android'});
+                  },
+                ),
+                const SizedBox(height: 12),
+                ListTile(
+                  leading: const Icon(Icons.apple_rounded, color: Color(0xFF555555)),
+                  title: const Text("Kelas iPhone", style: TextStyle(fontWeight: FontWeight.bold)),
+                  tileColor: Colors.grey.shade50,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push('/course-syllabus', extra: {'category': 'Kelas iPhone'});
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          );
+        }
+      );
+      return;
+    }
+
     // Masuk ke Syllabus Page (Topik)
     context.push('/course-syllabus', extra: {'category': category});
   }
