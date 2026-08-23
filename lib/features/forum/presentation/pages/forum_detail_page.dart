@@ -12,13 +12,13 @@ class ForumDetailPage extends StatelessWidget {
     final Color bgLight = const Color(0xFFF5F7FA);
     final Color textDark = const Color(0xFF001944);
     
-    // Fallback data jika null
+    // Fallback data jika null (terjadi jika state extra GoRouter hilang akibat Hot Reload)
     final infoData = data ?? {
-      "category": "Pengumuman",
-      "title": "Detail Informasi",
-      "content": "Konten tidak tersedia.",
-      "date": "-",
-      "imageUrl": null,
+      "category": "Ruang Konsultasi",
+      "title": "Jadwal Konsultasi Tanya Jawab Kasus Bersama Instruktur",
+      "content": "Halo Sobat Teknisi,\n\nMengingatkan kembali bahwa sesi konsultasi teknikal minggu ini akan diadakan secara live (via Zoom/Grup) pada hari Jumat pukul 19.30 WIB.\n\nSilakan siapkan pertanyaan mengenai studi kasus perbaikan (troubleshooting) HP, analisa skema jalur, maupun kendala-kendala software dan hardware yang belum terselesaikan di tempat servis masing-masing.\n\nHarap mencatat detail kasus (Tipe HP, Kronologi kerusakaan, dan hasil pengecekan tegangan) agar pembahasan bisa langsung tepat sasaran.\n\nTerima kasih dan salam solder!",
+      "date": "1 Jam yang lalu",
+      "imageUrl": "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     };
 
     return Scaffold(
