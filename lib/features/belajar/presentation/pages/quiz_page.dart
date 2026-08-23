@@ -2,12 +2,28 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+enum QuestionType { multipleChoice, shortAnswer, caseStudy }
+
 class Question {
   final String questionText;
-  final List<String> options;
-  final int correctIndex;
+  final QuestionType type;
+  
+  // Pilihan Ganda
+  final List<String>? options;
+  final int? correctIndex;
 
-  Question(this.questionText, this.options, this.correctIndex);
+  // Jawaban Singkat & Studi Kasus
+  final List<String>? keywords;
+  final String? placeholder;
+
+  Question({
+    required this.questionText,
+    required this.type,
+    this.options,
+    this.correctIndex,
+    this.keywords,
+    this.placeholder,
+  });
 }
 
 class QuizPage extends StatefulWidget {
@@ -26,110 +42,102 @@ class _QuizPageState extends State<QuizPage> {
   int _remainingSeconds = 600; // 10 menit
   bool _isFinished = false;
 
+  final TextEditingController _textAnswerController = TextEditingController();
+
   final List<Question> _questions = [
     Question(
-      "Langkah paling tepat sebelum memisahkan layar (LCD/OLED) dari bingkai (bezel) pada ponsel modern adalah?",
-      [
+      questionText: "Langkah paling tepat sebelum memisahkan layar (LCD/OLED) dari bingkai (bezel) pada ponsel modern adalah?",
+      type: QuestionType.multipleChoice,
+      options: [
         "A. Membersihkan konektor dengan alkohol",
         "B. Mengganti layar secara paksa tanpa pemanas",
         "C. Memanaskan layar dengan separator suhu 80°C",
         "D. Menekan layar dengan obeng"
       ],
-      2,
+      correctIndex: 2,
     ),
     Question(
-      "Alat yang berfungsi mengukur tegangan, arus, dan hambatan pada komponen motherboard adalah?",
-      [
+      questionText: "Alat yang berfungsi mengukur tegangan, arus, dan hambatan pada komponen motherboard adalah?",
+      type: QuestionType.multipleChoice,
+      options: [
         "A. Solder uap (Blower)",
         "B. Multimeter",
         "C. Osiloskop",
         "D. Pinset presisi"
       ],
-      1,
+      correctIndex: 1,
     ),
     Question(
-      "Standar Keselamatan (K3) mewajibkan penggunaan gelang anti-statis. Apa fungsinya?",
-      [
+      questionText: "Standar Keselamatan (K3) mewajibkan penggunaan gelang anti-statis. Apa fungsinya?",
+      type: QuestionType.multipleChoice,
+      options: [
         "A. Melindungi tangan dari panas solder",
         "B. Mencegah kerusakan IC akibat listrik statis dari tubuh",
         "C. Meningkatkan penerimaan sinyal WiFi saat servis",
         "D. Mencegah tersengat listrik tegangan tinggi"
       ],
-      1,
+      correctIndex: 1,
     ),
     Question(
-      "Jika ponsel mati total dan terdeteksi korsleting pada jalur VPH_PWR, langkah analisis awal adalah?",
-      [
+      questionText: "Jika ponsel mati total dan terdeteksi korsleting pada jalur VPH_PWR, langkah analisis awal adalah?",
+      type: QuestionType.multipleChoice,
+      options: [
         "A. Langsung mengganti IC Power",
         "B. Mengangkat CPU dan RAM",
         "C. Melakukan injeksi tegangan (MBR) untuk mencari komponen panas",
         "D. Mereset pabrik perangkat (Hard Reset)"
       ],
-      2,
+      correctIndex: 2,
     ),
     Question(
-      "Suhu ideal solder uap (blower) saat mengangkat IC eMMC agar tidak merusak komponen sekitarnya biasanya berkisar antara?",
-      [
+      questionText: "Suhu ideal solder uap (blower) saat mengangkat IC eMMC agar tidak merusak komponen sekitarnya biasanya berkisar antara?",
+      type: QuestionType.multipleChoice,
+      options: [
         "A. 150°C - 200°C",
         "B. 330°C - 380°C",
         "C. 450°C - 500°C",
         "D. 100°C - 150°C"
       ],
-      1,
+      correctIndex: 1,
     ),
     Question(
-      "Apa kepanjangan dari K3 dalam konteks pekerjaan teknisi?",
-      [
+      questionText: "Apa kepanjangan dari K3 dalam konteks pekerjaan teknisi?",
+      type: QuestionType.multipleChoice,
+      options: [
         "A. Keselamatan, Kesehatan, dan Kesejahteraan",
         "B. Keamanan, Keselamatan, dan Ketelitian Kerja",
         "C. Keselamatan dan Kesehatan Kerja",
         "D. Kebersihan, Keamanan, dan Kerapian"
       ],
-      2,
+      correctIndex: 2,
     ),
     Question(
-      "Pengukuran 'Diode Mode' (hambatan dalam) pada konektor baterai normalnya akan menunjukkan nilai OL (Over Limit) atau hambatan tak terhingga jika jarum merah diletakkan di?",
-      [
-        "A. Jalur VBAT",
-        "B. Jalur Ground (GND)",
-        "C. Jalur BSI",
-        "D. Jalur ID"
-      ],
-      0, // Asumsi sederhana
+      questionText: "Sebutkan nama cairan pelarut fluks dan sisa kotoran sisa solder yang paling umum digunakan teknisi ponsel saat membersihkan motherboard!",
+      type: QuestionType.shortAnswer,
+      placeholder: "Masukkan nama cairan (misal: Alkohol, Tiner, IPA)...",
+      keywords: ["alkohol", "tiner", "ipa", "thinner", "isopropyl"],
     ),
     Question(
-      "Mengapa baterai lithium-ion yang menggelembung sangat berbahaya dan harus segera diganti?",
-      [
-        "A. Mengurangi kualitas sinyal jaringan",
-        "B. Rentan terbakar atau meledak jika tertusuk atau kepanasan",
-        "C. Membuat ponsel menjadi lebih berat",
-        "D. Memboroskan kuota internet"
-      ],
-      1,
+      questionText: "Alat pemanas utama yang digunakan untuk melelehkan timah pada kaki komponen IC saat melakukan pencabutan (desoldering) atau reballing adalah?",
+      type: QuestionType.shortAnswer,
+      placeholder: "Masukkan nama alat (misal: Solder, Blower)...",
+      keywords: ["blower", "solder uap", "hot air", "hotair"],
     ),
     Question(
-      "Fungsi pasta solder (fluks) saat proses penyolderan komponen SMD/IC adalah?",
-      [
-        "A. Sebagai lem permanen untuk komponen",
-        "B. Menurunkan titik lebur timah dan mencegah oksidasi",
-        "C. Mengisolasi jalur agar tidak korslet",
-        "D. Membersihkan sisa alkohol"
-      ],
-      1,
+      questionText: "[Studi Kasus] Sebuah ponsel mengalami korsleting kecil (leakage/arus bocor) setelah terkena air, sehingga baterai cepat habis. Jelaskan langkah pembersihan awal menggunakan cairan pembersih dan alat bantu pengering sebelum melakukan pengukuran multimeter!",
+      type: QuestionType.caseStudy,
+      placeholder: "Jelaskan langkah-langkah pembersihan secara lengkap...",
+      keywords: ["sikat", "alkohol", "tiner", "ipa", "keringkan", "blower", "bersihkan"],
     ),
     Question(
-      "Jika layar ponsel sentuh (Touchscreen) mengalami 'ghost touch' (menyentuh sendiri), penyebab paling umum adalah?",
-      [
-        "A. Kabel fleksibel putus jalur LCD",
-        "B. Adanya kotoran, air, atau kerusakan IC Touchscreen",
-        "C. Baterai terlalu panas",
-        "D. Versi Android belum diupdate"
-      ],
-      1,
+      questionText: "[Studi Kasus] Sebuah HP masuk dengan keluhan layar pecah setelah terjatuh, namun mesin masih bergetar saat dinyalakan. Jelaskan langkah-langkah pembongkaran casing belakang dan pelepasan soket baterai yang aman sesuai prosedur keselamatan K3!",
+      type: QuestionType.caseStudy,
+      placeholder: "Jelaskan urutan pembongkaran dan penanganan soket baterai...",
+      keywords: ["pemanas", "soket", "baterai", "lepas", "plastik", "backdoor", "casing"],
     ),
   ];
 
-  late List<int?> _userAnswers;
+  late List<dynamic> _userAnswers;
   late List<bool> _isDoubtful;
 
   @override
@@ -138,6 +146,7 @@ class _QuizPageState extends State<QuizPage> {
     _userAnswers = List.filled(_questions.length, null);
     _isDoubtful = List.filled(_questions.length, false);
     _startTimer();
+    _updateTextController();
   }
 
   void _startTimer() {
@@ -156,7 +165,15 @@ class _QuizPageState extends State<QuizPage> {
   @override
   void dispose() {
     _timer?.cancel();
+    _textAnswerController.dispose();
     super.dispose();
+  }
+
+  void _updateTextController() {
+    final currentQ = _questions[_currentIndex];
+    if (currentQ.type == QuestionType.shortAnswer || currentQ.type == QuestionType.caseStudy) {
+      _textAnswerController.text = (_userAnswers[_currentIndex] as String?) ?? '';
+    }
   }
 
   String _formatTime(int seconds) {
@@ -165,26 +182,39 @@ class _QuizPageState extends State<QuizPage> {
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
+  void _saveCurrentTextAnswer() {
+    final currentQ = _questions[_currentIndex];
+    if (currentQ.type == QuestionType.shortAnswer || currentQ.type == QuestionType.caseStudy) {
+      final val = _textAnswerController.text.trim();
+      _userAnswers[_currentIndex] = val.isEmpty ? null : val;
+    }
+  }
+
   void _nextQuestion() {
+    _saveCurrentTextAnswer();
     if (_currentIndex < _questions.length - 1) {
       setState(() {
         _currentIndex++;
       });
+      _updateTextController();
     } else {
       _submitQuiz();
     }
   }
 
   void _prevQuestion() {
+    _saveCurrentTextAnswer();
     if (_currentIndex > 0) {
       setState(() {
         _currentIndex--;
       });
+      _updateTextController();
     }
   }
 
   void _submitQuiz() {
-    if (_isFinished) return; // Prevent double submission
+    _saveCurrentTextAnswer();
+    if (_isFinished) return;
     
     setState(() {
       _isFinished = true;
@@ -192,65 +222,102 @@ class _QuizPageState extends State<QuizPage> {
     _timer?.cancel();
 
     int score = 0;
+    List<Map<String, dynamic>> resultsSummary = [];
+
     for (int i = 0; i < _questions.length; i++) {
-      if (_userAnswers[i] == _questions[i].correctIndex) {
+      final q = _questions[i];
+      final ans = _userAnswers[i];
+      bool isCorrect = false;
+
+      if (q.type == QuestionType.multipleChoice) {
+        isCorrect = ans == q.correctIndex;
+      } else if (q.type == QuestionType.shortAnswer) {
+        if (ans != null && ans is String) {
+          final cleanAns = ans.toLowerCase();
+          isCorrect = q.keywords!.any((keyword) => cleanAns.contains(keyword));
+        }
+      } else if (q.type == QuestionType.caseStudy) {
+        if (ans != null && ans is String) {
+          final cleanAns = ans.toLowerCase();
+          // Evaluasi teks menggunakan mekanisme pencocokan kata kunci (keyword matching).
+          // Untuk studi kasus, setidaknya 2 keyword harus cocok agar dinilai benar
+          int matches = q.keywords!.where((keyword) => cleanAns.contains(keyword)).length;
+          isCorrect = matches >= 2;
+        }
+      }
+
+      if (isCorrect) {
         score++;
       }
+
+      resultsSummary.add({
+        "question": q.questionText,
+        "type": q.type.name,
+        "isCorrect": isCorrect,
+        "userAnswer": ans,
+      });
     }
 
-    bool isPassed = score >= 7; // Minimal 70% untuk lulus
+    bool isPassed = score >= 7; // Minimal 70% lulus
 
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isPassed ? Icons.check_circle_rounded : Icons.cancel_rounded,
-              color: isPassed ? Colors.green : Colors.red,
-              size: 64,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              isPassed ? "Kuis Lulus!" : "Kuis Gagal",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              "Skor Anda: ${(score / _questions.length * 100).toInt()}",
-              style: TextStyle(
-                fontSize: 24, 
-                fontWeight: FontWeight.bold, 
-                color: isPassed ? Colors.green : Colors.red
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isPassed ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                color: isPassed ? Colors.green : Colors.red,
+                size: 64,
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              isPassed 
-                ? "Selamat! Anda berhak melanjutkan ke materi berikutnya." 
-                : "Anda harus mendapatkan skor minimal 70 untuk lulus. Silakan ulangi materi dan coba lagi.",
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context); // Tutup dialog
-                  if (isPassed) {
-                    context.pop(true); // Kembali dengan sukses
-                  } else {
-                    context.pop(false); // Kembali dengan gagal
-                  }
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: isPassed ? Colors.green : Colors.red),
-                child: Text(isPassed ? "Selesai" : "Tutup"),
+              const SizedBox(height: 16),
+              Text(
+                isPassed ? "Kuis Lulus!" : "Kuis Gagal",
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                "Skor Anda: ${(score / _questions.length * 100).toInt()}",
+                style: TextStyle(
+                  fontSize: 24, 
+                  fontWeight: FontWeight.bold, 
+                  color: isPassed ? Colors.green : Colors.red
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "Cocok: $score / 10 Soal",
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              const Divider(height: 24),
+              Text(
+                isPassed 
+                  ? "Selamat! Anda berhak melanjutkan ke materi berikutnya." 
+                  : "Anda harus mendapatkan skor minimal 70 untuk lulus. Silakan ulangi materi dan coba lagi.",
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Tutup dialog
+                    if (isPassed) {
+                      context.pop(true);
+                    } else {
+                      context.pop(false);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(backgroundColor: isPassed ? Colors.green : Colors.red),
+                  child: Text(isPassed ? "Selesai" : "Tutup"),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -344,7 +411,9 @@ class _QuizPageState extends State<QuizPage> {
 
                     return GestureDetector(
                       onTap: () {
+                        _saveCurrentTextAnswer();
                         setState(() { _currentIndex = index; });
+                        _updateTextController();
                       },
                       child: Container(
                         width: 48,
@@ -383,64 +452,117 @@ class _QuizPageState extends State<QuizPage> {
                   height: 1.4,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               
-              // Options
+              // RENDER QUESTION BASE ON TYPE
               Expanded(
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: currentQ.options.length,
-                  itemBuilder: (context, index) {
-                    bool isSelected = _userAnswers[_currentIndex] == index;
-                    
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _userAnswers[_currentIndex] = index;
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isSelected ? _primaryBlue.withOpacity(0.05) : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: isSelected ? _primaryBlue : Colors.grey.shade300,
-                            width: isSelected ? 2 : 1,
-                          ),
-                        ),
-                        child: Row(
+                child: Builder(
+                  builder: (context) {
+                    if (currentQ.type == QuestionType.multipleChoice) {
+                      return ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: currentQ.options!.length,
+                        itemBuilder: (context, index) {
+                          bool isSelected = _userAnswers[_currentIndex] == index;
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _userAnswers[_currentIndex] = index;
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: isSelected ? _primaryBlue.withOpacity(0.05) : Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isSelected ? _primaryBlue : Colors.grey.shade300,
+                                  width: isSelected ? 2 : 1,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: isSelected ? _primaryBlue : Colors.grey.shade400,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: isSelected 
+                                      ? Center(child: Container(width: 12, height: 12, decoration: BoxDecoration(color: _primaryBlue, shape: BoxShape.circle))) 
+                                      : null,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Text(
+                                      currentQ.options![index],
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: isSelected ? _primaryBlue : Colors.black87,
+                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    } else {
+                      // Short Answer or Case Study
+                      return SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              width: 24,
-                              height: 24,
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: isSelected ? _primaryBlue : Colors.grey.shade400,
-                                  width: 2,
-                                ),
+                                color: Colors.blue.shade50,
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              child: isSelected 
-                                ? Center(child: Container(width: 12, height: 12, decoration: BoxDecoration(color: _primaryBlue, shape: BoxShape.circle))) 
-                                : null,
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
                               child: Text(
-                                currentQ.options[index],
+                                currentQ.type == QuestionType.shortAnswer ? "Jenis: JAWABAN SINGKAT" : "Jenis: STUDI KASUS",
                                 style: TextStyle(
-                                  fontSize: 14,
-                                  color: isSelected ? _primaryBlue : Colors.black87,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue.shade800,
                                 ),
                               ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextField(
+                              controller: _textAnswerController,
+                              maxLines: currentQ.type == QuestionType.caseStudy ? 6 : 1,
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(color: Colors.grey.shade300),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide(color: _primaryBlue, width: 2),
+                                ),
+                                fillColor: Colors.white,
+                                filled: true,
+                                hintText: currentQ.placeholder,
+                                contentPadding: const EdgeInsets.all(16),
+                              ),
+                              onChanged: (val) {
+                                // Save locally
+                                _userAnswers[_currentIndex] = val.trim().isEmpty ? null : val.trim();
+                              },
                             ),
                           ],
                         ),
-                      ),
-                    );
+                      );
+                    }
                   },
                 ),
               ),
@@ -496,7 +618,6 @@ class _QuizPageState extends State<QuizPage> {
                     child: ElevatedButton(
                       onPressed: () {
                         if (_currentIndex == _questions.length - 1) {
-                          // Jika belum jawab semua, peringatkan
                           if (_userAnswers.contains(null)) {
                             showDialog(
                               context: context,
