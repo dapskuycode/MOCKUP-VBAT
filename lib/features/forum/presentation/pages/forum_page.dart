@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
 class ForumPage extends StatefulWidget {
   const ForumPage({super.key});
@@ -19,33 +20,36 @@ class _ForumPageState extends State<ForumPage> {
 
   String _selectedCategory = "Semua";
   
-  // Simulasi status premium pengguna
-  bool _isPremiumSimulation = true;
+  // Simulasi status premium pengguna sekarang menggunakan SessionManager
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bgLight,
-      // --- FAB WhatsApp Helpdesk (Hanya untuk Premium) ---
-      floatingActionButton: _isPremiumSimulation 
-        ? FloatingActionButton.extended(
-            onPressed: () async {
-              final Uri waUri = Uri.parse('https://wa.me/62811268717');
-              if (!await launchUrl(waUri, mode: LaunchMode.externalApplication)) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Gagal membuka WhatsApp')),
-                  );
-                }
-              }
-            },
-            backgroundColor: _waGreen,
-            foregroundColor: Colors.white,
-            elevation: 4,
-            icon: const Icon(Icons.chat_bubble_outline_rounded),
-            label: const Text("Bantuan (Premium)", style: TextStyle(fontWeight: FontWeight.bold)),
-          )
-        : null,
+      floatingActionButton: ValueListenableBuilder<bool>(
+        valueListenable: SessionManager.isPremium,
+        builder: (context, isPremium, child) {
+          return isPremium 
+            ? FloatingActionButton.extended(
+                onPressed: () async {
+                  final Uri waUri = Uri.parse('https://wa.me/62811268717');
+                  if (!await launchUrl(waUri, mode: LaunchMode.externalApplication)) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Gagal membuka WhatsApp')),
+                      );
+                    }
+                  }
+                },
+                backgroundColor: _waGreen,
+                foregroundColor: Colors.white,
+                elevation: 4,
+                icon: const Icon(Icons.chat_bubble_outline_rounded),
+                label: const Text("Bantuan (Premium)", style: TextStyle(fontWeight: FontWeight.bold)),
+              )
+            : const SizedBox.shrink();
+        },
+      ),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -71,26 +75,29 @@ class _ForumPageState extends State<ForumPage> {
             centerTitle: false,
             actions: [
               // Toggle simulasi Premium
-              Row(
-                children: [
-                  Text(
-                    _isPremiumSimulation ? "Premium" : "Free",
-                    style: TextStyle(
-                      color: _isPremiumSimulation ? Colors.orange.shade700 : Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12
-                    ),
-                  ),
-                  Switch(
-                    value: _isPremiumSimulation,
-                    activeColor: Colors.orange,
-                    onChanged: (val) {
-                      setState(() {
-                        _isPremiumSimulation = val;
-                      });
-                    },
-                  ),
-                ],
+              ValueListenableBuilder<bool>(
+                valueListenable: SessionManager.isPremium,
+                builder: (context, isPremium, child) {
+                  return Row(
+                    children: [
+                      Text(
+                        isPremium ? "Premium" : "Free",
+                        style: TextStyle(
+                          color: isPremium ? Colors.orange.shade700 : Colors.grey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12
+                        ),
+                      ),
+                      Switch(
+                        value: isPremium,
+                        activeColor: Colors.orange,
+                        onChanged: (val) {
+                          SessionManager.isPremium.value = val;
+                        },
+                      ),
+                    ],
+                  );
+                }
               ),
             ],
             bottom: PreferredSize(
@@ -139,7 +146,12 @@ class _ForumPageState extends State<ForumPage> {
           
           // Spacer for FAB
           SliverToBoxAdapter(
-            child: SizedBox(height: _isPremiumSimulation ? 80 : 24),
+            child: ValueListenableBuilder<bool>(
+              valueListenable: SessionManager.isPremium,
+              builder: (context, isPremium, child) {
+                return SizedBox(height: isPremium ? 80 : 24);
+              }
+            ),
           ),
         ],
       ),
