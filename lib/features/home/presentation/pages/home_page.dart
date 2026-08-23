@@ -1,8 +1,8 @@
+// ignore_for_file: unused_element
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 import 'home_header_sliver.dart';
 import 'package:vbat_ponsel/core/widgets/video_preview_widget.dart';
@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
   ];
 
   // POIN 12: Konfigurasi admin - jumlah sponsor yang muncul (3-6)
-  int _adminSponsorCount = 4;
+  final int _adminSponsorCount = 4;
 
   // Mosaic blocks: setiap blok punya 'pattern' (4×2 grid of 'x'/'y') dan 'items' (8 cards)
   // x = course/banner (1:1 square), y = product (portrait 0.68)
@@ -949,7 +949,7 @@ class _HomePageState extends State<HomePage> {
             Image.asset(
               item['image'] ?? '',
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 color: const Color(0xFFE8EAF6),
                 child: Icon(Icons.inventory_2_rounded, color: _primaryBlue.withValues(alpha: 0.4), size: 36),
               ),
@@ -1208,7 +1208,7 @@ class _HomePageState extends State<HomePage> {
                       return Image.asset(
                         _promoBanners[index],
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           color: const Color(0xFFE8EAF6),
                           child: const Center(
                             child: Icon(Icons.local_offer_rounded, color: Color(0xFF1B4F9B), size: 36),
@@ -1276,7 +1276,7 @@ class _HomePageState extends State<HomePage> {
           child: Image.asset(
             'assets/images/PHOTO-2026-07-22-20-20-24.jpg',
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (_, _, _) => Container(
               color: const Color(0xFFE8EAF6),
               child: const Center(
                 child: Icon(Icons.image_rounded, color: Color(0xFF1B4F9B), size: 36),
@@ -1399,7 +1399,7 @@ class _HomePageState extends State<HomePage> {
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
               itemCount: solutions.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
               itemBuilder: (context, index) {
                 final sol = solutions[index];
                 final color = sol["color"] as Color;
@@ -1700,7 +1700,7 @@ class _HomePageState extends State<HomePage> {
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
               itemCount: displayedSponsors.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
+              separatorBuilder: (_, _) => const SizedBox(width: 10),
               itemBuilder: (context, index) {
                 final s = displayedSponsors[index];
                 return GestureDetector(
@@ -2869,7 +2869,7 @@ class _SponsorSliderCardState extends State<SponsorSliderCard> {
             itemBuilder: (context, i) => Image.asset(
               _bannerImages[i],
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              errorBuilder: (_, _, _) => Container(
                 color: const Color(0xFF1B4F9B),
                 child: const Center(
                   child: Icon(Icons.image_rounded, color: Colors.white54, size: 40),

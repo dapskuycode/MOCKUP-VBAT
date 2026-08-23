@@ -11,13 +11,13 @@ class HardwareSolutionPage extends StatefulWidget {
 class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
   final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textDark = const Color(0xFF001944);
 
   int _selectedTabIndex = 0;
   final List<String> _tabs = ["Schematic", "Board Layout", "Diode Value", "IC Pinout", "Component"];
 
   // Dummy scale untuk interaksi zoom
   double _scale = 1.0;
+  final TransformationController _transformationController = TransformationController();
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +75,7 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
                     setState(() {
                       _selectedTabIndex = index;
                       _scale = 1.0; // reset zoom
+                      _transformationController.value = Matrix4.identity();
                     });
                   },
                   child: Container(
@@ -115,10 +116,11 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
                       onDoubleTap: () {
                         setState(() {
                           _scale = _scale == 1.0 ? 2.0 : 1.0;
+                          _transformationController.value = Matrix4.diagonal3Values(_scale, _scale, 1.0);
                         });
                       },
                       child: InteractiveViewer(
-                        transformationController: TransformationController()..value = (Matrix4.identity()..scale(_scale)),
+                        transformationController: _transformationController,
                         minScale: 1.0,
                         maxScale: 5.0,
                         onInteractionUpdate: (details) {
@@ -269,7 +271,7 @@ class GridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.05)
+      ..color = Colors.white.withValues(alpha: 0.05)
       ..strokeWidth = 1;
 
     for (double i = 0; i < size.width; i += 40) {
