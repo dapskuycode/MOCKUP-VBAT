@@ -27,6 +27,7 @@ class _HomePageState extends State<HomePage> {
   final PageController _promoPageController = PageController();
   int _currentPromoIndex = 0;
   Timer? _promoTimer;
+  bool _adShown = false;
   final List<String> _promoBanners = [
     'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
     'assets/images/banner_promo_diskon.png',
@@ -227,6 +228,210 @@ class _HomePageState extends State<HomePage> {
         _loadMore();
       }
     });
+
+    // Tampilkan pop-up iklan saat pertama kali buka
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_adShown && mounted) {
+        _adShown = true;
+        _showAdDialog();
+      }
+    });
+  }
+
+  void _showAdDialog() {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Ad',
+      barrierColor: Colors.black.withOpacity(0.75),
+      transitionDuration: const Duration(milliseconds: 400),
+      transitionBuilder: (ctx, anim, secondAnim, child) {
+        return ScaleTransition(
+          scale: CurvedAnimation(
+            parent: anim,
+            curve: Curves.easeOutBack,
+          ),
+          child: FadeTransition(
+            opacity: anim,
+            child: child,
+          ),
+        );
+      },
+      pageBuilder: (ctx, anim, secondAnim) {
+        return Center(
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: MediaQuery.of(ctx).size.width * 0.88,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF0A1628),
+                    Color(0xFF0D2045),
+                    Color(0xFF0A1628),
+                  ],
+                ),
+                border: Border.all(
+                  color: const Color(0xFF1B4F9B),
+                  width: 1.5,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF1B4F9B).withOpacity(0.5),
+                    blurRadius: 30,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header label iklan
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(19),
+                        topRight: Radius.circular(19),
+                      ),
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF1B4F9B), Color(0xFF0D6EFD)],
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.campaign_rounded, color: Colors.white, size: 18),
+                        const SizedBox(width: 8),
+                        const Expanded(
+                          child: Text(
+                            'Sponsor & Mitra VBat',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.of(ctx).pop(),
+                          child: Container(
+                            width: 26,
+                            height: 26,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.close_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Gambar iklan
+                  ClipRRect(
+                    borderRadius: BorderRadius.zero,
+                    child: Image.asset(
+                      'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
+                      width: double.infinity,
+                      fit: BoxFit.fitWidth,
+                    ),
+                  ),
+                  // Footer dengan tombol aksi
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(19),
+                        bottomRight: Radius.circular(19),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => Navigator.of(ctx).pop(),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xFF1B4F9B).withOpacity(0.5),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              alignment: Alignment.center,
+                              child: const Text(
+                                'Tutup',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 2,
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              // TODO: navigasi ke halaman Digital Ways / toko
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF1B4F9B), Color(0xFF0D6EFD)],
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF0D6EFD).withOpacity(0.4),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              alignment: Alignment.center,
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.storefront_rounded, color: Colors.white, size: 16),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Kunjungi Toko',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override

@@ -57,111 +57,122 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
+    // Ambil safe area bawah (home indicator iPhone) secara eksplisit
+    final double bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+    // Tinggi konten navbar (background putih + notch)
+    const double navContentHeight = 72.0;
+    final double totalNavHeight = navContentHeight + bottomPadding;
 
     return Scaffold(
       extendBody: true,
       body: _pages[_currentIndex],
-      bottomNavigationBar: Container(
-        height: 84,
-        color: Colors.transparent,
+      bottomNavigationBar: SizedBox(
+        height: totalNavHeight,
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            // Background dengan lekukan kustom
-            CustomPaint(
-              size: Size(screenWidth, 84),
-              painter: BNBCustomPainter(primaryColor: _primaryBlue),
+            // Background dengan lekukan kustom (hanya area putih, tidak termasuk safe area)
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              child: CustomPaint(
+                size: Size(screenWidth, navContentHeight),
+                painter: BNBCustomPainter(primaryColor: _primaryBlue),
+              ),
+            ),
+            // Area safe (bawah) — warna putih untuk menutup home indicator
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: bottomPadding,
+              child: const ColoredBox(color: Colors.white),
             ),
             // Tombol Ikon Navigasi (kiri & kanan)
             Positioned(
-              left: 0,
-              right: 0,
-              bottom: 4,
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Kiri: Beranda & Shop
-                      SizedBox(
-                        width: (screenWidth - 80) / 2 - 12,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildNavItem(
-                              0,
-                              Icons.home_filled,
-                              Icons.home_outlined,
-                              "Beranda",
-                            ),
-                            _buildNavItem(
-                              1,
-                              Icons.storefront_rounded,
-                              Icons.storefront_outlined,
-                              "Shop",
-                            ),
-                          ],
+              left: 12,
+              right: 12,
+              top: 8,
+              height: navContentHeight - 8,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Kiri: Beranda & Shop
+                  SizedBox(
+                    width: (screenWidth - 80) / 2 - 12,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildNavItem(
+                          0,
+                          Icons.home_filled,
+                          Icons.home_outlined,
+                          "Beranda",
                         ),
-                      ),
-                      // Spacer untuk tab tengah Belajar
-                      const SizedBox(width: 80),
-                      // Kanan: Forum & Akun
-                      SizedBox(
-                        width: (screenWidth - 80) / 2 - 12,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildNavItem(
-                              3,
-                              Icons.info_rounded,
-                              Icons.info_outline_rounded,
-                              "Informasi",
-                            ),
-                            _buildNavItem(
-                              4,
-                              Icons.person_rounded,
-                              Icons.person_outline_rounded,
-                              "Akun",
-                            ),
-                          ],
+                        _buildNavItem(
+                          1,
+                          Icons.storefront_rounded,
+                          Icons.storefront_outlined,
+                          "Shop",
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                  // Spacer untuk tab tengah Belajar
+                  const SizedBox(width: 80),
+                  // Kanan: Informasi & Akun
+                  SizedBox(
+                    width: (screenWidth - 80) / 2 - 12,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildNavItem(
+                          3,
+                          Icons.info_rounded,
+                          Icons.info_outline_rounded,
+                          "Informasi",
+                        ),
+                        _buildNavItem(
+                          4,
+                          Icons.person_rounded,
+                          Icons.person_outline_rounded,
+                          "Akun",
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            // Tombol Belajar tengah yang melayang
+            // Tombol Belajar tengah yang melayang (di atas notch)
             Positioned(
-              top: -24,
+              top: -28,
               left: screenWidth / 2 - 32,
               child: _buildCenterBelajarItem(),
             ),
-            // Label Belajar di bawah, sejajar dengan label nav lain
+            // Label Belajar di bawah tombol floating
             Positioned(
-              bottom: 8,
+              top: navContentHeight - 22,
               left: 0,
               right: 0,
-              child: SafeArea(
-                child: GestureDetector(
-                  onTap: () {
-                    if (!SessionManager.isLoggedIn.value) {
-                      context.push('/login');
-                    } else {
-                      SessionManager.currentTabIndex.value = 2;
-                    }
-                  },
-                  behavior: HitTestBehavior.opaque,
-                  child: Center(
-                    child: Text(
-                      "Belajar",
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 10,
-                        fontWeight: _currentIndex == 2 ? FontWeight.w700 : FontWeight.w500,
-                        color: _currentIndex == 2 ? _primaryBlue : Colors.grey.shade500,
-                      ),
+              child: GestureDetector(
+                onTap: () {
+                  if (!SessionManager.isLoggedIn.value) {
+                    context.push('/login');
+                  } else {
+                    SessionManager.currentTabIndex.value = 2;
+                  }
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Center(
+                  child: Text(
+                    "Belajar",
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 10,
+                      fontWeight: _currentIndex == 2 ? FontWeight.w700 : FontWeight.w500,
+                      color: _currentIndex == 2 ? _primaryBlue : Colors.grey.shade500,
                     ),
                   ),
                 ),
