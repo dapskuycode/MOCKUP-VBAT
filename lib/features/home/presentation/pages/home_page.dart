@@ -346,8 +346,8 @@ class _HomePageState extends State<HomePage> {
                   Icons.credit_card_rounded,
                   Colors.brown,
                   "Member VBat",
-                  "Diskon 10%",
-                  onTap: () => _showMemberDialog(),
+                  "Akses Alumni",
+                  onTap: () => context.push('/subscription'),
                 ),
               ],
             ),
@@ -378,7 +378,7 @@ class _HomePageState extends State<HomePage> {
                     "Kelas Saya",
                     badge: "",
                     onTap: () {
-                      SessionManager.currentTabIndex.value = 3;
+                      SessionManager.currentTabIndex.value = 2; // Belajar Tab
                     },
                   ),
                   _buildIconMenu(
@@ -387,7 +387,7 @@ class _HomePageState extends State<HomePage> {
                     badge: "PROMO",
                     badgeColor: Colors.red,
                     onTap: () {
-                      SessionManager.currentTabIndex.value = 1;
+                      SessionManager.currentTabIndex.value = 1; // Shop Tab
                     },
                   ),
                   _buildIconMenu(
@@ -395,14 +395,14 @@ class _HomePageState extends State<HomePage> {
                     "VBat Premium",
                     badge: "VIP",
                     badgeColor: Colors.amber.shade700,
-                    onTap: () => context.push('/subscription'),
+                    onTap: () => context.push('/pricelist'),
                   ),
                   _buildIconMenu(
-                    Icons.forum_rounded,
-                    "Forum Teknisi",
+                    Icons.info_rounded,
+                    "Pusat Informasi",
                     badge: "",
                     onTap: () {
-                      SessionManager.currentTabIndex.value = 2;
+                      SessionManager.currentTabIndex.value = 3; // Informasi Tab
                     },
                   ),
                   _buildIconMenu(

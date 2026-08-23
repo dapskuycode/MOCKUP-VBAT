@@ -135,11 +135,33 @@ class _ShopPageState extends State<ShopPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 physics: const BouncingScrollPhysics(),
                 children: [
-                  _buildQuickFilter(Icons.build_rounded, _primaryBlue, "Semua Alat", "200+ produk", categoryKey: "Semua"),
+                  _buildQuickFilter(
+                    Icons.build_rounded, _primaryBlue, "Semua Alat", "200+ produk", 
+                    isActive: _selectedCategory == "Semua",
+                    onTap: () {
+                      setState(() {
+                        _selectedCategory = "Semua";
+                      });
+                      _scrollController.animateTo(400, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+                    },
+                  ),
                   const SizedBox(width: 8),
-                  _buildQuickFilter(Icons.bolt_rounded, Colors.red, "Flash Sale", "Diskon hari ini", isHot: true, categoryKey: "Semua"),
+                  _buildQuickFilter(
+                    Icons.bolt_rounded, Colors.red, "Flash Sale", "Diskon hari ini", 
+                    isHot: true, 
+                    isActive: false,
+                    onTap: () {
+                      _scrollController.animateTo(350, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+                    }
+                  ),
                   const SizedBox(width: 8),
-                  _buildQuickFilter(Icons.local_shipping_rounded, Colors.green, "Gratis Ongkir", "Min. belanja 50rb", categoryKey: "Semua"),
+                  _buildQuickFilter(
+                    Icons.storefront_rounded, Colors.green, "Mitra Resmi", "Produk Terjamin", 
+                    isActive: false,
+                    onTap: () {
+                      _scrollController.animateTo(250, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+                    }
+                  ),
                 ],
               ),
             ),
@@ -591,15 +613,11 @@ class _ShopPageState extends State<ShopPage> {
     String title,
     String subtitle, {
     bool isHot = false,
-    required String categoryKey,
+    bool isActive = false,
+    required VoidCallback onTap,
   }) {
-    final bool isActive = _selectedCategory == (_categoryMap[categoryKey] ?? categoryKey);
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedCategory = _categoryMap[categoryKey] ?? categoryKey;
-        });
-      },
+      onTap: onTap,
       child: Container(
         width: 140,
         padding: const EdgeInsets.all(8),
