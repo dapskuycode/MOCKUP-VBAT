@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
   final PageController _promoPageController = PageController();
   int _currentPromoIndex = 0;
   Timer? _promoTimer;
-  bool _adShown = false;
+  static bool _adShown = false;
   final List<String> _promoBanners = [
     'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
     'assets/images/banner_promo_diskon.png',
