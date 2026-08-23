@@ -114,6 +114,24 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bug_report_rounded, color: Colors.white70),
+            tooltip: 'Dev Mode: Buka Semua Materi',
+            onPressed: () {
+              setState(() {
+                _completedStep = _playlist.length;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Dev Mode: Semua materi telah dibuka."),
+                  backgroundColor: Colors.orange,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -185,69 +203,103 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     return GestureDetector(
       onTap: () => _handleItemTap(index, _playlist[index]),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isLocked ? Colors.grey.shade50 : (isCompleted ? _greenSuccess.withOpacity(0.05) : Colors.white),
-          borderRadius: BorderRadius.circular(16),
+          color: isLocked ? Colors.grey.shade50 : (isCompleted ? _greenSuccess.withOpacity(0.03) : Colors.white),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isCurrent 
               ? _primaryBlue 
-              : (isLocked ? Colors.grey.shade200 : (isCompleted ? _greenSuccess.withOpacity(0.3) : Colors.grey.shade300)),
+              : (isLocked ? Colors.grey.shade200 : (isCompleted ? _greenSuccess.withOpacity(0.3) : Colors.grey.shade200)),
             width: isCurrent ? 2 : 1,
           ),
-          boxShadow: isCurrent ? [
-            BoxShadow(
-              color: _primaryBlue.withOpacity(0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            )
-          ] : [],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: isLocked
-                    ? Colors.grey.shade200
-                    : (isCompleted ? _greenSuccess.withOpacity(0.1) : _primaryBlue.withOpacity(0.1)),
-                shape: BoxShape.circle,
+          boxShadow: [
+            if (!isLocked)
+              BoxShadow(
+                color: isCurrent ? _primaryBlue.withOpacity(0.1) : Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-              child: Icon(
-                isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_rounded : Icons.play_arrow_rounded),
-                color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : _primaryBlue),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: isLocked ? Colors.grey.shade400 : _textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.schedule_rounded, size: 12, color: isLocked ? Colors.grey.shade400 : _textGray),
-                      const SizedBox(width: 4),
-                      Text(
-                        duration,
-                        style: TextStyle(fontSize: 12, color: isLocked ? Colors.grey.shade400 : _textGray),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
           ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isLocked
+                      ? Colors.grey.shade200
+                      : (isCompleted ? _greenSuccess.withOpacity(0.1) : _primaryBlue.withOpacity(0.1)),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_circle_rounded : Icons.play_arrow_rounded),
+                  color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : _primaryBlue),
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isLocked ? Colors.grey.shade400 : _textDark,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      isLocked ? "Selesaikan materi sebelumnya" : (isCompleted ? "Selesai ditonton" : "Siap ditonton"),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.black54),
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.schedule_rounded, size: 14, color: isLocked ? Colors.grey.shade400 : Colors.grey.shade600),
+                        const SizedBox(width: 4),
+                        Text(
+                          duration,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isLocked ? Colors.grey.shade400 : Colors.grey.shade700,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (isCurrent)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFD761A),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              "Tonton",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -257,60 +309,103 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     return GestureDetector(
       onTap: () => _handleItemTap(index, _playlist[index]),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isLocked ? Colors.grey.shade50 : (isCompleted ? _greenSuccess.withOpacity(0.05) : Colors.orange.shade50),
-          borderRadius: BorderRadius.circular(16),
+          color: isLocked ? Colors.grey.shade50 : (isCompleted ? _greenSuccess.withOpacity(0.03) : Colors.orange.shade50),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isCurrent 
               ? Colors.orange.shade500 
               : (isLocked ? Colors.grey.shade200 : (isCompleted ? _greenSuccess.withOpacity(0.3) : Colors.orange.shade200)),
             width: isCurrent ? 2 : 1,
           ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: isLocked
-                    ? Colors.grey.shade200
-                    : (isCompleted ? _greenSuccess.withOpacity(0.1) : Colors.orange.shade100),
-                shape: BoxShape.circle,
+          boxShadow: [
+            if (!isLocked)
+              BoxShadow(
+                color: isCurrent ? Colors.orange.withOpacity(0.2) : Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
-              child: Icon(
-                isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_rounded : Icons.assignment_rounded),
-                color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.orange.shade700),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.orange.shade900),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Syarat untuk lanjut",
-                    style: TextStyle(
-                      fontSize: 12, 
-                      color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.orange.shade700),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right_rounded, color: isLocked ? Colors.grey.shade300 : (isCompleted ? _greenSuccess : Colors.orange.shade700)),
           ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isLocked
+                      ? Colors.grey.shade200
+                      : (isCompleted ? _greenSuccess.withOpacity(0.1) : Colors.orange.shade100),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_circle_rounded : Icons.assignment_rounded),
+                  color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.orange.shade700),
+                  size: 28,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.orange.shade900),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      isLocked ? "Syarat untuk lanjut" : (isCompleted ? "Lulus kuis" : "Evaluasi pemahaman Anda"),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.orange.shade800),
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.timer_rounded, size: 14, color: isLocked ? Colors.grey.shade400 : Colors.orange.shade700),
+                        const SizedBox(width: 4),
+                        Text(
+                          "Mandatori",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isLocked ? Colors.grey.shade400 : Colors.orange.shade800,
+                          ),
+                        ),
+                        const Spacer(),
+                        if (isCurrent)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade600,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              "Mulai Kuis",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
