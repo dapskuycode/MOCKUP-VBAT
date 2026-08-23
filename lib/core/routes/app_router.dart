@@ -11,6 +11,9 @@ import 'package:vbat_ponsel/features/auth/presentation/pages/reset_password_page
 import 'package:vbat_ponsel/features/main_navigation/presentation/pages/main_scaffold.dart';
 import 'package:vbat_ponsel/features/home/presentation/pages/global_search_page.dart';
 import 'package:vbat_ponsel/features/belajar/presentation/pages/course_detail_page.dart';
+import 'package:vbat_ponsel/features/belajar/presentation/pages/course_syllabus_page.dart';
+import 'package:vbat_ponsel/features/belajar/presentation/pages/pricelist_page.dart';
+import 'package:vbat_ponsel/features/belajar/presentation/pages/hardware_solution_page.dart';
 import 'package:vbat_ponsel/features/belajar/presentation/pages/video_player_page.dart';
 import 'package:vbat_ponsel/features/belajar/presentation/pages/learning_dashboard_page.dart';
 import 'package:vbat_ponsel/features/belajar/presentation/pages/certificate_page.dart';
@@ -74,8 +77,29 @@ class AppRouter {
         builder: (context, state) => const GlobalSearchPage(),
       ),
       GoRoute(
+        path: '/pricelist',
+        builder: (context, state) => const PricelistPage(),
+      ),
+      GoRoute(
+        path: '/course-syllabus',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return CourseSyllabusPage(category: extra?['category'] ?? 'Course');
+        },
+      ),
+      GoRoute(
+        path: '/hardware-solution',
+        builder: (context, state) => const HardwareSolutionPage(),
+      ),
+      GoRoute(
         path: '/course-detail',
-        builder: (context, state) => const CourseDetailPage(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return CourseDetailPage(
+            module: extra?['module'] ?? 'Modul',
+            category: extra?['category'] ?? 'Category',
+          );
+        },
       ),
       GoRoute(
         path: '/video-player',
