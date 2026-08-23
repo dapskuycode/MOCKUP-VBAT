@@ -106,7 +106,13 @@ class AppRouter {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           final title = extra?['title'] ?? extra?['name'] ?? "Mastering iPhone 13 Screen Repair";
-          return VideoPlayerPage(title: title.toString());
+          final playlist = extra?['playlist'] as List<Map<String, dynamic>>? ?? const [];
+          final currentIndex = extra?['currentIndex'] as int? ?? 0;
+          return VideoPlayerPage(
+            title: title.toString(),
+            playlist: playlist,
+            currentIndex: currentIndex,
+          );
         },
       ),
       GoRoute(

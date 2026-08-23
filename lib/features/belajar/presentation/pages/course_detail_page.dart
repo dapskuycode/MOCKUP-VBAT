@@ -47,7 +47,11 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     }
 
     if (item['type'] == 'video') {
-      final result = await context.push<bool>('/video-player', extra: {'title': item['title']});
+      final result = await context.push<bool>('/video-player', extra: {
+        'title': item['title'],
+        'playlist': _playlist,
+        'currentIndex': index,
+      });
       if (result == true && index == _completedStep) {
         setState(() {
           _completedStep++;
@@ -227,18 +231,39 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isLocked
-                      ? Colors.grey.shade200
-                      : (isCompleted ? _greenSuccess.withOpacity(0.1) : _primaryBlue.withOpacity(0.1)),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_circle_rounded : Icons.play_arrow_rounded),
-                  color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : _primaryBlue),
-                  size: 28,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image.network(
+                      "https://img.youtube.com/vi/drcMv73jEGE/mqdefault.jpg",
+                      width: 100,
+                      height: 64,
+                      fit: BoxFit.cover,
+                    ),
+                    if (isLocked || isCompleted)
+                      Container(
+                        width: 100,
+                        height: 64,
+                        color: isLocked ? Colors.white.withOpacity(0.7) : _greenSuccess.withOpacity(0.5),
+                      ),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: isLocked
+                            ? Colors.grey.shade400
+                            : (isCompleted ? _greenSuccess : _primaryBlue),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                      child: Icon(
+                        isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_rounded : Icons.play_arrow_rounded),
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 16),
@@ -333,18 +358,39 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: isLocked
-                      ? Colors.grey.shade200
-                      : (isCompleted ? _greenSuccess.withOpacity(0.1) : Colors.orange.shade100),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_circle_rounded : Icons.assignment_rounded),
-                  color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.orange.shade700),
-                  size: 28,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image.network(
+                      "https://img.freepik.com/free-vector/quiz-word-concept_23-2147844150.jpg",
+                      width: 100,
+                      height: 64,
+                      fit: BoxFit.cover,
+                    ),
+                    if (isLocked || isCompleted)
+                      Container(
+                        width: 100,
+                        height: 64,
+                        color: isLocked ? Colors.white.withOpacity(0.7) : _greenSuccess.withOpacity(0.5),
+                      ),
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: isLocked
+                            ? Colors.grey.shade400
+                            : (isCompleted ? _greenSuccess : Colors.orange),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                      child: Icon(
+                        isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_rounded : Icons.assignment_rounded),
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 16),

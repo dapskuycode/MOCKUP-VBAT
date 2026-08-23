@@ -7,7 +7,15 @@ import 'dart:async';
 
 class VideoPlayerPage extends StatefulWidget {
   final String? title;
-  const VideoPlayerPage({super.key, this.title});
+  final List<Map<String, dynamic>> playlist;
+  final int currentIndex;
+
+  const VideoPlayerPage({
+    super.key, 
+    this.title, 
+    this.playlist = const [],
+    this.currentIndex = 0,
+  });
 
   @override
   State<VideoPlayerPage> createState() => _VideoPlayerPageState();
@@ -378,65 +386,81 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
             ),
             
             Expanded(
-              child: _isVideoCompleted
-                  ? Container(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  if (_isVideoCompleted)
+                    Container(
                       width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 24),
                       padding: const EdgeInsets.all(24.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.green.shade200),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.green.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ]
+                      ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: Colors.green.withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
                               Icons.check_circle_outline_rounded,
-                              size: 64,
+                              size: 48,
                               color: Colors.green,
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
                           const Text(
                             "Selesai Menonton?",
                             style: TextStyle(
-                              fontSize: 22,
+                              fontSize: 20,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF001944),
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 8),
                           const Text(
-                            "Konfirmasi jika Anda sudah memahami materi ini. Materi berikutnya hanya akan terbuka jika materi ini telah selesai.",
+                            "Materi berikutnya hanya akan terbuka jika materi ini telah selesai.",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.black54,
-                              fontSize: 14,
+                              fontSize: 13,
                               height: 1.5,
                             ),
                           ),
-                          const SizedBox(height: 40),
+                          const SizedBox(height: 24),
                           SizedBox(
                             width: double.infinity,
-                            height: 52,
+                            height: 48,
                             child: ElevatedButton(
                               onPressed: () {
-                                // Tutup dan kembalikan nilai true ke halaman playlist module
                                 context.pop(true);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                elevation: 2,
+                                elevation: 0,
                               ),
                               child: const Text(
                                 "KONFIRMASI SELESAI",
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 1,
                                 ),
@@ -445,32 +469,58 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                           ),
                         ],
                       ),
-                    )
-                  : ListView(
-                      padding: const EdgeInsets.all(16),
-                      physics: const BouncingScrollPhysics(),
-                      children: [
-                        const Text(
-                          "Materi Selanjutnya",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF001944),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        _buildNextVideoItem(
-                          title: "2. Keamanan Baterai & Mencegah Korsleting",
-                          duration: "10:45",
-                          thumbnailUrl: "https://img.youtube.com/vi/drcMv73jEGE/mqdefault.jpg",
-                        ),
-                        _buildNextVideoItem(
-                          title: "3. Teknik Membuka Segel Layar",
-                          duration: "22:10",
-                          thumbnailUrl: "https://img.youtube.com/vi/drcMv73jEGE/mqdefault.jpg",
-                        ),
-                      ],
                     ),
+                  const Text(
+                    "Materi Selanjutnya",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF001944),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Builder(
+                    builder: (context) {
+                      final effectivePlaylist = widget.playlist.isNotEmpty 
+                        ? widget.playlist 
+                        : [
+                            {"type": "video", "title": "1. Pengenalan Alat Dasar", "duration": "12:45"},
+                            {"type": "video", "title": "2. Standar Keselamatan (K3)", "duration": "08:20"},
+                            {"type": "video", "title": "3. Penggunaan Multimeter", "duration": "15:30"},
+                            {"type": "quiz", "title": "Kuis: Alat & Keselamatan"},
+                          ];
+                      
+                      if (effectivePlaylist.length > widget.currentIndex + 1) {
+                        return Column(
+                          children: effectivePlaylist.skip(widget.currentIndex + 1).map((item) {
+                            final isQuiz = item['type'] == 'quiz';
+                            final defaultDuration = isQuiz ? "Mandatori" : "10:00";
+                            final imgUrl = isQuiz 
+                              ? "https://img.freepik.com/free-vector/quiz-word-concept_23-2147844150.jpg" 
+                              : "https://img.youtube.com/vi/drcMv73jEGE/mqdefault.jpg";
+
+                            return _buildNextVideoItem(
+                              title: item['title'].toString(),
+                              duration: item['duration']?.toString() ?? defaultDuration,
+                              thumbnailUrl: imgUrl,
+                            );
+                          }).toList(),
+                        );
+                      } else {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(
+                            child: Text(
+                              "Anda berada di materi terakhir.",
+                              style: TextStyle(color: Colors.black54),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ],
         ),
