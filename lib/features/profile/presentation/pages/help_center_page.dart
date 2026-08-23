@@ -8,7 +8,6 @@ class HelpCenterPage extends StatelessWidget {
   final Color _bgLight = const Color(0xFFF5F7FA);
   final Color _textDark = const Color(0xFF001944);
   final Color _textGray = const Color(0xFF737782);
-  final Color _orangeCTA = const Color(0xFFF78B00);
 
   @override
   Widget build(BuildContext context) {

@@ -758,10 +758,7 @@ class _ShopPageState extends State<ShopPage> {
     final String image = product["image"]!;
 
     // Location & shipping tags
-    final List<String> locations = ["Jakarta Selatan", "Bandung", "Surabaya", "Tangerang", "Bekasi"];
-    final String location = locations[title.length % locations.length];
     final bool hasFreeShipping = (title.length % 3 == 0);
-    final bool hasCOD = (title.length % 4 == 0);
 
     return GestureDetector(
       onTap: () => context.push('/product-detail', extra: product),

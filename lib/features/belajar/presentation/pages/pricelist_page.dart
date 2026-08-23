@@ -102,7 +102,7 @@ class _PricelistPageState extends State<PricelistPage> with SingleTickerProvider
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: _primaryBlue.withOpacity(0.1),
+                          color: _primaryBlue.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(Icons.rocket_launch_rounded, size: 48, color: _primaryBlue),
@@ -218,7 +218,7 @@ class _PricelistPageState extends State<PricelistPage> with SingleTickerProvider
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -237,7 +237,7 @@ class _PricelistPageState extends State<PricelistPage> with SingleTickerProvider
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: color.withOpacity(0.1),
+                        color: color.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(icon, color: color, size: 28),
@@ -312,7 +312,7 @@ class _PricelistPageState extends State<PricelistPage> with SingleTickerProvider
                       ),
                     ],
                   ),
-                )).toList(),
+                )),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
@@ -353,7 +353,7 @@ class _PricelistPageState extends State<PricelistPage> with SingleTickerProvider
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFD761A).withOpacity(0.4),
+                      color: const Color(0xFFFD761A).withValues(alpha: 0.4),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),

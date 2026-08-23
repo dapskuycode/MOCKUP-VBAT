@@ -264,7 +264,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                             },
                             child: Container(
                               padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
+                              decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.4), shape: BoxShape.circle),
                               child: const Icon(Icons.replay_10_rounded, color: Colors.white, size: 32),
                             ),
                           ),
@@ -280,7 +280,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                             },
                             child: Container(
                               padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), shape: BoxShape.circle),
+                              decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
                               child: Icon(
                                 _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
                                 color: Colors.white,
@@ -304,7 +304,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                           },
                           child: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), shape: BoxShape.circle),
+                            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
                             child: const Icon(
                               Icons.settings_rounded,
                               color: Colors.white,
@@ -320,7 +320,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                           },
                           child: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), shape: BoxShape.circle),
+                            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
                             child: Icon(
                               _isFullScreen ? Icons.fullscreen_exit_rounded : Icons.crop_rotate_rounded,
                               color: Colors.white,
@@ -388,7 +388,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                         border: Border.all(color: Colors.green.shade200),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.green.withOpacity(0.05),
+                            color: Colors.green.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           )
@@ -400,7 +400,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
+                              color: Colors.green.withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -543,7 +543,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                 width: 100,
                 height: 56,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                errorBuilder: (_, _, _) => Container(
                   width: 100,
                   height: 56,
                   color: Colors.grey.shade300,

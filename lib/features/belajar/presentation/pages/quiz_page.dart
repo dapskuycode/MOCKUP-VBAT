@@ -474,7 +474,7 @@ class _QuizPageState extends State<QuizPage> {
                               margin: const EdgeInsets.only(bottom: 16),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: isSelected ? _primaryBlue.withOpacity(0.05) : Colors.white,
+                                color: isSelected ? _primaryBlue.withValues(alpha: 0.05) : Colors.white,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
                                   color: isSelected ? _primaryBlue : Colors.grey.shade300,

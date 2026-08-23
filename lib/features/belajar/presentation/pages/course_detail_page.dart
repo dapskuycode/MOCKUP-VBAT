@@ -15,7 +15,6 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
   final Color _bgLight = const Color(0xFFF5F7FA);
   final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
   final Color _greenSuccess = const Color(0xFF22C55E);
 
   // State untuk melacak video mana yang sudah selesai ditonton
@@ -47,15 +46,18 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     }
 
     if (item['type'] == 'video') {
-      final result = await context.push<bool>('/video-player', extra: {
-        'title': item['title'],
-        'playlist': _playlist,
-        'currentIndex': index,
-      });
-      if (result == true && index == _completedStep) {
-        setState(() {
-          _completedStep++;
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (mounted) {
+        final result = await context.push<bool>('/video-player', extra: {
+          'title': item['title'],
+          'playlist': _playlist,
+          'currentIndex': index,
         });
+        if (result == true && index == _completedStep) {
+          setState(() {
+            _completedStep++;
+          });
+        }
       }
     } else if (item['type'] == 'quiz') {
       final result = await context.push<bool>('/quiz');
@@ -65,6 +67,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         });
         
         if (_completedStep >= _playlist.length) {
+          if (!mounted) return;
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
@@ -209,18 +212,18 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isLocked ? Colors.grey.shade50 : (isCompleted ? _greenSuccess.withOpacity(0.03) : Colors.white),
+          color: isLocked ? Colors.grey.shade50 : (isCompleted ? _greenSuccess.withValues(alpha: 0.03) : Colors.white),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isCurrent 
               ? _primaryBlue 
-              : (isLocked ? Colors.grey.shade200 : (isCompleted ? _greenSuccess.withOpacity(0.3) : Colors.grey.shade200)),
+              : (isLocked ? Colors.grey.shade200 : (isCompleted ? _greenSuccess.withValues(alpha: 0.3) : Colors.grey.shade200)),
             width: isCurrent ? 2 : 1,
           ),
           boxShadow: [
             if (!isLocked)
               BoxShadow(
-                color: isCurrent ? _primaryBlue.withOpacity(0.1) : Colors.black.withOpacity(0.03),
+                color: isCurrent ? _primaryBlue.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.03),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -246,7 +249,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                       Container(
                         width: 100,
                         height: 64,
-                        color: isLocked ? Colors.white.withOpacity(0.7) : _greenSuccess.withOpacity(0.5),
+                        color: isLocked ? Colors.white.withValues(alpha: 0.7) : _greenSuccess.withValues(alpha: 0.5),
                       ),
                     Container(
                       padding: const EdgeInsets.all(6),
@@ -336,18 +339,18 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isLocked ? Colors.grey.shade50 : (isCompleted ? _greenSuccess.withOpacity(0.03) : Colors.orange.shade50),
+          color: isLocked ? Colors.grey.shade50 : (isCompleted ? _greenSuccess.withValues(alpha: 0.03) : Colors.orange.shade50),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isCurrent 
               ? Colors.orange.shade500 
-              : (isLocked ? Colors.grey.shade200 : (isCompleted ? _greenSuccess.withOpacity(0.3) : Colors.orange.shade200)),
+              : (isLocked ? Colors.grey.shade200 : (isCompleted ? _greenSuccess.withValues(alpha: 0.3) : Colors.orange.shade200)),
             width: isCurrent ? 2 : 1,
           ),
           boxShadow: [
             if (!isLocked)
               BoxShadow(
-                color: isCurrent ? Colors.orange.withOpacity(0.2) : Colors.black.withOpacity(0.03),
+                color: isCurrent ? Colors.orange.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.03),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -373,7 +376,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                       Container(
                         width: 100,
                         height: 64,
-                        color: isLocked ? Colors.white.withOpacity(0.7) : _greenSuccess.withOpacity(0.5),
+                        color: isLocked ? Colors.white.withValues(alpha: 0.7) : _greenSuccess.withValues(alpha: 0.5),
                       ),
                     Container(
                       padding: const EdgeInsets.all(6),

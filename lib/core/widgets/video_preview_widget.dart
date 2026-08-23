@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
 
 class VideoPreviewWidget extends StatefulWidget {
   final String videoUrl;
@@ -16,8 +15,6 @@ class VideoPreviewWidget extends StatefulWidget {
 }
 
 class _VideoPreviewWidgetState extends State<VideoPreviewWidget> {
-  late VideoPlayerController _controller;
-  bool _isInitialized = false;
 
   @override
   void initState() {
