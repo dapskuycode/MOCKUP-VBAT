@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ForumPage extends StatefulWidget {
   const ForumPage({super.key});
@@ -28,13 +29,15 @@ class _ForumPageState extends State<ForumPage> {
       // --- FAB WhatsApp Helpdesk (Hanya untuk Premium) ---
       floatingActionButton: _isPremiumSimulation 
         ? FloatingActionButton.extended(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("Membuka WhatsApp: wa.me/62811268717 (Pak Tomi)"),
-                  backgroundColor: Color(0xFF25D366),
-                )
-              );
+            onPressed: () async {
+              final Uri waUri = Uri.parse('https://wa.me/62811268717');
+              if (!await launchUrl(waUri, mode: LaunchMode.externalApplication)) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Gagal membuka WhatsApp')),
+                  );
+                }
+              }
             },
             backgroundColor: _waGreen,
             foregroundColor: Colors.white,
@@ -267,10 +270,7 @@ class _ForumPageState extends State<ForumPage> {
                     ),
                     TextButton(
                       onPressed: () {
-                        // Action dummy
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Membuka detail: ${data['title']}"))
-                        );
+                        context.push('/forum-detail', extra: data);
                       },
                       style: TextButton.styleFrom(
                         foregroundColor: _primaryBlue,

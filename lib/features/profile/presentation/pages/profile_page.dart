@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -296,6 +297,20 @@ class _ProfilePageState extends State<ProfilePage> {
                         Icons.help_outline_rounded,
                         "Bantuan & FAQ",
                         onTap: () => context.push('/help-center'),
+                      ),
+                      _buildMenuItem(
+                        Icons.chat_bubble_outline_rounded,
+                        "Dukungan Bantuan (WhatsApp)",
+                        onTap: () async {
+                           final Uri waUri = Uri.parse('https://wa.me/62811268717');
+                           if (!await launchUrl(waUri, mode: LaunchMode.externalApplication)) {
+                             if (context.mounted) {
+                               ScaffoldMessenger.of(context).showSnackBar(
+                                 const SnackBar(content: Text('Gagal membuka WhatsApp')),
+                               );
+                             }
+                           }
+                        },
                       ),
                       _buildMenuItem(
                         Icons.info_outline_rounded,

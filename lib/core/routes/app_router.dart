@@ -133,7 +133,10 @@ class AppRouter {
       ),
       GoRoute(
         path: '/forum-detail',
-        builder: (context, state) => const ForumDetailPage(),
+        builder: (context, state) {
+          final data = state.extra as Map<String, dynamic>?;
+          return ForumDetailPage(data: data);
+        },
       ),
       GoRoute(
         path: '/create-thread',

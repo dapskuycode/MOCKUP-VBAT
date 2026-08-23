@@ -72,6 +72,21 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             children: [
               _buildSubscriptionCard(
                 context,
+                title: "PERPANJANGAN AKSES MATERI",
+                price: "100.000",
+                perMonth: "HANYA UNTUK ALUMNI / MEMBER LAMA",
+                features: [
+                  "Buka kunci semua materi video yang kedaluwarsa",
+                  "Akses Hardware Solution (HS) diperpanjang 1 tahun",
+                  "Mendapatkan update modul materi terbaru",
+                  "Sertifikat & KTA di profil tetap valid selamanya (tanpa biaya)",
+                ],
+                buttonText: "PERPANJANG SEKARANG\n(Rp 100k / Tahun)",
+                isHighlight: false,
+              ),
+              const SizedBox(width: 16),
+              _buildSubscriptionCard(
+                context,
                 title: "KELAS ONLINE TEKNISI ANDROID",
                 price: "800.000",
                 perMonth: "HANYA RP 66.667/BULAN",
