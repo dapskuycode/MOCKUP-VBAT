@@ -8,7 +8,8 @@ class PricelistPage extends StatefulWidget {
   State<PricelistPage> createState() => _PricelistPageState();
 }
 
-class _PricelistPageState extends State<PricelistPage> with SingleTickerProviderStateMixin {
+class _PricelistPageState extends State<PricelistPage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
 
@@ -23,9 +24,10 @@ class _PricelistPageState extends State<PricelistPage> with SingleTickerProvider
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
   }
 
@@ -40,15 +42,14 @@ class _PricelistPageState extends State<PricelistPage> with SingleTickerProvider
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(color: Colors.white),
-      ),
+      builder: (context) =>
+          const Center(child: CircularProgressIndicator(color: Colors.white)),
     );
 
     Future.delayed(const Duration(seconds: 1), () {
       if (!mounted) return;
       Navigator.pop(context); // Tutup dialog loading
-      
+
       // Simpan status bahwa user sudah bayar (gunakan state sementara via Router extra atau global state)
       // Untuk mockup, kita cukup lempar parameter kembali ke learning page atau pushReplacement
       ScaffoldMessenger.of(context).showSnackBar(
@@ -57,7 +58,7 @@ class _PricelistPageState extends State<PricelistPage> with SingleTickerProvider
           backgroundColor: Colors.green,
         ),
       );
-      
+
       // Kembali ke halaman sebelumnya dengan parameter true (berhasil bayar)
       context.pop(true);
     });
@@ -105,7 +106,11 @@ class _PricelistPageState extends State<PricelistPage> with SingleTickerProvider
                           color: _primaryBlue.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.rocket_launch_rounded, size: 48, color: _primaryBlue),
+                        child: Icon(
+                          Icons.rocket_launch_rounded,
+                          size: 48,
+                          color: _primaryBlue,
+                        ),
                       ),
                       const SizedBox(height: 24),
                       const Text(
@@ -295,24 +300,30 @@ class _PricelistPageState extends State<PricelistPage> with SingleTickerProvider
                 const SizedBox(height: 20),
                 const Divider(height: 1),
                 const SizedBox(height: 20),
-                ...features.map((feat) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Row(
-                    children: [
-                      Icon(Icons.check_circle_rounded, color: color, size: 18),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          feat,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.black87,
+                ...features.map(
+                  (feat) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12.0),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle_rounded,
+                          color: color,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            feat,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.black87,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                )),
+                ),
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
@@ -345,7 +356,10 @@ class _PricelistPageState extends State<PricelistPage> with SingleTickerProvider
               top: -12,
               right: 24,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
                     colors: [Color(0xFFFD761A), Color(0xFFF95316)],

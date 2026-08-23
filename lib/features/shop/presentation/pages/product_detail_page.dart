@@ -36,7 +36,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       "rating": "4.9",
       "sold": "1.5RB",
       "image": "assets/images/product_battery.png",
-      "link": "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095"
+      "link":
+          "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095",
     },
     {
       "type": "product",
@@ -45,7 +46,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       "rating": "4.8",
       "sold": "850",
       "image": "assets/images/product_lcd.png",
-      "link": "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095"
+      "link":
+          "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095",
     },
     {
       "type": "product",
@@ -54,7 +56,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       "rating": "4.8",
       "sold": "3.2RB",
       "image": "assets/images/product_battery.png",
-      "link": "https://shopee.co.id/brader_parts"
+      "link": "https://shopee.co.id/brader_parts",
     },
     {
       "type": "product",
@@ -63,7 +65,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       "rating": "4.9",
       "sold": "4.5RB",
       "image": "assets/images/product_battery.png",
-      "link": "https://shopee.co.id/brader_parts"
+      "link": "https://shopee.co.id/brader_parts",
     },
     {
       "type": "product",
@@ -72,21 +74,41 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       "rating": "4.9",
       "sold": "190",
       "image": "assets/images/product_lcd.png",
-      "link": "https://shopee.co.id/brader_parts"
-    }
+      "link": "https://shopee.co.id/brader_parts",
+    },
   ];
 
   final List<Map<String, dynamic>> _partnerLogoTemplates = [
-    {"name": "BraderParts", "color": Colors.white, "badge": Colors.blue, "icon": Icons.build_circle_rounded},
-    {"name": "TITAN Tools", "color": Colors.white, "badge": Colors.blue, "icon": Icons.shield_rounded},
-    {"name": "BT-ACC Battery", "color": Colors.white, "badge": Colors.amber, "icon": Icons.battery_charging_full_rounded},
+    {
+      "name": "BraderParts",
+      "color": Colors.white,
+      "badge": Colors.blue,
+      "icon": Icons.build_circle_rounded,
+    },
+    {
+      "name": "TITAN Tools",
+      "color": Colors.white,
+      "badge": Colors.blue,
+      "icon": Icons.shield_rounded,
+    },
+    {
+      "name": "BT-ACC Battery",
+      "color": Colors.white,
+      "badge": Colors.amber,
+      "icon": Icons.battery_charging_full_rounded,
+    },
   ];
 
   // Resolve current product details
-  String get _productName => widget.productData?["name"] ?? "LCD iPhone 11 Pro Max OLED Kualitas Original";
+  String get _productName =>
+      widget.productData?["name"] ??
+      "LCD iPhone 11 Pro Max OLED Kualitas Original";
   String get _productPrice => widget.productData?["price"] ?? "Rp1.250.000";
-  String get _productImage => widget.productData?["image"] ?? "assets/images/product_lcd.png";
-  String get _productLink => widget.productData?["link"] ?? "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095?extraParams=%7B%22display_model_id%22%3A350188294975%2C%22model_selection_logic%22%3A3%7D&sp_atk=f8d0ca69-2d93-4324-b982-5cd7d983550e&xptdk=f8d0ca69-2d93-4324-b982-5cd7d983550e";
+  String get _productImage =>
+      widget.productData?["image"] ?? "assets/images/product_lcd.png";
+  String get _productLink =>
+      widget.productData?["link"] ??
+      "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095?extraParams=%7B%22display_model_id%22%3A350188294975%2C%22model_selection_logic%22%3A3%7D&sp_atk=f8d0ca69-2d93-4324-b982-5cd7d983550e&xptdk=f8d0ca69-2d93-4324-b982-5cd7d983550e";
   String get _productRating => widget.productData?["rating"] ?? "4.8";
   String get _productSold => widget.productData?["sold"] ?? "800+";
   String get _productDescription {
@@ -95,9 +117,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     }
     // Generate description dynamically based on the product name
     final nameLower = _productName.toLowerCase();
-    if (nameLower.contains("baterai") || nameLower.contains("battery") || nameLower.contains("batre")) {
+    if (nameLower.contains("baterai") ||
+        nameLower.contains("battery") ||
+        nameLower.contains("batre")) {
       return "Spesifikasi Produk:\n• Kualitas: Original Equipment Manufacturer (OEM)\n• Kapasitas: Standar pabrik (tahan lama)\n• Proteksi: Double IC Protection (mencegah overcharge)\n• Garansi: Resmi distributor 12 bulan";
-    } else if (nameLower.contains("obeng") || nameLower.contains("flux") || nameLower.contains("blower") || nameLower.contains("solder") || nameLower.contains("pinset")) {
+    } else if (nameLower.contains("obeng") ||
+        nameLower.contains("flux") ||
+        nameLower.contains("blower") ||
+        nameLower.contains("solder") ||
+        nameLower.contains("pinset")) {
       return "Spesifikasi Produk:\n• Kualitas: Premium Industrial Grade\n• Material: Material Presisi Tinggi & Ergonomis\n• Kegunaan: Pembongkaran presisi motherboard & chip IC HP\n• Keandalan: Tahan panas tinggi & anti-statis ESD";
     }
     return "Spesifikasi Produk:\n• Kualitas: OLED Original Quality\n• Kompatibilitas: Layar sentuh presisi\n• Resolusi: Standar performa tinggi\n• True Tone: Support (bisa ditransfer)";
@@ -114,7 +142,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
 
     // Scroll listener for infinite scroll recommendations
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 300) {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 300) {
         _loadMoreRecommendations();
       }
     });
@@ -133,18 +162,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       int typeChoice = random.nextInt(10);
       if (typeChoice <= 7) {
         // 0-7: produk (80%)
-        var template = _recommendationTemplates[random.nextInt(_recommendationTemplates.length)];
+        var template =
+            _recommendationTemplates[random.nextInt(
+              _recommendationTemplates.length,
+            )];
         _recommendations.add(Map<String, dynamic>.from(template));
       } else if (typeChoice == 8) {
         // 8: sliding_banner (10%)
         _recommendations.add({"type": "sliding_banner"});
       } else {
         // 9: partner_card (10%)
-        var partner = _partnerLogoTemplates[random.nextInt(_partnerLogoTemplates.length)];
-        _recommendations.add({
-          "type": "partner_card",
-          "partner": partner,
-        });
+        var partner =
+            _partnerLogoTemplates[random.nextInt(_partnerLogoTemplates.length)];
+        _recommendations.add({"type": "partner_card", "partner": partner});
       }
     }
   }
@@ -212,11 +242,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       logoAsset: "assets/images/shopee_logo.png",
                       onTap: () {
                         Navigator.pop(context);
-                        _showRedirectOverlay(
-                          context,
-                          "Shopee",
-                          _productLink,
-                        );
+                        _showRedirectOverlay(context, "Shopee", _productLink);
                       },
                     ),
                     _buildMarketplaceOption(
@@ -268,7 +294,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               width: 48,
               height: 48,
               fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => Icon(Icons.storefront_rounded, color: color, size: 28),
+              errorBuilder: (context, error, stackTrace) =>
+                  Icon(Icons.storefront_rounded, color: color, size: 28),
             ),
             const SizedBox(height: 12),
             Text(
@@ -298,14 +325,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text("Mengalihkan ke $platform... ($url)"),
-                backgroundColor: platform == "Shopee" ? const Color(0xFFEE4D2D) : const Color(0xFF03AC0E),
+                backgroundColor: platform == "Shopee"
+                    ? const Color(0xFFEE4D2D)
+                    : const Color(0xFF03AC0E),
               ),
             );
           }
         });
 
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           backgroundColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -318,7 +349,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   child: CircularProgressIndicator(
                     strokeWidth: 3,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      platform == "Shopee" ? const Color(0xFFEE4D2D) : const Color(0xFF03AC0E),
+                      platform == "Shopee"
+                          ? const Color(0xFFEE4D2D)
+                          : const Color(0xFF03AC0E),
                     ),
                   ),
                 ),
@@ -335,10 +368,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 const Text(
                   "Mohon tunggu, Anda sedang dialihkan...",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ],
             ),
@@ -364,12 +394,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) => Container(
             decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [Color(0xFFFD761A), Colors.deepOrange]),
+              gradient: LinearGradient(
+                colors: [Color(0xFFFD761A), Colors.deepOrange],
+              ),
             ),
             child: const Center(
               child: Text(
                 "SPECIAL PROMO - DISKON 30%",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
@@ -394,12 +430,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) => Container(
             decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [Color(0xFF1B4F9B), Colors.blue]),
+              gradient: LinearGradient(
+                colors: [Color(0xFF1B4F9B), Colors.blue],
+              ),
             ),
             child: const Center(
               child: Text(
                 "BRADERPARTS OFFICIAL PARTNER",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
@@ -437,16 +479,25 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     height: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
                     ),
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(16),
+                      ),
                       child: Image.asset(
                         item["image"],
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Center(
-                          child: Icon(Icons.handyman_rounded, color: Colors.grey, size: 36),
-                        ),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                              child: Icon(
+                                Icons.handyman_rounded,
+                                color: Colors.grey,
+                                size: 36,
+                              ),
+                            ),
                       ),
                     ),
                   ),
@@ -454,14 +505,21 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     top: 8,
                     left: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: _primaryBlue,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: const Text(
                         "PRODUK",
-                        style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -487,7 +545,11 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.star_rounded, color: Colors.amber, size: 12),
+                      const Icon(
+                        Icons.star_rounded,
+                        color: Colors.amber,
+                        size: 12,
+                      ),
                       Text(
                         " ${item['rating']} • ${item['sold']} terjual",
                         style: TextStyle(fontSize: 10, color: _textGray),
@@ -537,7 +599,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           children: [
             IconButton(
               icon: Icon(
-                _isWishlisted ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                _isWishlisted
+                    ? Icons.favorite_rounded
+                    : Icons.favorite_border_rounded,
                 color: _isWishlisted ? Colors.red : _textGray,
                 size: 26,
               ),
@@ -545,7 +609,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 setState(() {
                   _isWishlisted = !_isWishlisted;
                   if (_isWishlisted) {
-                    if (!WishlistHelper.items.any((x) => x["name"] == _productName)) {
+                    if (!WishlistHelper.items.any(
+                      (x) => x["name"] == _productName,
+                    )) {
                       WishlistHelper.items.add({
                         "name": _productName,
                         "price": _productPrice,
@@ -554,7 +620,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       });
                     }
                   } else {
-                    WishlistHelper.items.removeWhere((x) => x["name"] == _productName);
+                    WishlistHelper.items.removeWhere(
+                      (x) => x["name"] == _productName,
+                    );
                   }
                 });
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -619,14 +687,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               ),
               IconButton(
                 icon: Icon(
-                  _isWishlisted ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+                  _isWishlisted
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_border_rounded,
                   color: _isWishlisted ? Colors.red : Colors.white,
                 ),
                 onPressed: () {
                   setState(() {
                     _isWishlisted = !_isWishlisted;
                     if (_isWishlisted) {
-                      if (!WishlistHelper.items.any((x) => x["name"] == _productName)) {
+                      if (!WishlistHelper.items.any(
+                        (x) => x["name"] == _productName,
+                      )) {
                         WishlistHelper.items.add({
                           "name": _productName,
                           "price": _productPrice,
@@ -635,7 +707,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         });
                       }
                     } else {
-                      WishlistHelper.items.removeWhere((x) => x["name"] == _productName);
+                      WishlistHelper.items.removeWhere(
+                        (x) => x["name"] == _productName,
+                      );
                     }
                   });
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -662,7 +736,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 children: [
                   PageView.builder(
                     itemCount: 3,
-                    onPageChanged: (index) => setState(() => _currentImageIndex = index),
+                    onPageChanged: (index) =>
+                        setState(() => _currentImageIndex = index),
                     itemBuilder: (context, index) {
                       return Container(
                         color: Colors.grey.shade100,
@@ -670,9 +745,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         child: Image.asset(
                           _productImage,
                           fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) => const Center(
-                            child: Icon(Icons.handyman_rounded, size: 80, color: Colors.grey),
-                          ),
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Center(
+                                child: Icon(
+                                  Icons.handyman_rounded,
+                                  size: 80,
+                                  color: Colors.grey,
+                                ),
+                              ),
                         ),
                       );
                     },
@@ -690,7 +770,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           width: _currentImageIndex == index ? 24 : 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: _currentImageIndex == index ? _primaryBlue : Colors.grey.shade300,
+                            color: _currentImageIndex == index
+                                ? _primaryBlue
+                                : Colors.grey.shade300,
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -732,7 +814,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       ),
                       const SizedBox(width: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.green.shade50,
                           borderRadius: BorderRadius.circular(4),
@@ -751,11 +836,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      const Icon(Icons.star_rounded, color: Colors.amber, size: 18),
+                      const Icon(
+                        Icons.star_rounded,
+                        color: Colors.amber,
+                        size: 18,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         _productRating,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: _textDark),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: _textDark,
+                        ),
                       ),
                       Text(
                         " ($_productSold terjual)",
@@ -790,10 +882,17 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           children: [
                             Text(
                               "BraderParts Official",
-                              style: TextStyle(fontWeight: FontWeight.bold, color: _textDark),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: _textDark,
+                              ),
                             ),
                             const SizedBox(width: 4),
-                            const Icon(Icons.verified_rounded, color: Colors.green, size: 16),
+                            const Icon(
+                              Icons.verified_rounded,
+                              color: Colors.green,
+                              size: 16,
+                            ),
                           ],
                         ),
                         Text(
@@ -807,11 +906,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     onPressed: () => _showMarketplacePurchaseSheet(context),
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: _primaryBlue),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                     child: Text(
                       "Ikuti",
-                      style: TextStyle(color: _primaryBlue, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: _primaryBlue,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -888,9 +992,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               ),
             ),
 
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 100),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );
@@ -902,7 +1004,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     int groupSize = 6; // Kelompok lebih besar agar banner tidak terlalu sering
     int groupIndex = 0;
     while (i < _recommendations.length) {
-      int end = (i + groupSize < _recommendations.length) ? i + groupSize : _recommendations.length;
+      int end = (i + groupSize < _recommendations.length)
+          ? i + groupSize
+          : _recommendations.length;
       List<Map<String, dynamic>> sublist = _recommendations.sublist(i, end);
 
       slivers.add(
@@ -915,19 +1019,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               crossAxisSpacing: 12,
               childAspectRatio: 0.66,
             ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final item = sublist[index];
-                if (item["type"] == "sliding_banner") {
-                  return const SlidingBannerCardWidget();
-                } else if (item["type"] == "partner_card") {
-                  return PartnerLogoCardWidget(partner: item["partner"]);
-                } else {
-                  return _buildGridCard(context, item);
-                }
-              },
-              childCount: sublist.length,
-            ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final item = sublist[index];
+              if (item["type"] == "sliding_banner") {
+                return const SlidingBannerCardWidget();
+              } else if (item["type"] == "partner_card") {
+                return PartnerLogoCardWidget(partner: item["partner"]);
+              } else {
+                return _buildGridCard(context, item);
+              }
+            }, childCount: sublist.length),
           ),
         ),
       );

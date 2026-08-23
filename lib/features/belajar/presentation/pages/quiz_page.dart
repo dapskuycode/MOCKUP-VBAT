@@ -7,7 +7,7 @@ enum QuestionType { multipleChoice, shortAnswer, caseStudy }
 class Question {
   final String questionText;
   final QuestionType type;
-  
+
   // Pilihan Ganda
   final List<String>? options;
   final int? correctIndex;
@@ -46,57 +46,62 @@ class _QuizPageState extends State<QuizPage> {
 
   final List<Question> _questions = [
     Question(
-      questionText: "Langkah paling tepat sebelum memisahkan layar (LCD/OLED) dari bingkai (bezel) pada ponsel modern adalah?",
+      questionText:
+          "Langkah paling tepat sebelum memisahkan layar (LCD/OLED) dari bingkai (bezel) pada ponsel modern adalah?",
       type: QuestionType.multipleChoice,
       options: [
         "A. Membersihkan konektor dengan alkohol",
         "B. Mengganti layar secara paksa tanpa pemanas",
         "C. Memanaskan layar dengan separator suhu 80°C",
-        "D. Menekan layar dengan obeng"
+        "D. Menekan layar dengan obeng",
       ],
       correctIndex: 2,
     ),
     Question(
-      questionText: "Alat yang berfungsi mengukur tegangan, arus, dan hambatan pada komponen motherboard adalah?",
+      questionText:
+          "Alat yang berfungsi mengukur tegangan, arus, dan hambatan pada komponen motherboard adalah?",
       type: QuestionType.multipleChoice,
       options: [
         "A. Solder uap (Blower)",
         "B. Multimeter",
         "C. Osiloskop",
-        "D. Pinset presisi"
+        "D. Pinset presisi",
       ],
       correctIndex: 1,
     ),
     Question(
-      questionText: "Standar Keselamatan (K3) mewajibkan penggunaan gelang anti-statis. Apa fungsinya?",
+      questionText:
+          "Standar Keselamatan (K3) mewajibkan penggunaan gelang anti-statis. Apa fungsinya?",
       type: QuestionType.multipleChoice,
       options: [
         "A. Melindungi tangan dari panas solder",
         "B. Mencegah kerusakan IC akibat listrik statis dari tubuh",
         "C. Meningkatkan penerimaan sinyal WiFi saat servis",
-        "D. Mencegah tersengat listrik tegangan tinggi"
+        "D. Mencegah tersengat listrik tegangan tinggi",
       ],
       correctIndex: 1,
     ),
     Question(
-      questionText: "Jika ponsel mati total dan terdeteksi korsleting pada jalur VPH_PWR, langkah analisis awal adalah?",
+      questionText:
+          "Jika ponsel mati total dan terdeteksi korsleting pada jalur VPH_PWR, langkah analisis awal adalah?",
       type: QuestionType.multipleChoice,
       options: [
         "A. Langsung mengganti IC Power",
         "B. Mengangkat CPU dan RAM",
         "C. Melakukan injeksi tegangan (MBR) untuk mencari komponen panas",
-        "D. Mereset pabrik perangkat (Hard Reset)"
+        "D. Mereset pabrik perangkat (Hard Reset)",
       ],
       correctIndex: 2,
     ),
     Question(
-      questionText: "Suhu ideal solder uap (blower) saat mengangkat IC eMMC agar tidak merusak komponen sekitarnya biasanya berkisar antara?",
+      questionText:
+          "Suhu ideal solder uap (blower) saat mengangkat IC eMMC agar tidak merusak komponen sekitarnya biasanya berkisar antara?",
       type: QuestionType.multipleChoice,
       options: [
         "A. 150°C - 200°C",
         "B. 330°C - 380°C",
         "C. 450°C - 500°C",
-        "D. 100°C - 150°C"
+        "D. 100°C - 150°C",
       ],
       correctIndex: 1,
     ),
@@ -107,33 +112,54 @@ class _QuizPageState extends State<QuizPage> {
         "A. Keselamatan, Kesehatan, dan Kesejahteraan",
         "B. Keamanan, Keselamatan, dan Ketelitian Kerja",
         "C. Keselamatan dan Kesehatan Kerja",
-        "D. Kebersihan, Keamanan, dan Kerapian"
+        "D. Kebersihan, Keamanan, dan Kerapian",
       ],
       correctIndex: 2,
     ),
     Question(
-      questionText: "Sebutkan nama cairan pelarut fluks dan sisa kotoran sisa solder yang paling umum digunakan teknisi ponsel saat membersihkan motherboard!",
+      questionText:
+          "Sebutkan nama cairan pelarut fluks dan sisa kotoran sisa solder yang paling umum digunakan teknisi ponsel saat membersihkan motherboard!",
       type: QuestionType.shortAnswer,
       placeholder: "Masukkan nama cairan (misal: Alkohol, Tiner, IPA)...",
       keywords: ["alkohol", "tiner", "ipa", "thinner", "isopropyl"],
     ),
     Question(
-      questionText: "Alat pemanas utama yang digunakan untuk melelehkan timah pada kaki komponen IC saat melakukan pencabutan (desoldering) atau reballing adalah?",
+      questionText:
+          "Alat pemanas utama yang digunakan untuk melelehkan timah pada kaki komponen IC saat melakukan pencabutan (desoldering) atau reballing adalah?",
       type: QuestionType.shortAnswer,
       placeholder: "Masukkan nama alat (misal: Solder, Blower)...",
       keywords: ["blower", "solder uap", "hot air", "hotair"],
     ),
     Question(
-      questionText: "[Studi Kasus] Sebuah ponsel mengalami korsleting kecil (leakage/arus bocor) setelah terkena air, sehingga baterai cepat habis. Jelaskan langkah pembersihan awal menggunakan cairan pembersih dan alat bantu pengering sebelum melakukan pengukuran multimeter!",
+      questionText:
+          "[Studi Kasus] Sebuah ponsel mengalami korsleting kecil (leakage/arus bocor) setelah terkena air, sehingga baterai cepat habis. Jelaskan langkah pembersihan awal menggunakan cairan pembersih dan alat bantu pengering sebelum melakukan pengukuran multimeter!",
       type: QuestionType.caseStudy,
       placeholder: "Jelaskan langkah-langkah pembersihan secara lengkap...",
-      keywords: ["sikat", "alkohol", "tiner", "ipa", "keringkan", "blower", "bersihkan"],
+      keywords: [
+        "sikat",
+        "alkohol",
+        "tiner",
+        "ipa",
+        "keringkan",
+        "blower",
+        "bersihkan",
+      ],
     ),
     Question(
-      questionText: "[Studi Kasus] Sebuah HP masuk dengan keluhan layar pecah setelah terjatuh, namun mesin masih bergetar saat dinyalakan. Jelaskan langkah-langkah pembongkaran casing belakang dan pelepasan soket baterai yang aman sesuai prosedur keselamatan K3!",
+      questionText:
+          "[Studi Kasus] Sebuah HP masuk dengan keluhan layar pecah setelah terjatuh, namun mesin masih bergetar saat dinyalakan. Jelaskan langkah-langkah pembongkaran casing belakang dan pelepasan soket baterai yang aman sesuai prosedur keselamatan K3!",
       type: QuestionType.caseStudy,
-      placeholder: "Jelaskan urutan pembongkaran dan penanganan soket baterai...",
-      keywords: ["pemanas", "soket", "baterai", "lepas", "plastik", "backdoor", "casing"],
+      placeholder:
+          "Jelaskan urutan pembongkaran dan penanganan soket baterai...",
+      keywords: [
+        "pemanas",
+        "soket",
+        "baterai",
+        "lepas",
+        "plastik",
+        "backdoor",
+        "casing",
+      ],
     ),
   ];
 
@@ -171,8 +197,10 @@ class _QuizPageState extends State<QuizPage> {
 
   void _updateTextController() {
     final currentQ = _questions[_currentIndex];
-    if (currentQ.type == QuestionType.shortAnswer || currentQ.type == QuestionType.caseStudy) {
-      _textAnswerController.text = (_userAnswers[_currentIndex] as String?) ?? '';
+    if (currentQ.type == QuestionType.shortAnswer ||
+        currentQ.type == QuestionType.caseStudy) {
+      _textAnswerController.text =
+          (_userAnswers[_currentIndex] as String?) ?? '';
     }
   }
 
@@ -184,7 +212,8 @@ class _QuizPageState extends State<QuizPage> {
 
   void _saveCurrentTextAnswer() {
     final currentQ = _questions[_currentIndex];
-    if (currentQ.type == QuestionType.shortAnswer || currentQ.type == QuestionType.caseStudy) {
+    if (currentQ.type == QuestionType.shortAnswer ||
+        currentQ.type == QuestionType.caseStudy) {
       final val = _textAnswerController.text.trim();
       _userAnswers[_currentIndex] = val.isEmpty ? null : val;
     }
@@ -215,7 +244,7 @@ class _QuizPageState extends State<QuizPage> {
   void _submitQuiz() {
     _saveCurrentTextAnswer();
     if (_isFinished) return;
-    
+
     setState(() {
       _isFinished = true;
     });
@@ -241,7 +270,9 @@ class _QuizPageState extends State<QuizPage> {
           final cleanAns = ans.toLowerCase();
           // Evaluasi teks menggunakan mekanisme pencocokan kata kunci (keyword matching).
           // Untuk studi kasus, setidaknya 2 keyword harus cocok agar dinilai benar
-          int matches = q.keywords!.where((keyword) => cleanAns.contains(keyword)).length;
+          int matches = q.keywords!
+              .where((keyword) => cleanAns.contains(keyword))
+              .length;
           isCorrect = matches >= 2;
         }
       }
@@ -277,15 +308,18 @@ class _QuizPageState extends State<QuizPage> {
               const SizedBox(height: 16),
               Text(
                 isPassed ? "Kuis Lulus!" : "Kuis Gagal",
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 "Skor Anda: ${(score / _questions.length * 100).toInt()}",
                 style: TextStyle(
-                  fontSize: 24, 
-                  fontWeight: FontWeight.bold, 
-                  color: isPassed ? Colors.green : Colors.red
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: isPassed ? Colors.green : Colors.red,
                 ),
               ),
               const SizedBox(height: 8),
@@ -295,9 +329,9 @@ class _QuizPageState extends State<QuizPage> {
               ),
               const Divider(height: 24),
               Text(
-                isPassed 
-                  ? "Selamat! Anda berhak melanjutkan ke materi berikutnya." 
-                  : "Anda harus mendapatkan skor minimal 70 untuk lulus. Silakan ulangi materi dan coba lagi.",
+                isPassed
+                    ? "Selamat! Anda berhak melanjutkan ke materi berikutnya."
+                    : "Anda harus mendapatkan skor minimal 70 untuk lulus. Silakan ulangi materi dan coba lagi.",
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -312,7 +346,9 @@ class _QuizPageState extends State<QuizPage> {
                       context.pop(false);
                     }
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: isPassed ? Colors.green : Colors.red),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isPassed ? Colors.green : Colors.red,
+                  ),
                   child: Text(isPassed ? "Selesai" : "Tutup"),
                 ),
               ),
@@ -350,31 +386,40 @@ class _QuizPageState extends State<QuizPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
-                  color: _remainingSeconds < 60 ? Colors.red.shade50 : Colors.orange.shade50,
+                  color: _remainingSeconds < 60
+                      ? Colors.red.shade50
+                      : Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   children: [
                     Icon(
-                      Icons.timer_outlined, 
-                      size: 16, 
-                      color: _remainingSeconds < 60 ? Colors.red.shade700 : Colors.orange.shade800
+                      Icons.timer_outlined,
+                      size: 16,
+                      color: _remainingSeconds < 60
+                          ? Colors.red.shade700
+                          : Colors.orange.shade800,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       _formatTime(_remainingSeconds),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: _remainingSeconds < 60 ? Colors.red.shade700 : Colors.orange.shade800,
+                        color: _remainingSeconds < 60
+                            ? Colors.red.shade700
+                            : Colors.orange.shade800,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
       body: SafeArea(
@@ -412,7 +457,9 @@ class _QuizPageState extends State<QuizPage> {
                     return GestureDetector(
                       onTap: () {
                         _saveCurrentTextAnswer();
-                        setState(() { _currentIndex = index; });
+                        setState(() {
+                          _currentIndex = index;
+                        });
                         _updateTextController();
                       },
                       child: Container(
@@ -431,7 +478,9 @@ class _QuizPageState extends State<QuizPage> {
                             "${index + 1}",
                             style: TextStyle(
                               color: textColor,
-                              fontWeight: isCurrent ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: isCurrent
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                               fontSize: 16,
                             ),
                           ),
@@ -442,7 +491,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               Text(
                 currentQ.questionText,
                 style: const TextStyle(
@@ -453,7 +502,7 @@ class _QuizPageState extends State<QuizPage> {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // RENDER QUESTION BASE ON TYPE
               Expanded(
                 child: Builder(
@@ -463,7 +512,8 @@ class _QuizPageState extends State<QuizPage> {
                         physics: const BouncingScrollPhysics(),
                         itemCount: currentQ.options!.length,
                         itemBuilder: (context, index) {
-                          bool isSelected = _userAnswers[_currentIndex] == index;
+                          bool isSelected =
+                              _userAnswers[_currentIndex] == index;
                           return GestureDetector(
                             onTap: () {
                               setState(() {
@@ -474,10 +524,14 @@ class _QuizPageState extends State<QuizPage> {
                               margin: const EdgeInsets.only(bottom: 16),
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: isSelected ? _primaryBlue.withValues(alpha: 0.05) : Colors.white,
+                                color: isSelected
+                                    ? _primaryBlue.withValues(alpha: 0.05)
+                                    : Colors.white,
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
-                                  color: isSelected ? _primaryBlue : Colors.grey.shade300,
+                                  color: isSelected
+                                      ? _primaryBlue
+                                      : Colors.grey.shade300,
                                   width: isSelected ? 2 : 1,
                                 ),
                               ),
@@ -489,13 +543,24 @@ class _QuizPageState extends State<QuizPage> {
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       border: Border.all(
-                                        color: isSelected ? _primaryBlue : Colors.grey.shade400,
+                                        color: isSelected
+                                            ? _primaryBlue
+                                            : Colors.grey.shade400,
                                         width: 2,
                                       ),
                                     ),
-                                    child: isSelected 
-                                      ? Center(child: Container(width: 12, height: 12, decoration: BoxDecoration(color: _primaryBlue, shape: BoxShape.circle))) 
-                                      : null,
+                                    child: isSelected
+                                        ? Center(
+                                            child: Container(
+                                              width: 12,
+                                              height: 12,
+                                              decoration: BoxDecoration(
+                                                color: _primaryBlue,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                          )
+                                        : null,
                                   ),
                                   const SizedBox(width: 16),
                                   Expanded(
@@ -503,8 +568,12 @@ class _QuizPageState extends State<QuizPage> {
                                       currentQ.options![index],
                                       style: TextStyle(
                                         fontSize: 14,
-                                        color: isSelected ? _primaryBlue : Colors.black87,
-                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                        color: isSelected
+                                            ? _primaryBlue
+                                            : Colors.black87,
+                                        fontWeight: isSelected
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
                                       ),
                                     ),
                                   ),
@@ -522,13 +591,18 @@ class _QuizPageState extends State<QuizPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.blue.shade50,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                currentQ.type == QuestionType.shortAnswer ? "Jenis: JAWABAN SINGKAT" : "Jenis: STUDI KASUS",
+                                currentQ.type == QuestionType.shortAnswer
+                                    ? "Jenis: JAWABAN SINGKAT"
+                                    : "Jenis: STUDI KASUS",
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
@@ -539,15 +613,22 @@ class _QuizPageState extends State<QuizPage> {
                             const SizedBox(height: 16),
                             TextField(
                               controller: _textAnswerController,
-                              maxLines: currentQ.type == QuestionType.caseStudy ? 6 : 1,
+                              maxLines: currentQ.type == QuestionType.caseStudy
+                                  ? 6
+                                  : 1,
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide(color: Colors.grey.shade300),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                  ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide(color: _primaryBlue, width: 2),
+                                  borderSide: BorderSide(
+                                    color: _primaryBlue,
+                                    width: 2,
+                                  ),
                                 ),
                                 fillColor: Colors.white,
                                 filled: true,
@@ -556,7 +637,9 @@ class _QuizPageState extends State<QuizPage> {
                               ),
                               onChanged: (val) {
                                 // Save locally
-                                _userAnswers[_currentIndex] = val.trim().isEmpty ? null : val.trim();
+                                _userAnswers[_currentIndex] = val.trim().isEmpty
+                                    ? null
+                                    : val.trim();
                               },
                             ),
                           ],
@@ -566,7 +649,7 @@ class _QuizPageState extends State<QuizPage> {
                   },
                 ),
               ),
-              
+
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -578,11 +661,16 @@ class _QuizPageState extends State<QuizPage> {
                       });
                     },
                     activeColor: Colors.orange,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
                   const Text(
                     "Ragu-ragu",
-                    style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.orange,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const Spacer(),
                   Text(
@@ -607,12 +695,15 @@ class _QuizPageState extends State<QuizPage> {
                         ),
                         child: Text(
                           "SEBELUMNYA",
-                          style: TextStyle(color: _primaryBlue, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: _primaryBlue,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   if (_currentIndex > 0) const SizedBox(width: 16),
-                  
+
                   Expanded(
                     flex: 2,
                     child: ElevatedButton(
@@ -623,18 +714,23 @@ class _QuizPageState extends State<QuizPage> {
                               context: context,
                               builder: (ctx) => AlertDialog(
                                 title: const Text("Peringatan"),
-                                content: const Text("Masih ada pertanyaan yang belum dijawab. Yakin ingin mengumpulkan?"),
+                                content: const Text(
+                                  "Masih ada pertanyaan yang belum dijawab. Yakin ingin mengumpulkan?",
+                                ),
                                 actions: [
-                                  TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Batal")),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx),
+                                    child: const Text("Batal"),
+                                  ),
                                   TextButton(
                                     onPressed: () {
                                       Navigator.pop(ctx);
                                       _submitQuiz();
-                                    }, 
-                                    child: const Text("Kumpulkan")
+                                    },
+                                    child: const Text("Kumpulkan"),
                                   ),
                                 ],
-                              )
+                              ),
                             );
                           } else {
                             _submitQuiz();
@@ -652,7 +748,9 @@ class _QuizPageState extends State<QuizPage> {
                         ),
                       ),
                       child: Text(
-                        _currentIndex == _questions.length - 1 ? "KUMPULKAN" : "SELANJUTNYA",
+                        _currentIndex == _questions.length - 1
+                            ? "KUMPULKAN"
+                            : "SELANJUTNYA",
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),

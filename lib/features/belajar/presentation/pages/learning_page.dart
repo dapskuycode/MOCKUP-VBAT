@@ -33,7 +33,9 @@ class _LearningPageState extends State<LearningPage> {
       if (!_allMateriCompleted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Akses terkunci. Anda harus menyelesaikan seluruh materi video & kuis terlebih dahulu."),
+            content: Text(
+              "Akses terkunci. Anda harus menyelesaikan seluruh materi video & kuis terlebih dahulu.",
+            ),
             backgroundColor: Colors.red,
           ),
         );
@@ -73,31 +75,53 @@ class _LearningPageState extends State<LearningPage> {
                 ),
                 const SizedBox(height: 24),
                 ListTile(
-                  leading: const Icon(Icons.android_rounded, color: Color(0xFF3DDC84)),
-                  title: const Text("Kelas Android", style: TextStyle(fontWeight: FontWeight.bold)),
+                  leading: const Icon(
+                    Icons.android_rounded,
+                    color: Color(0xFF3DDC84),
+                  ),
+                  title: const Text(
+                    "Kelas Android",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   tileColor: Colors.grey.shade50,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
-                    context.push('/course-syllabus', extra: {'category': 'Kelas Android'});
+                    context.push(
+                      '/course-syllabus',
+                      extra: {'category': 'Kelas Android'},
+                    );
                   },
                 ),
                 const SizedBox(height: 12),
                 ListTile(
-                  leading: const Icon(Icons.apple_rounded, color: Color(0xFF555555)),
-                  title: const Text("Kelas iPhone", style: TextStyle(fontWeight: FontWeight.bold)),
+                  leading: const Icon(
+                    Icons.apple_rounded,
+                    color: Color(0xFF555555),
+                  ),
+                  title: const Text(
+                    "Kelas iPhone",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   tileColor: Colors.grey.shade50,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   onTap: () {
                     Navigator.pop(context);
-                    context.push('/course-syllabus', extra: {'category': 'Kelas iPhone'});
+                    context.push(
+                      '/course-syllabus',
+                      extra: {'category': 'Kelas iPhone'},
+                    );
                   },
                 ),
                 const SizedBox(height: 16),
               ],
             ),
           );
-        }
+        },
       );
       return;
     }
@@ -131,23 +155,35 @@ class _LearningPageState extends State<LearningPage> {
                         });
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(_allMateriCompleted 
-                              ? "Semua materi diselesaikan. HS Terbuka!" 
-                              : "Progress di-reset. HS Terkunci."),
+                            content: Text(
+                              _allMateriCompleted
+                                  ? "Semua materi diselesaikan. HS Terbuka!"
+                                  : "Progress di-reset. HS Terkunci.",
+                            ),
                             duration: const Duration(seconds: 1),
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _allMateriCompleted ? Colors.green : Colors.grey.shade400,
+                        backgroundColor: _allMateriCompleted
+                            ? Colors.green
+                            : Colors.grey.shade400,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         elevation: 0,
                       ),
-                      icon: Icon(_allMateriCompleted ? Icons.lock_open_rounded : Icons.lock_rounded, size: 14),
+                      icon: Icon(
+                        _allMateriCompleted
+                            ? Icons.lock_open_rounded
+                            : Icons.lock_rounded,
+                        size: 14,
+                      ),
                       label: Text(
-                        "Dev: Lulus Semua Materi", 
-                        style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                        "Dev: Lulus Semua Materi",
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   const SizedBox(width: 8),
@@ -158,15 +194,25 @@ class _LearningPageState extends State<LearningPage> {
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _hasPaid ? _primaryBlue : Colors.grey.shade400,
+                      backgroundColor: _hasPaid
+                          ? _primaryBlue
+                          : Colors.grey.shade400,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       elevation: 0,
                     ),
-                    icon: Icon(_hasPaid ? Icons.payment_rounded : Icons.money_off_rounded, size: 14),
+                    icon: Icon(
+                      _hasPaid
+                          ? Icons.payment_rounded
+                          : Icons.money_off_rounded,
+                      size: 14,
+                    ),
                     label: Text(
-                      "Dev: Status Paid", 
-                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                      "Dev: Status Paid",
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ],
@@ -193,10 +239,7 @@ class _LearningPageState extends State<LearningPage> {
                   const SizedBox(height: 4),
                   Text(
                     "Tentukan fokus keahlianmu dan mulai pelajari ilmu servis HP dari dasar hingga mahir.",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -242,7 +285,7 @@ class _LearningPageState extends State<LearningPage> {
               ]),
             ),
           ),
-          
+
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
@@ -326,7 +369,11 @@ class _LearningPageState extends State<LearningPage> {
                           BoxShadow(color: Colors.black12, blurRadius: 8),
                         ],
                       ),
-                      child: const Icon(Icons.lock_rounded, color: Colors.grey, size: 28),
+                      child: const Icon(
+                        Icons.lock_rounded,
+                        color: Colors.grey,
+                        size: 28,
+                      ),
                     ),
                   ),
                 ),

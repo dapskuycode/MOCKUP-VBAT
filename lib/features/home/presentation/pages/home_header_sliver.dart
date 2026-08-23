@@ -59,7 +59,10 @@ class HomeHeaderSliver extends StatelessWidget {
                                 isDense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
-                              style: const TextStyle(fontSize: 13, color: Colors.black),
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.black,
+                              ),
                             ),
                           ),
                         ],
@@ -69,7 +72,10 @@ class HomeHeaderSliver extends StatelessWidget {
                   GestureDetector(
                     onTap: () => CameraPickerHelper.show(context),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 8,
+                      ),
                       child: Icon(
                         Icons.camera_alt_outlined,
                         color: Colors.grey.shade500,

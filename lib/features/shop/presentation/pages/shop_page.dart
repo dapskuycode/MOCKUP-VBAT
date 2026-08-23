@@ -29,22 +29,118 @@ class _ShopPageState extends State<ShopPage> {
   Duration _flashSaleTime = const Duration(hours: 2, minutes: 48, seconds: 15);
 
   final List<Map<String, String>> _dummyProducts = [
-    {"name": "Obeng Set Presisi 24 in 1 Magnetik", "price": "Rp45.000", "rating": "4.8", "sold": "1.2RB", "category": "Tools"},
-    {"name": "LCD iPhone 11 Pro Max OLED Ori", "price": "Rp1.250.000", "rating": "4.9", "sold": "530", "category": "LCD"},
-    {"name": "Baterai Samsung S20 Ultra Original", "price": "Rp249.000", "rating": "4.7", "sold": "840", "category": "Baterai"},
-    {"name": "Solder Listrik T12 Digital Auto Sleep", "price": "Rp389.000", "rating": "4.9", "sold": "310", "category": "Tools"},
-    {"name": "Flux Amtech NC-559-ASM Original 10cc", "price": "Rp85.000", "rating": "4.8", "sold": "3.5RB", "category": "Tools"},
-    {"name": "Kaca Magnifier Microscope LED 40X", "price": "Rp125.000", "rating": "4.6", "sold": "412", "category": "Tools"},
-    {"name": "Kawat Jumper Tembaga 0.02mm Presisi", "price": "Rp18.000", "rating": "4.7", "sold": "980", "category": "Aksesoris"},
-    {"name": "Blower Quick 857D Hot Air Gun Digital", "price": "Rp850.000", "rating": "4.9", "sold": "180", "category": "Tools"},
-    {"name": "Pinset Titanium Presisi Anti-Magnetik", "price": "Rp65.000", "rating": "4.8", "sold": "620", "category": "Tools"},
-    {"name": "Lem LCD Touchscreen T-7000 Hitam 50ml", "price": "Rp25.000", "rating": "4.7", "sold": "2.1RB", "category": "LCD"},
-    {"name": "Alat Pemisah Touchscreen LCD CP-300", "price": "Rp480.000", "rating": "4.9", "sold": "95", "category": "LCD"},
-    {"name": "Baterai iPhone X 2716mAh Original", "price": "Rp185.000", "rating": "4.8", "sold": "1.5RB", "category": "Baterai"},
-    {"name": "Konektor Charger Samsung A50 Original", "price": "Rp35.000", "rating": "4.7", "sold": "2.8RB", "category": "Konektor"},
-    {"name": "Konektor Charger iPhone 8 Plus Ori", "price": "Rp55.000", "rating": "4.8", "sold": "1.1RB", "category": "Konektor"},
-    {"name": "Casing Belakang Samsung S21 Ultra", "price": "Rp95.000", "rating": "4.6", "sold": "350", "category": "Aksesoris"},
-    {"name": "Screen Protector Tempered Glass Universal", "price": "Rp12.000", "rating": "4.5", "sold": "5.2RB", "category": "Aksesoris"},
+    {
+      "name": "Obeng Set Presisi 24 in 1 Magnetik",
+      "price": "Rp45.000",
+      "rating": "4.8",
+      "sold": "1.2RB",
+      "category": "Tools",
+    },
+    {
+      "name": "LCD iPhone 11 Pro Max OLED Ori",
+      "price": "Rp1.250.000",
+      "rating": "4.9",
+      "sold": "530",
+      "category": "LCD",
+    },
+    {
+      "name": "Baterai Samsung S20 Ultra Original",
+      "price": "Rp249.000",
+      "rating": "4.7",
+      "sold": "840",
+      "category": "Baterai",
+    },
+    {
+      "name": "Solder Listrik T12 Digital Auto Sleep",
+      "price": "Rp389.000",
+      "rating": "4.9",
+      "sold": "310",
+      "category": "Tools",
+    },
+    {
+      "name": "Flux Amtech NC-559-ASM Original 10cc",
+      "price": "Rp85.000",
+      "rating": "4.8",
+      "sold": "3.5RB",
+      "category": "Tools",
+    },
+    {
+      "name": "Kaca Magnifier Microscope LED 40X",
+      "price": "Rp125.000",
+      "rating": "4.6",
+      "sold": "412",
+      "category": "Tools",
+    },
+    {
+      "name": "Kawat Jumper Tembaga 0.02mm Presisi",
+      "price": "Rp18.000",
+      "rating": "4.7",
+      "sold": "980",
+      "category": "Aksesoris",
+    },
+    {
+      "name": "Blower Quick 857D Hot Air Gun Digital",
+      "price": "Rp850.000",
+      "rating": "4.9",
+      "sold": "180",
+      "category": "Tools",
+    },
+    {
+      "name": "Pinset Titanium Presisi Anti-Magnetik",
+      "price": "Rp65.000",
+      "rating": "4.8",
+      "sold": "620",
+      "category": "Tools",
+    },
+    {
+      "name": "Lem LCD Touchscreen T-7000 Hitam 50ml",
+      "price": "Rp25.000",
+      "rating": "4.7",
+      "sold": "2.1RB",
+      "category": "LCD",
+    },
+    {
+      "name": "Alat Pemisah Touchscreen LCD CP-300",
+      "price": "Rp480.000",
+      "rating": "4.9",
+      "sold": "95",
+      "category": "LCD",
+    },
+    {
+      "name": "Baterai iPhone X 2716mAh Original",
+      "price": "Rp185.000",
+      "rating": "4.8",
+      "sold": "1.5RB",
+      "category": "Baterai",
+    },
+    {
+      "name": "Konektor Charger Samsung A50 Original",
+      "price": "Rp35.000",
+      "rating": "4.7",
+      "sold": "2.8RB",
+      "category": "Konektor",
+    },
+    {
+      "name": "Konektor Charger iPhone 8 Plus Ori",
+      "price": "Rp55.000",
+      "rating": "4.8",
+      "sold": "1.1RB",
+      "category": "Konektor",
+    },
+    {
+      "name": "Casing Belakang Samsung S21 Ultra",
+      "price": "Rp95.000",
+      "rating": "4.6",
+      "sold": "350",
+      "category": "Aksesoris",
+    },
+    {
+      "name": "Screen Protector Tempered Glass Universal",
+      "price": "Rp12.000",
+      "rating": "4.5",
+      "sold": "5.2RB",
+      "category": "Aksesoris",
+    },
   ];
 
   // Mapping kategori
@@ -59,14 +155,17 @@ class _ShopPageState extends State<ShopPage> {
 
   List<Map<String, String>> get _filteredProducts {
     if (_selectedCategory == "Semua") return _dummyProducts;
-    return _dummyProducts.where((p) => p["category"] == _selectedCategory).toList();
+    return _dummyProducts
+        .where((p) => p["category"] == _selectedCategory)
+        .toList();
   }
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200) {
         _loadMore();
       }
     });
@@ -113,7 +212,10 @@ class _ShopPageState extends State<ShopPage> {
   @override
   Widget build(BuildContext context) {
     final filteredProducts = _filteredProducts;
-    final effectiveItemCount = _itemCount.clamp(0, filteredProducts.isNotEmpty ? filteredProducts.length * 3 : 12);
+    final effectiveItemCount = _itemCount.clamp(
+      0,
+      filteredProducts.isNotEmpty ? filteredProducts.length * 3 : 12,
+    );
 
     return Scaffold(
       backgroundColor: _bgLight,
@@ -136,31 +238,52 @@ class _ShopPageState extends State<ShopPage> {
                 physics: const BouncingScrollPhysics(),
                 children: [
                   _buildQuickFilter(
-                    Icons.build_rounded, _primaryBlue, "Semua Alat", "200+ produk", 
+                    Icons.build_rounded,
+                    _primaryBlue,
+                    "Semua Alat",
+                    "200+ produk",
                     isActive: _selectedCategory == "Semua",
                     onTap: () {
                       setState(() {
                         _selectedCategory = "Semua";
                       });
-                      _scrollController.animateTo(400, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+                      _scrollController.animateTo(
+                        400,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                      );
                     },
                   ),
                   const SizedBox(width: 8),
                   _buildQuickFilter(
-                    Icons.bolt_rounded, Colors.red, "Flash Sale", "Diskon hari ini", 
-                    isHot: true, 
+                    Icons.bolt_rounded,
+                    Colors.red,
+                    "Flash Sale",
+                    "Diskon hari ini",
+                    isHot: true,
                     isActive: false,
                     onTap: () {
-                      _scrollController.animateTo(350, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
-                    }
+                      _scrollController.animateTo(
+                        350,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                      );
+                    },
                   ),
                   const SizedBox(width: 8),
                   _buildQuickFilter(
-                    Icons.storefront_rounded, Colors.green, "Mitra Resmi", "Produk Terjamin", 
+                    Icons.storefront_rounded,
+                    Colors.green,
+                    "Mitra Resmi",
+                    "Produk Terjamin",
                     isActive: false,
                     onTap: () {
-                      _scrollController.animateTo(250, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
-                    }
+                      _scrollController.animateTo(
+                        250,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut,
+                      );
+                    },
                   ),
                 ],
               ),
@@ -175,8 +298,14 @@ class _ShopPageState extends State<ShopPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildCategoryIcon(Icons.phone_iphone_rounded, "LCD & Layar"),
-                  _buildCategoryIcon(Icons.battery_charging_full_rounded, "Baterai"),
-                  _buildCategoryIcon(Icons.electrical_services_rounded, "Konektor\nCharging"),
+                  _buildCategoryIcon(
+                    Icons.battery_charging_full_rounded,
+                    "Baterai",
+                  ),
+                  _buildCategoryIcon(
+                    Icons.electrical_services_rounded,
+                    "Konektor\nCharging",
+                  ),
                   _buildCategoryIcon(Icons.handyman_rounded, "Tools & Alat"),
                   _buildCategoryIcon(Icons.headphones_rounded, "Aksesoris"),
                 ],
@@ -191,13 +320,17 @@ class _ShopPageState extends State<ShopPage> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Text("Brand & Partner Resmi", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _primaryBlue)),
+                  child: Text(
+                    "Brand & Partner Resmi",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: _primaryBlue,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 12),
-                const SizedBox(
-                  height: 220,
-                  child: _AutoSlidingBrandCards(),
-                ),
+                const SizedBox(height: 220, child: _AutoSlidingBrandCards()),
                 // Banner memanjang di bawah brand cards
                 Container(
                   margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -215,17 +348,27 @@ class _ShopPageState extends State<ShopPage> {
                       width: double.infinity,
                       errorBuilder: (context, error, stackTrace) => Container(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [_primaryBlue, Colors.blue.shade900]),
+                          gradient: LinearGradient(
+                            colors: [_primaryBlue, Colors.blue.shade900],
+                          ),
                         ),
                         child: Center(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.verified_rounded, color: Colors.white.withValues(alpha: 0.8), size: 20),
+                              Icon(
+                                Icons.verified_rounded,
+                                color: Colors.white.withValues(alpha: 0.8),
+                                size: 20,
+                              ),
                               const SizedBox(width: 8),
                               const Text(
                                 "BRADERPARTS - OFFICIAL PARTNER RESMI",
-                                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
                               ),
                             ],
                           ),
@@ -250,14 +393,21 @@ class _ShopPageState extends State<ShopPage> {
                   Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: _orangeSale,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: const Row(
                           children: [
-                            Icon(Icons.bolt_rounded, color: Colors.white, size: 16),
+                            Icon(
+                              Icons.bolt_rounded,
+                              color: Colors.white,
+                              size: 16,
+                            ),
                             SizedBox(width: 4),
                             Text(
                               "FLASH SALE",
@@ -273,7 +423,10 @@ class _ShopPageState extends State<ShopPage> {
                       ),
                       const SizedBox(width: 12),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.red.shade50,
                           borderRadius: BorderRadius.circular(4),
@@ -294,9 +447,17 @@ class _ShopPageState extends State<ShopPage> {
                         children: [
                           Text(
                             "Lihat Semua",
-                            style: TextStyle(color: _primaryBlue, fontWeight: FontWeight.bold, fontSize: 12),
+                            style: TextStyle(
+                              color: _primaryBlue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
-                          Icon(Icons.chevron_right_rounded, color: _primaryBlue, size: 16),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            color: _primaryBlue,
+                            size: 16,
+                          ),
                         ],
                       ),
                     ],
@@ -353,11 +514,21 @@ class _ShopPageState extends State<ShopPage> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
               child: Row(
                 children: [
-                  Text("Rekomendasi Untukmu", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: _textDark)),
+                  Text(
+                    "Rekomendasi Untukmu",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: _textDark,
+                    ),
+                  ),
                   if (_selectedCategory != "Semua") ...[
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: _primaryBlue.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
@@ -367,12 +538,21 @@ class _ShopPageState extends State<ShopPage> {
                         children: [
                           Text(
                             _selectedCategory,
-                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _primaryBlue),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: _primaryBlue,
+                            ),
                           ),
                           const SizedBox(width: 4),
                           GestureDetector(
-                            onTap: () => setState(() => _selectedCategory = "Semua"),
-                            child: Icon(Icons.close_rounded, size: 14, color: _primaryBlue),
+                            onTap: () =>
+                                setState(() => _selectedCategory = "Semua"),
+                            child: Icon(
+                              Icons.close_rounded,
+                              size: 14,
+                              color: _primaryBlue,
+                            ),
                           ),
                         ],
                       ),
@@ -403,16 +583,17 @@ class _ShopPageState extends State<ShopPage> {
                 ),
               ),
             ),
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 100),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],
       ),
     );
   }
 
   // --- Build Recommendation Slivers with sparse sponsor banners ---
-  List<Widget> _buildRecommendationSlivers(List<Map<String, String>> products, int totalCount) {
+  List<Widget> _buildRecommendationSlivers(
+    List<Map<String, String>> products,
+    int totalCount,
+  ) {
     List<Widget> slivers = [];
     int groupSize = 6;
     int groupIndex = 0;
@@ -436,13 +617,18 @@ class _ShopPageState extends State<ShopPage> {
               final productIndex = (i + index) % products.length;
               final product = products[productIndex];
               final name = product["name"]!;
-              final isLcd = name.toLowerCase().contains("lcd") || name.toLowerCase().contains("layar") || name.toLowerCase().contains("lem");
+              final isLcd =
+                  name.toLowerCase().contains("lcd") ||
+                  name.toLowerCase().contains("layar") ||
+                  name.toLowerCase().contains("lem");
               final mappedProduct = {
                 "name": name,
                 "price": product["price"]!,
                 "rating": product["rating"]!,
                 "sold": product["sold"]!,
-                "image": isLcd ? "assets/images/product_lcd.png" : "assets/images/product_battery.png",
+                "image": isLcd
+                    ? "assets/images/product_lcd.png"
+                    : "assets/images/product_battery.png",
                 "link": isLcd
                     ? "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095"
                     : "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095",
@@ -482,19 +668,29 @@ class _ShopPageState extends State<ShopPage> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Image.asset(
-          isPromo ? 'assets/images/banner_promo_diskon.png' : 'assets/images/banner_braderparts.png',
+          isPromo
+              ? 'assets/images/banner_promo_diskon.png'
+              : 'assets/images/banner_braderparts.png',
           fit: BoxFit.cover,
           width: double.infinity,
           errorBuilder: (context, error, stackTrace) => Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: isPromo ? [_orangeSale, Colors.deepOrange] : [_primaryBlue, Colors.blue.shade900],
+                colors: isPromo
+                    ? [_orangeSale, Colors.deepOrange]
+                    : [_primaryBlue, Colors.blue.shade900],
               ),
             ),
             child: Center(
               child: Text(
-                isPromo ? "⚡ PROMO SPESIAL HARI INI - HEMAT 30%" : "🏪 BRADERPARTS OFFICIAL STORE",
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                isPromo
+                    ? "⚡ PROMO SPESIAL HARI INI - HEMAT 30%"
+                    : "🏪 BRADERPARTS OFFICIAL STORE",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
               ),
             ),
           ),
@@ -521,7 +717,8 @@ class _ShopPageState extends State<ShopPage> {
             "image": assetImage,
             "rating": "4.9",
             "sold": "250+",
-            "link": "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095?extraParams=%7B%22display_model_id%22%3A350188294975%2C%22model_selection_logic%22%3A3%7D&sp_atk=f8d0ca69-2d93-4324-b982-5cd7d983550e&xptdk=f8d0ca69-2d93-4324-b982-5cd7d983550e",
+            "link":
+                "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095?extraParams=%7B%22display_model_id%22%3A350188294975%2C%22model_selection_logic%22%3A3%7D&sp_atk=f8d0ca69-2d93-4324-b982-5cd7d983550e&xptdk=f8d0ca69-2d93-4324-b982-5cd7d983550e",
           },
         );
       },
@@ -542,16 +739,25 @@ class _ShopPageState extends State<ShopPage> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(12),
+                      ),
                     ),
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(12),
+                      ),
                       child: Image.asset(
                         assetImage,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Center(
-                          child: Icon(Icons.phone_android_rounded, color: Colors.grey, size: 36),
-                        ),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                              child: Icon(
+                                Icons.phone_android_rounded,
+                                color: Colors.grey,
+                                size: 36,
+                              ),
+                            ),
                       ),
                     ),
                   ),
@@ -559,14 +765,21 @@ class _ShopPageState extends State<ShopPage> {
                     top: 6,
                     left: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         discount,
-                        style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -582,7 +795,11 @@ class _ShopPageState extends State<ShopPage> {
                     name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _textDark),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: _textDark,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -595,7 +812,11 @@ class _ShopPageState extends State<ShopPage> {
                   ),
                   Text(
                     price,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _orangeSale),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: _orangeSale,
+                    ),
                   ),
                 ],
               ),
@@ -672,7 +893,10 @@ class _ShopPageState extends State<ShopPage> {
                 top: -12,
                 right: -4,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(4),
@@ -717,15 +941,28 @@ class _ShopPageState extends State<ShopPage> {
               width: 54,
               height: 54,
               decoration: BoxDecoration(
-                color: isActive ? _primaryBlue.withValues(alpha: 0.12) : Colors.white,
+                color: isActive
+                    ? _primaryBlue.withValues(alpha: 0.12)
+                    : Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: isActive ? _primaryBlue : Colors.grey.shade200,
                   width: isActive ? 2.5 : 1,
                 ),
                 boxShadow: isActive
-                    ? [BoxShadow(color: _primaryBlue.withValues(alpha: 0.15), blurRadius: 8, spreadRadius: 1)]
-                    : [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4)],
+                    ? [
+                        BoxShadow(
+                          color: _primaryBlue.withValues(alpha: 0.15),
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                        ),
+                      ]
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 4,
+                        ),
+                      ],
               ),
               child: Icon(icon, color: _primaryBlue, size: 26),
             ),
@@ -806,7 +1043,10 @@ class _ShopPageState extends State<ShopPage> {
                 children: [
                   // PRODUK Badge
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: _primaryBlue,
                       borderRadius: BorderRadius.circular(4),
@@ -823,7 +1063,10 @@ class _ShopPageState extends State<ShopPage> {
                   // MITRA Badge (optional, let's show if it hasFreeShipping to simulate)
                   if (hasFreeShipping)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.amber,
                         borderRadius: BorderRadius.circular(4),
@@ -859,7 +1102,11 @@ class _ShopPageState extends State<ShopPage> {
                   // Store/Brand Name (using a generic yellow store title for now as mockup)
                   Row(
                     children: [
-                      const Icon(Icons.storefront_rounded, color: Colors.amber, size: 12),
+                      const Icon(
+                        Icons.storefront_rounded,
+                        color: Colors.amber,
+                        size: 12,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         "TITAN Tools", // Mocked store name
@@ -888,7 +1135,11 @@ class _ShopPageState extends State<ShopPage> {
                   // Rating & Sold
                   Row(
                     children: [
-                      const Icon(Icons.star_rounded, color: Colors.amber, size: 12),
+                      const Icon(
+                        Icons.star_rounded,
+                        color: Colors.amber,
+                        size: 12,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         "$rating • $sold terjual",
@@ -902,7 +1153,9 @@ class _ShopPageState extends State<ShopPage> {
                   const SizedBox(height: 6),
                   // Price
                   Text(
-                    price.replaceAll("Rp", "").replaceAll(".", "."), // keep as is, just styled
+                    price
+                        .replaceAll("Rp", "")
+                        .replaceAll(".", "."), // keep as is, just styled
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -939,7 +1192,7 @@ class _AutoSlidingBrandCardsState extends State<_AutoSlidingBrandCards> {
       "icon": Icons.build_circle_rounded,
       "color": const Color(0xFF1B4F9B),
       "verified": true,
-      "image": "assets/images/logo_braderparts.png"
+      "image": "assets/images/logo_braderparts.png",
     },
     {
       "name": "BT-ACC Battery",
@@ -947,7 +1200,7 @@ class _AutoSlidingBrandCardsState extends State<_AutoSlidingBrandCards> {
       "icon": Icons.battery_charging_full_rounded,
       "color": const Color(0xFF03AC0E),
       "verified": true,
-      "image": "assets/images/logo_btacc.png"
+      "image": "assets/images/logo_btacc.png",
     },
     {
       "name": "TITAN Tools",
@@ -955,7 +1208,7 @@ class _AutoSlidingBrandCardsState extends State<_AutoSlidingBrandCards> {
       "icon": Icons.shield_rounded,
       "color": Colors.orange,
       "verified": true,
-      "image": "assets/images/logo_titan.png"
+      "image": "assets/images/logo_titan.png",
     },
     {
       "name": "Sunshine",
@@ -963,7 +1216,7 @@ class _AutoSlidingBrandCardsState extends State<_AutoSlidingBrandCards> {
       "icon": Icons.wb_sunny_rounded,
       "color": Colors.amber,
       "verified": false,
-      "image": "assets/images/logo_sunshine.png"
+      "image": "assets/images/logo_sunshine.png",
     },
     {
       "name": "Borneo Schematics",
@@ -971,7 +1224,7 @@ class _AutoSlidingBrandCardsState extends State<_AutoSlidingBrandCards> {
       "icon": Icons.map_rounded,
       "color": Colors.blueGrey,
       "verified": true,
-      "image": "assets/images/logo_borneo.png"
+      "image": "assets/images/logo_borneo.png",
     },
     {
       "name": "Pragmafix",
@@ -979,7 +1232,7 @@ class _AutoSlidingBrandCardsState extends State<_AutoSlidingBrandCards> {
       "icon": Icons.memory_rounded,
       "color": Colors.purple,
       "verified": true,
-      "image": "assets/images/logo_pragmafix.png"
+      "image": "assets/images/logo_pragmafix.png",
     },
   ];
 
@@ -1027,7 +1280,9 @@ class _AutoSlidingBrandCardsState extends State<_AutoSlidingBrandCards> {
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isActive ? (brand["color"] as Color) : Colors.grey.shade200,
+              color: isActive
+                  ? (brand["color"] as Color)
+                  : Colors.grey.shade200,
               width: isActive ? 2 : 1,
             ),
             boxShadow: isActive
@@ -1059,7 +1314,12 @@ class _AutoSlidingBrandCardsState extends State<_AutoSlidingBrandCards> {
                       shape: BoxShape.circle,
                     ),
                     child: brand["image"] != null
-                        ? ClipOval(child: Image.asset(brand["image"], fit: BoxFit.cover))
+                        ? ClipOval(
+                            child: Image.asset(
+                              brand["image"],
+                              fit: BoxFit.cover,
+                            ),
+                          )
                         : Icon(
                             brand["icon"] as IconData,
                             color: brand["color"] as Color,
@@ -1077,7 +1337,11 @@ class _AutoSlidingBrandCardsState extends State<_AutoSlidingBrandCards> {
                           shape: BoxShape.circle,
                           border: Border.all(color: Colors.white, width: 1.5),
                         ),
-                        child: const Icon(Icons.check, color: Colors.white, size: 8),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 8,
+                        ),
                       ),
                     ),
                 ],
@@ -1096,14 +1360,14 @@ class _AutoSlidingBrandCardsState extends State<_AutoSlidingBrandCards> {
               Text(
                 brand["subtitle"] as String,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 9,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 9, color: Colors.grey),
               ),
               const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: (brand["color"] as Color).withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
@@ -1171,7 +1435,9 @@ class _ShimmerProductCardState extends State<_ShimmerProductCard>
                 aspectRatio: 1.0,
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(8),
+                    ),
                     gradient: LinearGradient(
                       begin: Alignment(-1.0 + 2.0 * _controller.value, 0),
                       end: Alignment(-1.0 + 2.0 * _controller.value + 1.0, 0),

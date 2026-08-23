@@ -5,7 +5,11 @@ class CourseDetailPage extends StatefulWidget {
   final String module;
   final String category;
 
-  const CourseDetailPage({super.key, required this.module, required this.category});
+  const CourseDetailPage({
+    super.key,
+    required this.module,
+    required this.category,
+  });
 
   @override
   State<CourseDetailPage> createState() => _CourseDetailPageState();
@@ -23,21 +27,31 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
   final List<Map<String, dynamic>> _playlist = [
     {"type": "video", "title": "1. Pengenalan Alat Dasar", "duration": "12:45"},
-    {"type": "video", "title": "2. Standar Keselamatan (K3)", "duration": "08:20"},
+    {
+      "type": "video",
+      "title": "2. Standar Keselamatan (K3)",
+      "duration": "08:20",
+    },
     {"type": "video", "title": "3. Penggunaan Multimeter", "duration": "15:30"},
     {"type": "quiz", "title": "Kuis: Alat & Keselamatan"},
     {"type": "video", "title": "4. Memahami Skema Dasar", "duration": "20:15"},
-    {"type": "video", "title": "5. Praktek Pembacaan Skema", "duration": "18:40"},
+    {
+      "type": "video",
+      "title": "5. Praktek Pembacaan Skema",
+      "duration": "18:40",
+    },
     {"type": "quiz", "title": "Kuis: Evaluasi Akhir Modul"},
   ];
 
   void _handleItemTap(int index, Map<String, dynamic> item) async {
     bool isLocked = index > _completedStep;
-    
+
     if (isLocked) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text("Terkunci! Selesaikan materi sebelumnya terlebih dahulu."),
+          content: const Text(
+            "Terkunci! Selesaikan materi sebelumnya terlebih dahulu.",
+          ),
           backgroundColor: Colors.red.shade600,
           behavior: SnackBarBehavior.floating,
         ),
@@ -48,11 +62,14 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     if (item['type'] == 'video') {
       await Future.delayed(const Duration(milliseconds: 300));
       if (mounted) {
-        final result = await context.push<bool>('/video-player', extra: {
-          'title': item['title'],
-          'playlist': _playlist,
-          'currentIndex': index,
-        });
+        final result = await context.push<bool>(
+          '/video-player',
+          extra: {
+            'title': item['title'],
+            'playlist': _playlist,
+            'currentIndex': index,
+          },
+        );
         if (result == true && index == _completedStep) {
           setState(() {
             _completedStep++;
@@ -65,14 +82,16 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         setState(() {
           _completedStep++;
         });
-        
+
         if (_completedStep >= _playlist.length) {
           if (!mounted) return;
           showDialog(
             context: context,
             builder: (context) => AlertDialog(
               title: const Text("Selamat!"),
-              content: const Text("Anda telah menyelesaikan seluruh materi pada modul ini."),
+              content: const Text(
+                "Anda telah menyelesaikan seluruh materi pada modul ini.",
+              ),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -80,9 +99,9 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                     context.pop(); // Kembali ke silabus
                   },
                   child: const Text("Tutup"),
-                )
+                ),
               ],
-            )
+            ),
           );
         }
       }
@@ -172,7 +191,9 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 ),
                 const SizedBox(height: 8),
                 LinearProgressIndicator(
-                  value: _playlist.isEmpty ? 0 : _completedStep / _playlist.length,
+                  value: _playlist.isEmpty
+                      ? 0
+                      : _completedStep / _playlist.length,
                   backgroundColor: Colors.grey.shade200,
                   color: _primaryBlue,
                   minHeight: 8,
@@ -181,7 +202,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               ],
             ),
           ),
-          
+
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -194,9 +215,22 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 final isCurrent = index == _completedStep;
 
                 if (item['type'] == 'quiz') {
-                  return _buildQuizItem(index, item['title'], isLocked: isLocked, isCompleted: isCompleted, isCurrent: isCurrent);
+                  return _buildQuizItem(
+                    index,
+                    item['title'],
+                    isLocked: isLocked,
+                    isCompleted: isCompleted,
+                    isCurrent: isCurrent,
+                  );
                 } else {
-                  return _buildVideoItem(index, item['title'], item['duration'], isLocked: isLocked, isCompleted: isCompleted, isCurrent: isCurrent);
+                  return _buildVideoItem(
+                    index,
+                    item['title'],
+                    item['duration'],
+                    isLocked: isLocked,
+                    isCompleted: isCompleted,
+                    isCurrent: isCurrent,
+                  );
                 }
               },
             ),
@@ -206,24 +240,41 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     );
   }
 
-  Widget _buildVideoItem(int index, String title, String duration, {required bool isLocked, required bool isCompleted, required bool isCurrent}) {
+  Widget _buildVideoItem(
+    int index,
+    String title,
+    String duration, {
+    required bool isLocked,
+    required bool isCompleted,
+    required bool isCurrent,
+  }) {
     return GestureDetector(
       onTap: () => _handleItemTap(index, _playlist[index]),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isLocked ? Colors.grey.shade50 : (isCompleted ? _greenSuccess.withValues(alpha: 0.03) : Colors.white),
+          color: isLocked
+              ? Colors.grey.shade50
+              : (isCompleted
+                    ? _greenSuccess.withValues(alpha: 0.03)
+                    : Colors.white),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isCurrent 
-              ? _primaryBlue 
-              : (isLocked ? Colors.grey.shade200 : (isCompleted ? _greenSuccess.withValues(alpha: 0.3) : Colors.grey.shade200)),
+            color: isCurrent
+                ? _primaryBlue
+                : (isLocked
+                      ? Colors.grey.shade200
+                      : (isCompleted
+                            ? _greenSuccess.withValues(alpha: 0.3)
+                            : Colors.grey.shade200)),
             width: isCurrent ? 2 : 1,
           ),
           boxShadow: [
             if (!isLocked)
               BoxShadow(
-                color: isCurrent ? _primaryBlue.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.03),
+                color: isCurrent
+                    ? _primaryBlue.withValues(alpha: 0.1)
+                    : Colors.black.withValues(alpha: 0.03),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -249,7 +300,9 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                       Container(
                         width: 100,
                         height: 64,
-                        color: isLocked ? Colors.white.withValues(alpha: 0.7) : _greenSuccess.withValues(alpha: 0.5),
+                        color: isLocked
+                            ? Colors.white.withValues(alpha: 0.7)
+                            : _greenSuccess.withValues(alpha: 0.5),
                       ),
                     Container(
                       padding: const EdgeInsets.all(6),
@@ -261,7 +314,11 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                         border: Border.all(color: Colors.white, width: 1.5),
                       ),
                       child: Icon(
-                        isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_rounded : Icons.play_arrow_rounded),
+                        isLocked
+                            ? Icons.lock_rounded
+                            : (isCompleted
+                                  ? Icons.check_rounded
+                                  : Icons.play_arrow_rounded),
                         color: Colors.white,
                         size: 20,
                       ),
@@ -284,30 +341,47 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      isLocked ? "Selesaikan materi sebelumnya" : (isCompleted ? "Selesai ditonton" : "Siap ditonton"),
+                      isLocked
+                          ? "Selesaikan materi sebelumnya"
+                          : (isCompleted
+                                ? "Selesai ditonton"
+                                : "Siap ditonton"),
                       style: TextStyle(
                         fontSize: 13,
-                        color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.black54),
+                        color: isLocked
+                            ? Colors.grey.shade400
+                            : (isCompleted ? _greenSuccess : Colors.black54),
                         height: 1.4,
                       ),
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Icon(Icons.schedule_rounded, size: 14, color: isLocked ? Colors.grey.shade400 : Colors.grey.shade600),
+                        Icon(
+                          Icons.schedule_rounded,
+                          size: 14,
+                          color: isLocked
+                              ? Colors.grey.shade400
+                              : Colors.grey.shade600,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           duration,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: isLocked ? Colors.grey.shade400 : Colors.grey.shade700,
+                            color: isLocked
+                                ? Colors.grey.shade400
+                                : Colors.grey.shade700,
                           ),
                         ),
                         const Spacer(),
                         if (isCurrent)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: const Color(0xFFFD761A),
                               borderRadius: BorderRadius.circular(20),
@@ -333,24 +407,40 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     );
   }
 
-  Widget _buildQuizItem(int index, String title, {required bool isLocked, required bool isCompleted, required bool isCurrent}) {
+  Widget _buildQuizItem(
+    int index,
+    String title, {
+    required bool isLocked,
+    required bool isCompleted,
+    required bool isCurrent,
+  }) {
     return GestureDetector(
       onTap: () => _handleItemTap(index, _playlist[index]),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isLocked ? Colors.grey.shade50 : (isCompleted ? _greenSuccess.withValues(alpha: 0.03) : Colors.orange.shade50),
+          color: isLocked
+              ? Colors.grey.shade50
+              : (isCompleted
+                    ? _greenSuccess.withValues(alpha: 0.03)
+                    : Colors.orange.shade50),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isCurrent 
-              ? Colors.orange.shade500 
-              : (isLocked ? Colors.grey.shade200 : (isCompleted ? _greenSuccess.withValues(alpha: 0.3) : Colors.orange.shade200)),
+            color: isCurrent
+                ? Colors.orange.shade500
+                : (isLocked
+                      ? Colors.grey.shade200
+                      : (isCompleted
+                            ? _greenSuccess.withValues(alpha: 0.3)
+                            : Colors.orange.shade200)),
             width: isCurrent ? 2 : 1,
           ),
           boxShadow: [
             if (!isLocked)
               BoxShadow(
-                color: isCurrent ? Colors.orange.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.03),
+                color: isCurrent
+                    ? Colors.orange.withValues(alpha: 0.2)
+                    : Colors.black.withValues(alpha: 0.03),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -376,7 +466,9 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                       Container(
                         width: 100,
                         height: 64,
-                        color: isLocked ? Colors.white.withValues(alpha: 0.7) : _greenSuccess.withValues(alpha: 0.5),
+                        color: isLocked
+                            ? Colors.white.withValues(alpha: 0.7)
+                            : _greenSuccess.withValues(alpha: 0.5),
                       ),
                     Container(
                       padding: const EdgeInsets.all(6),
@@ -388,7 +480,11 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                         border: Border.all(color: Colors.white, width: 1.5),
                       ),
                       child: Icon(
-                        isLocked ? Icons.lock_rounded : (isCompleted ? Icons.check_rounded : Icons.assignment_rounded),
+                        isLocked
+                            ? Icons.lock_rounded
+                            : (isCompleted
+                                  ? Icons.check_rounded
+                                  : Icons.assignment_rounded),
                         color: Colors.white,
                         size: 20,
                       ),
@@ -406,35 +502,58 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.orange.shade900),
+                        color: isLocked
+                            ? Colors.grey.shade400
+                            : (isCompleted
+                                  ? _greenSuccess
+                                  : Colors.orange.shade900),
                       ),
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      isLocked ? "Syarat untuk lanjut" : (isCompleted ? "Lulus kuis" : "Evaluasi pemahaman Anda"),
+                      isLocked
+                          ? "Syarat untuk lanjut"
+                          : (isCompleted
+                                ? "Lulus kuis"
+                                : "Evaluasi pemahaman Anda"),
                       style: TextStyle(
                         fontSize: 13,
-                        color: isLocked ? Colors.grey.shade400 : (isCompleted ? _greenSuccess : Colors.orange.shade800),
+                        color: isLocked
+                            ? Colors.grey.shade400
+                            : (isCompleted
+                                  ? _greenSuccess
+                                  : Colors.orange.shade800),
                         height: 1.4,
                       ),
                     ),
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Icon(Icons.timer_rounded, size: 14, color: isLocked ? Colors.grey.shade400 : Colors.orange.shade700),
+                        Icon(
+                          Icons.timer_rounded,
+                          size: 14,
+                          color: isLocked
+                              ? Colors.grey.shade400
+                              : Colors.orange.shade700,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           "Mandatori",
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: isLocked ? Colors.grey.shade400 : Colors.orange.shade800,
+                            color: isLocked
+                                ? Colors.grey.shade400
+                                : Colors.orange.shade800,
                           ),
                         ),
                         const Spacer(),
                         if (isCurrent)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.orange.shade600,
                               borderRadius: BorderRadius.circular(20),

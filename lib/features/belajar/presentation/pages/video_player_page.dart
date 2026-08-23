@@ -11,8 +11,8 @@ class VideoPlayerPage extends StatefulWidget {
   final int currentIndex;
 
   const VideoPlayerPage({
-    super.key, 
-    this.title, 
+    super.key,
+    this.title,
     this.playlist = const [],
     this.currentIndex = 0,
   });
@@ -73,10 +73,12 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     try {
       const videoId = 'drcMv73jEGE'; // Updated Video ID from User
       var manifest = await ytExplode.videos.streamsClient.getManifest(videoId);
-      
+
       final streams = manifest.muxed.toList();
-      streams.sort((a, b) => b.videoResolution.height.compareTo(a.videoResolution.height));
-      
+      streams.sort(
+        (a, b) => b.videoResolution.height.compareTo(a.videoResolution.height),
+      );
+
       final Map<int, yt.MuxedStreamInfo> uniqueStreams = {};
       for (var s in streams) {
         if (!uniqueStreams.containsKey(s.videoResolution.height)) {
@@ -87,7 +89,9 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
       if (mounted) {
         setState(() {
           _availableStreams = uniqueStreams.values.toList();
-          _currentStream = _availableStreams.isNotEmpty ? _availableStreams.first : null;
+          _currentStream = _availableStreams.isNotEmpty
+              ? _availableStreams.first
+              : null;
         });
       }
 
@@ -104,10 +108,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   Future<void> _loadStream(yt.MuxedStreamInfo stream) async {
     final oldPosition = _controller?.value.position;
     final wasPlaying = _controller?.value.isPlaying ?? true;
-    
+
     _controller?.removeListener(_videoListener);
     _controller?.dispose();
-    
+
     _controller = VideoPlayerController.networkUrl(stream.url)
       ..initialize().then((_) {
         if (!mounted) return;
@@ -115,17 +119,17 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
           _duration = _controller!.value.duration.inSeconds.toDouble();
           if (_duration == 0) _duration = 1;
           _isPlayerReady = true;
-          
+
           if (oldPosition != null) {
             _controller!.seekTo(oldPosition);
             _currentPosition = oldPosition.inSeconds.toDouble();
           }
           if (wasPlaying) {
-             _isPlaying = true;
-             _controller!.play();
+            _isPlaying = true;
+            _controller!.play();
           }
         });
-        
+
         _controller!.addListener(_videoListener);
       });
   }
@@ -145,7 +149,11 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                 padding: EdgeInsets.all(16.0),
                 child: Text(
                   "Pilih Resolusi Video",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF001944)),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF001944),
+                  ),
                 ),
               ),
               if (_availableStreams.isEmpty)
@@ -158,13 +166,19 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                 return ListTile(
                   leading: const Icon(Icons.hd_rounded, color: Colors.blueGrey),
                   title: Text("${stream.videoResolution.height}p"),
-                  trailing: isSelected ? const Icon(Icons.check_circle_rounded, color: Colors.green) : null,
+                  trailing: isSelected
+                      ? const Icon(
+                          Icons.check_circle_rounded,
+                          color: Colors.green,
+                        )
+                      : null,
                   onTap: () {
                     Navigator.pop(context);
                     if (!isSelected) {
                       setState(() {
                         _currentStream = stream;
-                        _isPlayerReady = false; // Show loading indicator briefly
+                        _isPlayerReady =
+                            false; // Show loading indicator briefly
                       });
                       _loadStream(stream);
                     }
@@ -183,8 +197,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     setState(() {
       _currentPosition = _controller!.value.position.inSeconds.toDouble();
       _isPlaying = _controller!.value.isPlaying;
-      
-      if (_currentPosition >= _duration - 1 && _duration > 1 && !_isVideoCompleted) {
+
+      if (_currentPosition >= _duration - 1 &&
+          _duration > 1 &&
+          !_isVideoCompleted) {
         _isVideoCompleted = true;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -201,7 +217,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     _hideTimer?.cancel();
     _controller?.removeListener(_videoListener);
     _controller?.dispose();
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
   }
@@ -242,7 +261,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
             const Center(
               child: CircularProgressIndicator(color: Colors.orange),
             ),
-          
+
           // Custom Overlay Controls (Fade Animation)
           IgnorePointer(
             ignoring: !_showControls,
@@ -259,13 +278,25 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                           GestureDetector(
                             onTap: () {
                               _startHideTimer(); // Reset timer on click
-                              final newPos = (_currentPosition - 10).clamp(0.0, _duration);
-                              _controller?.seekTo(Duration(seconds: newPos.toInt()));
+                              final newPos = (_currentPosition - 10).clamp(
+                                0.0,
+                                _duration,
+                              );
+                              _controller?.seekTo(
+                                Duration(seconds: newPos.toInt()),
+                              );
                             },
                             child: Container(
                               padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.4), shape: BoxShape.circle),
-                              child: const Icon(Icons.replay_10_rounded, color: Colors.white, size: 32),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.4),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.replay_10_rounded,
+                                color: Colors.white,
+                                size: 32,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 32),
@@ -280,9 +311,14 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                             },
                             child: Container(
                               padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.5),
+                                shape: BoxShape.circle,
+                              ),
                               child: Icon(
-                                _isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                _isPlaying
+                                    ? Icons.pause_rounded
+                                    : Icons.play_arrow_rounded,
                                 color: Colors.white,
                                 size: 48,
                               ),
@@ -304,7 +340,10 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                           },
                           child: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              shape: BoxShape.circle,
+                            ),
                             child: const Icon(
                               Icons.settings_rounded,
                               color: Colors.white,
@@ -320,9 +359,14 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                           },
                           child: Container(
                             padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.5), shape: BoxShape.circle),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.5),
+                              shape: BoxShape.circle,
+                            ),
                             child: Icon(
-                              _isFullScreen ? Icons.fullscreen_exit_rounded : Icons.crop_rotate_rounded,
+                              _isFullScreen
+                                  ? Icons.fullscreen_exit_rounded
+                                  : Icons.crop_rotate_rounded,
                               color: Colors.white,
                               size: 24,
                             ),
@@ -359,7 +403,11 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
         ),
         title: Text(
           widget.title ?? "Video Materi",
-          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         elevation: 0,
@@ -367,11 +415,8 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
       body: SafeArea(
         child: Column(
           children: [
-            AspectRatio(
-              aspectRatio: 16 / 9,
-              child: _buildVideoPlayerArea(),
-            ),
-            
+            AspectRatio(aspectRatio: 16 / 9, child: _buildVideoPlayerArea()),
+
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(16),
@@ -391,8 +436,8 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                             color: Colors.green.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
-                          )
-                        ]
+                          ),
+                        ],
                       ),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -468,30 +513,52 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                   const SizedBox(height: 16),
                   Builder(
                     builder: (context) {
-                      final effectivePlaylist = widget.playlist.isNotEmpty 
-                        ? widget.playlist 
-                        : [
-                            {"type": "video", "title": "1. Pengenalan Alat Dasar", "duration": "12:45"},
-                            {"type": "video", "title": "2. Standar Keselamatan (K3)", "duration": "08:20"},
-                            {"type": "video", "title": "3. Penggunaan Multimeter", "duration": "15:30"},
-                            {"type": "quiz", "title": "Kuis: Alat & Keselamatan"},
-                          ];
-                      
+                      final effectivePlaylist = widget.playlist.isNotEmpty
+                          ? widget.playlist
+                          : [
+                              {
+                                "type": "video",
+                                "title": "1. Pengenalan Alat Dasar",
+                                "duration": "12:45",
+                              },
+                              {
+                                "type": "video",
+                                "title": "2. Standar Keselamatan (K3)",
+                                "duration": "08:20",
+                              },
+                              {
+                                "type": "video",
+                                "title": "3. Penggunaan Multimeter",
+                                "duration": "15:30",
+                              },
+                              {
+                                "type": "quiz",
+                                "title": "Kuis: Alat & Keselamatan",
+                              },
+                            ];
+
                       if (effectivePlaylist.length > widget.currentIndex + 1) {
                         return Column(
-                          children: effectivePlaylist.skip(widget.currentIndex + 1).map((item) {
-                            final isQuiz = item['type'] == 'quiz';
-                            final defaultDuration = isQuiz ? "Mandatori" : "10:00";
-                            final imgUrl = isQuiz 
-                              ? "https://img.freepik.com/free-vector/quiz-word-concept_23-2147844150.jpg" 
-                              : "https://img.youtube.com/vi/drcMv73jEGE/mqdefault.jpg";
+                          children: effectivePlaylist
+                              .skip(widget.currentIndex + 1)
+                              .map((item) {
+                                final isQuiz = item['type'] == 'quiz';
+                                final defaultDuration = isQuiz
+                                    ? "Mandatori"
+                                    : "10:00";
+                                final imgUrl = isQuiz
+                                    ? "https://img.freepik.com/free-vector/quiz-word-concept_23-2147844150.jpg"
+                                    : "https://img.youtube.com/vi/drcMv73jEGE/mqdefault.jpg";
 
-                            return _buildNextVideoItem(
-                              title: item['title'].toString(),
-                              duration: item['duration']?.toString() ?? defaultDuration,
-                              thumbnailUrl: imgUrl,
-                            );
-                          }).toList(),
+                                return _buildNextVideoItem(
+                                  title: item['title'].toString(),
+                                  duration:
+                                      item['duration']?.toString() ??
+                                      defaultDuration,
+                                  thumbnailUrl: imgUrl,
+                                );
+                              })
+                              .toList(),
                         );
                       } else {
                         return const Padding(
@@ -515,12 +582,18 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     );
   }
 
-  Widget _buildNextVideoItem({required String title, required String duration, required String thumbnailUrl}) {
+  Widget _buildNextVideoItem({
+    required String title,
+    required String duration,
+    required String thumbnailUrl,
+  }) {
     return GestureDetector(
       onTap: () {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text("Terkunci! Selesaikan video saat ini terlebih dahulu."),
+            content: const Text(
+              "Terkunci! Selesaikan video saat ini terlebih dahulu.",
+            ),
             backgroundColor: Colors.red.shade600,
             behavior: SnackBarBehavior.floating,
           ),
@@ -569,7 +642,11 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.lock_rounded, size: 12, color: Colors.grey.shade500),
+                      Icon(
+                        Icons.lock_rounded,
+                        size: 12,
+                        color: Colors.grey.shade500,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         duration,

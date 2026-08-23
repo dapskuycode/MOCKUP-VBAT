@@ -16,7 +16,11 @@ class _WishlistPageState extends State<WishlistPage> {
   final Color _textDark = const Color(0xFF001944);
   final Color _textGray = const Color(0xFF737782);
 
-  void _showMarketplaceSheet(BuildContext context, String productName, String link) {
+  void _showMarketplaceSheet(
+    BuildContext context,
+    String productName,
+    String link,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -53,10 +57,7 @@ class _WishlistPageState extends State<WishlistPage> {
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -121,7 +122,8 @@ class _WishlistPageState extends State<WishlistPage> {
               width: 48,
               height: 48,
               fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) => Icon(Icons.storefront_rounded, color: color, size: 28),
+              errorBuilder: (context, error, stackTrace) =>
+                  Icon(Icons.storefront_rounded, color: color, size: 28),
             ),
             const SizedBox(height: 12),
             Text(
@@ -151,14 +153,18 @@ class _WishlistPageState extends State<WishlistPage> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text("Mengalihkan ke $platform... ($url)"),
-                backgroundColor: platform == "Shopee" ? const Color(0xFFEE4D2D) : const Color(0xFF03AC0E),
+                backgroundColor: platform == "Shopee"
+                    ? const Color(0xFFEE4D2D)
+                    : const Color(0xFF03AC0E),
               ),
             );
           }
         });
 
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           backgroundColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -171,7 +177,9 @@ class _WishlistPageState extends State<WishlistPage> {
                   child: CircularProgressIndicator(
                     strokeWidth: 3,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      platform == "Shopee" ? const Color(0xFFEE4D2D) : const Color(0xFF03AC0E),
+                      platform == "Shopee"
+                          ? const Color(0xFFEE4D2D)
+                          : const Color(0xFF03AC0E),
                     ),
                   ),
                 ),
@@ -188,10 +196,7 @@ class _WishlistPageState extends State<WishlistPage> {
                 const Text(
                   "Mohon tunggu, Anda sedang dialihkan...",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ],
             ),
@@ -229,11 +234,19 @@ class _WishlistPageState extends State<WishlistPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.favorite_border_rounded, size: 72, color: Colors.grey.shade300),
+                  Icon(
+                    Icons.favorite_border_rounded,
+                    size: 72,
+                    color: Colors.grey.shade300,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     "Belum ada barang di wishlist",
-                    style: TextStyle(color: _textGray, fontSize: 14, fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      color: _textGray,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
@@ -246,10 +259,12 @@ class _WishlistPageState extends State<WishlistPage> {
                 final item = items[index];
                 // Check if image points to Apple/Infinix brand logo. If so, map it to LCD/Battery product images
                 // to look much more premium on a cart list!
-                String displayImg = item["image"] ?? "assets/images/product_lcd.png";
-                if (displayImg.contains("brand_apple") || displayImg.contains("brand_infinix")) {
-                  displayImg = displayImg.contains("apple") 
-                      ? "assets/images/product_lcd.png" 
+                String displayImg =
+                    item["image"] ?? "assets/images/product_lcd.png";
+                if (displayImg.contains("brand_apple") ||
+                    displayImg.contains("brand_infinix")) {
+                  displayImg = displayImg.contains("apple")
+                      ? "assets/images/product_lcd.png"
                       : "assets/images/product_battery.png";
                 }
 
@@ -281,7 +296,10 @@ class _WishlistPageState extends State<WishlistPage> {
                               displayImg,
                               fit: BoxFit.contain,
                               errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(Icons.handyman_rounded, color: Colors.grey),
+                                  const Icon(
+                                    Icons.handyman_rounded,
+                                    color: Colors.grey,
+                                  ),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -317,7 +335,11 @@ class _WishlistPageState extends State<WishlistPage> {
                           Column(
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 22),
+                                icon: const Icon(
+                                  Icons.delete_outline_rounded,
+                                  color: Colors.red,
+                                  size: 22,
+                                ),
                                 onPressed: () {
                                   setState(() {
                                     WishlistHelper.items.removeAt(index);
@@ -333,12 +355,19 @@ class _WishlistPageState extends State<WishlistPage> {
                               const SizedBox(height: 2),
                               ElevatedButton(
                                 onPressed: () {
-                                  _showMarketplaceSheet(context, item["name"]!, item["link"]!);
+                                  _showMarketplaceSheet(
+                                    context,
+                                    item["name"]!,
+                                    item["link"]!,
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: _primaryBlue,
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 8,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
@@ -346,7 +375,10 @@ class _WishlistPageState extends State<WishlistPage> {
                                 ),
                                 child: const Text(
                                   "Beli",
-                                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ],

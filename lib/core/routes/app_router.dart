@@ -40,18 +40,12 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/',
     routes: [
-      GoRoute(
-        path: '/',
-        builder: (context, state) => const SplashPage(),
-      ),
+      GoRoute(path: '/', builder: (context, state) => const SplashPage()),
       GoRoute(
         path: '/onboarding',
         builder: (context, state) => const OnboardingPage(),
       ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginPage(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterPage(),
@@ -68,10 +62,7 @@ class AppRouter {
         path: '/reset-password',
         builder: (context, state) => const ResetPasswordPage(),
       ),
-      GoRoute(
-        path: '/main',
-        builder: (context, state) => const MainScaffold(),
-      ),
+      GoRoute(path: '/main', builder: (context, state) => const MainScaffold()),
       GoRoute(
         path: '/global-search',
         builder: (context, state) => const GlobalSearchPage(),
@@ -105,8 +96,12 @@ class AppRouter {
         path: '/video-player',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          final title = extra?['title'] ?? extra?['name'] ?? "Mastering iPhone 13 Screen Repair";
-          final playlist = extra?['playlist'] as List<Map<String, dynamic>>? ?? const [];
+          final title =
+              extra?['title'] ??
+              extra?['name'] ??
+              "Mastering iPhone 13 Screen Repair";
+          final playlist =
+              extra?['playlist'] as List<Map<String, dynamic>>? ?? const [];
           final currentIndex = extra?['currentIndex'] as int? ?? 0;
           return VideoPlayerPage(
             title: title.toString(),
@@ -123,14 +118,8 @@ class AppRouter {
         path: '/certificate',
         builder: (context, state) => const CertificatePage(),
       ),
-      GoRoute(
-        path: '/quiz',
-        builder: (context, state) => const QuizPage(),
-      ),
-      GoRoute(
-        path: '/forum',
-        builder: (context, state) => const ForumPage(),
-      ),
+      GoRoute(path: '/quiz', builder: (context, state) => const QuizPage()),
+      GoRoute(path: '/forum', builder: (context, state) => const ForumPage()),
       GoRoute(
         path: '/forum-detail',
         builder: (context, state) {
@@ -192,10 +181,7 @@ class AppRouter {
         path: '/help-center',
         builder: (context, state) => const HelpCenterPage(),
       ),
-      GoRoute(
-        path: '/about',
-        builder: (context, state) => const AboutPage(),
-      ),
+      GoRoute(path: '/about', builder: (context, state) => const AboutPage()),
       GoRoute(
         path: '/language',
         builder: (context, state) => const LanguagePage(),

@@ -14,12 +14,12 @@ class _ForumPageState extends State<ForumPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
   final Color _bgLight = const Color(0xFFF5F7FA);
   final Color _textGray = const Color(0xFF737782);
-  
+
   // Warna brand WhatsApp
   final Color _waGreen = const Color(0xFF25D366);
 
   String _selectedCategory = "Semua";
-  
+
   // Simulasi status premium pengguna sekarang menggunakan SessionManager
 
   @override
@@ -29,25 +29,33 @@ class _ForumPageState extends State<ForumPage> {
       floatingActionButton: ValueListenableBuilder<bool>(
         valueListenable: SessionManager.isPremium,
         builder: (context, isPremium, child) {
-          return isPremium 
-            ? FloatingActionButton.extended(
-                onPressed: () async {
-                  final Uri waUri = Uri.parse('https://wa.me/62811268717');
-                  if (!await launchUrl(waUri, mode: LaunchMode.externalApplication)) {
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Gagal membuka WhatsApp')),
-                      );
+          return isPremium
+              ? FloatingActionButton.extended(
+                  onPressed: () async {
+                    final Uri waUri = Uri.parse('https://wa.me/62811268717');
+                    if (!await launchUrl(
+                      waUri,
+                      mode: LaunchMode.externalApplication,
+                    )) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Gagal membuka WhatsApp'),
+                          ),
+                        );
+                      }
                     }
-                  }
-                },
-                backgroundColor: _waGreen,
-                foregroundColor: Colors.white,
-                elevation: 4,
-                icon: const Icon(Icons.chat_bubble_outline_rounded),
-                label: const Text("Bantuan (Premium)", style: TextStyle(fontWeight: FontWeight.bold)),
-              )
-            : const SizedBox.shrink();
+                  },
+                  backgroundColor: _waGreen,
+                  foregroundColor: Colors.white,
+                  elevation: 4,
+                  icon: const Icon(Icons.chat_bubble_outline_rounded),
+                  label: const Text(
+                    "Bantuan (Premium)",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                )
+              : const SizedBox.shrink();
         },
       ),
       body: CustomScrollView(
@@ -83,9 +91,11 @@ class _ForumPageState extends State<ForumPage> {
                       Text(
                         isPremium ? "Premium" : "Free",
                         style: TextStyle(
-                          color: isPremium ? Colors.orange.shade700 : Colors.grey,
+                          color: isPremium
+                              ? Colors.orange.shade700
+                              : Colors.grey,
                           fontWeight: FontWeight.bold,
-                          fontSize: 12
+                          fontSize: 12,
                         ),
                       ),
                       Switch(
@@ -97,7 +107,7 @@ class _ForumPageState extends State<ForumPage> {
                       ),
                     ],
                   );
-                }
+                },
               ),
             ],
             bottom: PreferredSize(
@@ -143,14 +153,14 @@ class _ForumPageState extends State<ForumPage> {
               ),
             ),
           ),
-          
+
           // Spacer for FAB
           SliverToBoxAdapter(
             child: ValueListenableBuilder<bool>(
               valueListenable: SessionManager.isPremium,
               builder: (context, isPremium, child) {
                 return SizedBox(height: isPremium ? 80 : 24);
-              }
+              },
             ),
           ),
         ],
@@ -212,7 +222,9 @@ class _ForumPageState extends State<ForumPage> {
           // Jika ada gambar
           if (data['imageUrl'] != null)
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: Image.network(
                 data['imageUrl'],
                 height: 180,
@@ -220,7 +232,7 @@ class _ForumPageState extends State<ForumPage> {
                 fit: BoxFit.cover,
               ),
             ),
-          
+
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -228,7 +240,10 @@ class _ForumPageState extends State<ForumPage> {
               children: [
                 // Kategori Label
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(4),
@@ -243,7 +258,7 @@ class _ForumPageState extends State<ForumPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Judul
                 Text(
                   data['title'],
@@ -254,7 +269,7 @@ class _ForumPageState extends State<ForumPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                
+
                 // Konten (Preview)
                 Text(
                   data['content'],
@@ -266,19 +281,16 @@ class _ForumPageState extends State<ForumPage> {
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Waktu & Tombol Aksi
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       data['date'],
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                     TextButton(
                       onPressed: () {
@@ -287,10 +299,15 @@ class _ForumPageState extends State<ForumPage> {
                       style: TextButton.styleFrom(
                         foregroundColor: _primaryBlue,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                      child: const Text("Lihat Selengkapnya", style: TextStyle(fontWeight: FontWeight.bold)),
-                    )
+                      child: const Text(
+                        "Lihat Selengkapnya",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -307,28 +324,35 @@ class _ForumPageState extends State<ForumPage> {
       {
         "category": "Ruang Konsultasi",
         "title": "Jadwal Konsultasi Live Bersama Master Teknisi Bulan Ini",
-        "content": "Jangan lewatkan sesi live Q&A via Zoom eksklusif untuk member Premium. Siapkan kasus terberat kalian dan mari kita bahas tuntas bersama instruktur senior dari Quantum Semarang.",
+        "content":
+            "Jangan lewatkan sesi live Q&A via Zoom eksklusif untuk member Premium. Siapkan kasus terberat kalian dan mari kita bahas tuntas bersama instruktur senior dari Quantum Semarang.",
         "date": "Hari ini, 10:00",
-        "imageUrl": "https://img.freepik.com/free-photo/repairman-fixing-broken-smartphone_171337-18451.jpg",
+        "imageUrl":
+            "https://img.freepik.com/free-photo/repairman-fixing-broken-smartphone_171337-18451.jpg",
       },
       {
         "category": "Lowongan Pekerjaan",
-        "title": "Dibutuhkan Segera: Teknisi Senior di Quantum Telecom Pontianak",
-        "content": "Kami membuka lowongan bagi lulusan VbatPonsel yang telah menguasai reparasi iPhone dan Android tingkat dewa (Level 3). Penempatan di cabang baru Pontianak dengan benefit menarik.",
+        "title":
+            "Dibutuhkan Segera: Teknisi Senior di Quantum Telecom Pontianak",
+        "content":
+            "Kami membuka lowongan bagi lulusan VbatPonsel yang telah menguasai reparasi iPhone dan Android tingkat dewa (Level 3). Penempatan di cabang baru Pontianak dengan benefit menarik.",
         "date": "Kemarin",
         "imageUrl": null,
       },
       {
         "category": "Upgrade Kelas Offline",
         "title": "Roadshow Training Teknisi Ponsel - Pontianak",
-        "content": "Dibimbing langsung dari nol menjadi teknisi profesional. Segera daftarkan diri Anda pada roadshow offline terdekat di Pontianak. Kuota sangat terbatas!",
+        "content":
+            "Dibimbing langsung dari nol menjadi teknisi profesional. Segera daftarkan diri Anda pada roadshow offline terdekat di Pontianak. Kuota sangat terbatas!",
         "date": "2 hari yang lalu",
-        "imageUrl": "https://img.freepik.com/free-vector/gradient-mobile-repair-logo-template_23-2149806497.jpg",
+        "imageUrl":
+            "https://img.freepik.com/free-vector/gradient-mobile-repair-logo-template_23-2149806497.jpg",
       },
       {
         "category": "Magang",
         "title": "Program Magang Intensif 3 Bulan (Batch 4)",
-        "content": "Bagi alumni yang membutuhkan jam terbang dan pengalaman menghadapi pelanggan secara nyata, pendaftaran program magang Batch 4 kini resmi dibuka. Tersedia mes/tempat tinggal.",
+        "content":
+            "Bagi alumni yang membutuhkan jam terbang dan pengalaman menghadapi pelanggan secara nyata, pendaftaran program magang Batch 4 kini resmi dibuka. Tersedia mes/tempat tinggal.",
         "date": "1 minggu yang lalu",
         "imageUrl": null,
       },
@@ -337,6 +361,8 @@ class _ForumPageState extends State<ForumPage> {
     if (_selectedCategory == "Semua") {
       return allPosts;
     }
-    return allPosts.where((post) => post['category'] == _selectedCategory).toList();
+    return allPosts
+        .where((post) => post['category'] == _selectedCategory)
+        .toList();
   }
 }

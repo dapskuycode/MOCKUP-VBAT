@@ -68,10 +68,7 @@ class AboutPage extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               "Versi 1.0.0 (Build 100)",
-              style: TextStyle(
-                fontSize: 14,
-                color: _textGray,
-              ),
+              style: TextStyle(fontSize: 14, color: _textGray),
             ),
             const SizedBox(height: 48),
 
@@ -104,7 +101,7 @@ class AboutPage extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 48),
             Text(
               "© 2024 VBat Ponsel Nusantara.\nHak Cipta Dilindungi Undang-Undang.",
@@ -121,12 +118,16 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLinkItem(BuildContext context, {required String title, required IconData icon}) {
+  Widget _buildLinkItem(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+  }) {
     return InkWell(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Membuka halaman $title")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Membuka halaman $title")));
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),

@@ -171,8 +171,12 @@ class _MainScaffoldState extends State<MainScaffold> {
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 10,
-                      fontWeight: _currentIndex == 2 ? FontWeight.w700 : FontWeight.w500,
-                      color: _currentIndex == 2 ? _primaryBlue : Colors.grey.shade500,
+                      fontWeight: _currentIndex == 2
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      color: _currentIndex == 2
+                          ? _primaryBlue
+                          : Colors.grey.shade500,
                     ),
                   ),
                 ),
@@ -305,23 +309,13 @@ class BNBCustomPainter extends CustomPainter {
     path.lineTo(centerX - radius - 12, 0);
 
     // Lekukan Kurva Notch
-    path.quadraticBezierTo(
-      centerX - radius,
-      0,
-      centerX - radius,
-      8,
-    );
+    path.quadraticBezierTo(centerX - radius, 0, centerX - radius, 8);
     path.arcToPoint(
       Offset(centerX + radius, 8),
       radius: const Radius.circular(42),
       clockwise: false,
     );
-    path.quadraticBezierTo(
-      centerX + radius,
-      0,
-      centerX + radius + 12,
-      0,
-    );
+    path.quadraticBezierTo(centerX + radius, 0, centerX + radius + 12, 0);
 
     // Sisi Kanan
     path.lineTo(size.width - 16, 0);

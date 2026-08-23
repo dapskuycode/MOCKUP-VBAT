@@ -156,7 +156,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
               ),
             ],
           ),
-          
+
           // Navigation Arrows
           Positioned(
             left: 8,
@@ -243,7 +243,9 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: isHighlight ? _orangeCTA.withValues(alpha: 0.1) : _primaryBlue.withValues(alpha: 0.1),
+              color: isHighlight
+                  ? _orangeCTA.withValues(alpha: 0.1)
+                  : _primaryBlue.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(

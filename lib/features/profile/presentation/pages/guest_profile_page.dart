@@ -141,7 +141,6 @@ class GuestProfilePage extends StatelessWidget {
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -198,15 +197,27 @@ class GuestProfilePage extends StatelessWidget {
                     runSpacing: 8,
                     alignment: WrapAlignment.center,
                     children: [
-                      _buildBrowseChip("Lihat Produk", Icons.shopping_bag_outlined, () {
-                        SessionManager.currentTabIndex.value = 1;
-                      }),
-                      _buildBrowseChip("Cari Brand", Icons.branding_watermark_outlined, () {
-                        SessionManager.currentTabIndex.value = 3;
-                      }),
-                      _buildBrowseChip("Lihat Kursus", Icons.school_outlined, () {
-                        SessionManager.currentTabIndex.value = 3;
-                      }),
+                      _buildBrowseChip(
+                        "Lihat Produk",
+                        Icons.shopping_bag_outlined,
+                        () {
+                          SessionManager.currentTabIndex.value = 1;
+                        },
+                      ),
+                      _buildBrowseChip(
+                        "Cari Brand",
+                        Icons.branding_watermark_outlined,
+                        () {
+                          SessionManager.currentTabIndex.value = 3;
+                        },
+                      ),
+                      _buildBrowseChip(
+                        "Lihat Kursus",
+                        Icons.school_outlined,
+                        () {
+                          SessionManager.currentTabIndex.value = 3;
+                        },
+                      ),
                     ],
                   ),
                 ],

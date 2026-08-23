@@ -40,7 +40,9 @@ class HelpCenterPage extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: _primaryBlue,
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(32),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,19 +72,28 @@ class HelpCenterPage extends StatelessWidget {
                     child: TextField(
                       decoration: InputDecoration(
                         hintText: "Cari topik bantuan...",
-                        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
-                        prefixIcon: Icon(Icons.search_rounded, color: Colors.grey.shade400),
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade400,
+                          fontSize: 14,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search_rounded,
+                          color: Colors.grey.shade400,
+                        ),
                         border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // --- Contact Options ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -94,7 +105,9 @@ class HelpCenterPage extends StatelessWidget {
                       icon: Icons.chat_rounded,
                       title: "Chat Pak Tomi",
                       subtitle: "(Premium Only)",
-                      color: const Color(0xFF22C55E), // using green for WhatsApp vibe
+                      color: const Color(
+                        0xFF22C55E,
+                      ), // using green for WhatsApp vibe
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -110,9 +123,9 @@ class HelpCenterPage extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // --- FAQ Section ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -172,9 +185,9 @@ class HelpCenterPage extends StatelessWidget {
   }) {
     return InkWell(
       onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Menghubungi: $title")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Menghubungi: $title")));
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -204,13 +217,7 @@ class HelpCenterPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: 11,
-                color: _textGray,
-              ),
-            ),
+            Text(subtitle, style: TextStyle(fontSize: 11, color: _textGray)),
           ],
         ),
       ),
@@ -235,11 +242,7 @@ class HelpCenterPage extends StatelessWidget {
         children: [
           Text(
             answer,
-            style: TextStyle(
-              fontSize: 13,
-              color: _textGray,
-              height: 1.5,
-            ),
+            style: TextStyle(fontSize: 13, color: _textGray, height: 1.5),
           ),
         ],
       ),

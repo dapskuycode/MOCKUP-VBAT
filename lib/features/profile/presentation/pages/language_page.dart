@@ -77,15 +77,15 @@ class _LanguagePageState extends State<LanguagePage> {
     required String value,
   }) {
     final bool isSelected = _selectedLang == value;
-    
+
     return InkWell(
       onTap: () {
         setState(() {
           _selectedLang = value;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Bahasa diubah ke: $title")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Bahasa diubah ke: $title")));
       },
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -94,7 +94,9 @@ class _LanguagePageState extends State<LanguagePage> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isSelected ? _primaryBlue.withValues(alpha: 0.1) : Colors.grey.shade50,
+                color: isSelected
+                    ? _primaryBlue.withValues(alpha: 0.1)
+                    : Colors.grey.shade50,
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -119,21 +121,14 @@ class _LanguagePageState extends State<LanguagePage> {
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: _textGray,
-                    ),
+                    style: TextStyle(fontSize: 12, color: _textGray),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 16),
             if (isSelected)
-              Icon(
-                Icons.check_circle_rounded,
-                color: _primaryBlue,
-                size: 24,
-              ),
+              Icon(Icons.check_circle_rounded, color: _primaryBlue, size: 24),
           ],
         ),
       ),

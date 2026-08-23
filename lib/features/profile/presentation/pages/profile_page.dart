@@ -178,7 +178,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
 
-
                     // Menu: PEMBELAJARAN
                     _buildMenuSection("PEMBELAJARAN", [
                       _buildMenuItem(
@@ -302,35 +301,62 @@ class _ProfilePageState extends State<ProfilePage> {
                         valueListenable: SessionManager.isPremium,
                         builder: (context, isPremium, child) {
                           return _buildMenuItem(
-                            isPremium ? Icons.chat_bubble_outline_rounded : Icons.lock_outline_rounded,
+                            isPremium
+                                ? Icons.chat_bubble_outline_rounded
+                                : Icons.lock_outline_rounded,
                             "Dukungan Bantuan (WhatsApp)",
-                            trailing: isPremium 
-                              ? Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400)
-                              : Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(8)),
-                                  child: const Text("PREMIUM", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
-                                ),
+                            trailing: isPremium
+                                ? Icon(
+                                    Icons.chevron_right_rounded,
+                                    color: Colors.grey.shade400,
+                                  )
+                                : Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade200,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Text(
+                                      "PREMIUM",
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
                             onTap: () async {
-                               if (!isPremium) {
-                                 ScaffoldMessenger.of(context).showSnackBar(
-                                   const SnackBar(
-                                     content: Text('Fitur Dukungan Bantuan Khusus Pengguna Langganan/Premium'),
-                                   ),
-                                 );
-                                 return;
-                               }
-                               final Uri waUri = Uri.parse('https://wa.me/62811268717');
-                               if (!await launchUrl(waUri, mode: LaunchMode.externalApplication)) {
-                                 if (context.mounted) {
-                                   ScaffoldMessenger.of(context).showSnackBar(
-                                     const SnackBar(content: Text('Gagal membuka WhatsApp')),
-                                   );
-                                 }
-                               }
+                              if (!isPremium) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Fitur Dukungan Bantuan Khusus Pengguna Langganan/Premium',
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+                              final Uri waUri = Uri.parse(
+                                'https://wa.me/62811268717',
+                              );
+                              if (!await launchUrl(
+                                waUri,
+                                mode: LaunchMode.externalApplication,
+                              )) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Gagal membuka WhatsApp'),
+                                    ),
+                                  );
+                                }
+                              }
                             },
                           );
-                        }
+                        },
                       ),
                       _buildMenuItem(
                         Icons.info_outline_rounded,
@@ -424,6 +450,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ],
     );
   }
+
   Widget _buildMenuSection(String title, List<Widget> items) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),

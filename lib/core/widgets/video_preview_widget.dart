@@ -15,11 +15,10 @@ class VideoPreviewWidget extends StatefulWidget {
 }
 
 class _VideoPreviewWidgetState extends State<VideoPreviewWidget> {
-
   @override
   void initState() {
     super.initState();
-    // Dinonaktifkan untuk mencegah crash MediaCodec pada Android karena 
+    // Dinonaktifkan untuk mencegah crash MediaCodec pada Android karena
     // banyaknya instance video player yang dibuat secara bersamaan pada list
   }
 
@@ -36,7 +35,11 @@ class _VideoPreviewWidgetState extends State<VideoPreviewWidget> {
       errorBuilder: (context, error, stackTrace) => Container(
         color: Colors.grey.shade300,
         child: const Center(
-          child: Icon(Icons.play_circle_fill_rounded, color: Colors.grey, size: 36),
+          child: Icon(
+            Icons.play_circle_fill_rounded,
+            color: Colors.grey,
+            size: 36,
+          ),
         ),
       ),
     );

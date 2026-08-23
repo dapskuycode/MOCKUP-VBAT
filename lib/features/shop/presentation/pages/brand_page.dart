@@ -338,7 +338,10 @@ class BrandPage extends StatelessWidget {
                   'assets/images/brand_${name.toLowerCase()}.png',
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) => const Center(
-                    child: Icon(Icons.phone_android_rounded, color: Colors.grey),
+                    child: Icon(
+                      Icons.phone_android_rounded,
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
               ),

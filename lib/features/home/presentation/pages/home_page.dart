@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
       "sold": "120",
       "image": "assets/images/product_lcd.png",
       "isMitra": true,
-      "partner": "BraderParts"
+      "partner": "BraderParts",
     },
     {
       "type": "product",
@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
       "sold": "350",
       "image": "assets/images/product_battery.png",
       "isMitra": true,
-      "partner": "BraderParts"
+      "partner": "BraderParts",
     },
     {
       "type": "product",
@@ -72,7 +72,7 @@ class _HomePageState extends State<HomePage> {
       "sold": "500",
       "image": "assets/images/product_1.png",
       "isMitra": true,
-      "partner": "TITAN Tools"
+      "partner": "TITAN Tools",
     },
     {
       "type": "product",
@@ -82,7 +82,7 @@ class _HomePageState extends State<HomePage> {
       "sold": "210",
       "image": "assets/images/product_1.png",
       "isMitra": true,
-      "partner": "BT-ACC"
+      "partner": "BT-ACC",
     },
     {
       "type": "product",
@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> {
       "sold": "890",
       "image": "assets/images/product_1.png",
       "isMitra": false,
-      "partner": ""
+      "partner": "",
     },
     {
       "type": "product",
@@ -102,7 +102,7 @@ class _HomePageState extends State<HomePage> {
       "sold": "440",
       "image": "assets/images/product_1.png",
       "isMitra": false,
-      "partner": ""
+      "partner": "",
     },
     {
       "type": "product",
@@ -112,7 +112,7 @@ class _HomePageState extends State<HomePage> {
       "sold": "670",
       "image": "assets/images/product_1.png",
       "isMitra": true,
-      "partner": "TITAN Tools"
+      "partner": "TITAN Tools",
     },
     {
       "type": "product",
@@ -122,7 +122,7 @@ class _HomePageState extends State<HomePage> {
       "sold": "310",
       "image": "assets/images/product_1.png",
       "isMitra": false,
-      "partner": ""
+      "partner": "",
     },
     {
       "type": "product",
@@ -132,7 +132,7 @@ class _HomePageState extends State<HomePage> {
       "sold": "1.1K",
       "image": "assets/images/product_1.png",
       "isMitra": false,
-      "partner": ""
+      "partner": "",
     },
     {
       "type": "product",
@@ -142,8 +142,8 @@ class _HomePageState extends State<HomePage> {
       "sold": "780",
       "image": "assets/images/product_1.png",
       "isMitra": true,
-      "partner": "TITAN Tools"
-    }
+      "partner": "TITAN Tools",
+    },
   ];
 
   // Template data untuk kursus pembelajaran (otomatis disematkan link YouTube)
@@ -156,7 +156,7 @@ class _HomePageState extends State<HomePage> {
       "views": "12.5K",
       "image": "assets/images/course_soldering.png",
       "videoUrl": "assets/videos/VIDEO-2026-07-26-21-31-11.mp4",
-      "badge": "FREE"
+      "badge": "FREE",
     },
     {
       "type": "learning",
@@ -166,7 +166,7 @@ class _HomePageState extends State<HomePage> {
       "views": "8.1K",
       "image": "assets/images/course_soldering.png",
       "videoUrl": "assets/videos/VIDEO-2026-07-26-21-31-11.mp4",
-      "badge": "PREMIUM"
+      "badge": "PREMIUM",
     },
     {
       "type": "learning",
@@ -176,7 +176,7 @@ class _HomePageState extends State<HomePage> {
       "views": "15.2K",
       "image": "assets/images/course_soldering.png",
       "videoUrl": "assets/videos/VIDEO-2026-07-26-21-31-11.mp4",
-      "badge": "FREE"
+      "badge": "FREE",
     },
     {
       "type": "learning",
@@ -186,7 +186,7 @@ class _HomePageState extends State<HomePage> {
       "views": "6.4K",
       "image": "assets/images/course_soldering.png",
       "videoUrl": "assets/videos/VIDEO-2026-07-26-21-31-11.mp4",
-      "badge": "FREE"
+      "badge": "FREE",
     },
     {
       "type": "learning",
@@ -196,10 +196,9 @@ class _HomePageState extends State<HomePage> {
       "views": "9.8K",
       "image": "assets/images/course_soldering.png",
       "videoUrl": "assets/videos/VIDEO-2026-07-26-21-31-11.mp4",
-      "badge": "PREMIUM"
+      "badge": "PREMIUM",
     },
   ];
-
 
   @override
   void initState() {
@@ -224,7 +223,8 @@ class _HomePageState extends State<HomePage> {
 
     // Scroll listener untuk infinite scroll
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 400) {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 400) {
         _loadMore();
       }
     });
@@ -243,18 +243,12 @@ class _HomePageState extends State<HomePage> {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Ad',
-      barrierColor: Colors.black.withOpacity(0.75),
+      barrierColor: Colors.black.withValues(alpha: 0.75),
       transitionDuration: const Duration(milliseconds: 400),
       transitionBuilder: (ctx, anim, secondAnim, child) {
         return ScaleTransition(
-          scale: CurvedAnimation(
-            parent: anim,
-            curve: Curves.easeOutBack,
-          ),
-          child: FadeTransition(
-            opacity: anim,
-            child: child,
-          ),
+          scale: CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
+          child: FadeTransition(opacity: anim, child: child),
         );
       },
       pageBuilder: (ctx, anim, secondAnim) {
@@ -274,13 +268,10 @@ class _HomePageState extends State<HomePage> {
                     Color(0xFF0A1628),
                   ],
                 ),
-                border: Border.all(
-                  color: const Color(0xFF1B4F9B),
-                  width: 1.5,
-                ),
+                border: Border.all(color: const Color(0xFF1B4F9B), width: 1.5),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF1B4F9B).withOpacity(0.5),
+                    color: const Color(0xFF1B4F9B).withValues(alpha: 0.5),
                     blurRadius: 30,
                     spreadRadius: 2,
                   ),
@@ -292,7 +283,10 @@ class _HomePageState extends State<HomePage> {
                   // Header label iklan
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
                     decoration: const BoxDecoration(
                       borderRadius: BorderRadius.only(
                         topLeft: Radius.circular(19),
@@ -304,7 +298,11 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.campaign_rounded, color: Colors.white, size: 18),
+                        const Icon(
+                          Icons.campaign_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                         const SizedBox(width: 8),
                         const Expanded(
                           child: Text(
@@ -323,7 +321,7 @@ class _HomePageState extends State<HomePage> {
                             width: 26,
                             height: 26,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -347,7 +345,10 @@ class _HomePageState extends State<HomePage> {
                   ),
                   // Footer dengan tombol aksi
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
                     decoration: const BoxDecoration(
                       borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(19),
@@ -363,7 +364,9 @@ class _HomePageState extends State<HomePage> {
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               decoration: BoxDecoration(
                                 border: Border.all(
-                                  color: const Color(0xFF1B4F9B).withOpacity(0.5),
+                                  color: const Color(
+                                    0xFF1B4F9B,
+                                  ).withValues(alpha: 0.5),
                                   width: 1,
                                 ),
                                 borderRadius: BorderRadius.circular(10),
@@ -392,12 +395,17 @@ class _HomePageState extends State<HomePage> {
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
-                                  colors: [Color(0xFF1B4F9B), Color(0xFF0D6EFD)],
+                                  colors: [
+                                    Color(0xFF1B4F9B),
+                                    Color(0xFF0D6EFD),
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(10),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFF0D6EFD).withOpacity(0.4),
+                                    color: const Color(
+                                      0xFF0D6EFD,
+                                    ).withValues(alpha: 0.4),
                                     blurRadius: 12,
                                     offset: const Offset(0, 4),
                                   ),
@@ -407,7 +415,11 @@ class _HomePageState extends State<HomePage> {
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.storefront_rounded, color: Colors.white, size: 16),
+                                  Icon(
+                                    Icons.storefront_rounded,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
                                   SizedBox(width: 6),
                                   Text(
                                     'Kunjungi Toko',
@@ -447,12 +459,42 @@ class _HomePageState extends State<HomePage> {
   // SEMUA card selalu tinggi portrait, sehingga tidak ada gap
   // [0][0] selalu 'x' agar banner sponsor di pojok kiri atas
   static const List<List<List<String>>> _mosaicPatterns = [
-    [['x','y'], ['y','x'], ['x','y'], ['y','x']], // A: checkerboard
-    [['x','x'], ['y','x'], ['x','y'], ['y','y']], // B: blocks
-    [['x','y'], ['x','x'], ['y','y'], ['y','x']], // C: diagonal
-    [['x','y'], ['y','y'], ['x','x'], ['y','x']], // D: cross
-    [['x','x'], ['y','y'], ['x','y'], ['y','x']], // E: symmetric
-    [['x','y'], ['y','x'], ['y','x'], ['x','y']], // F: zigzag
+    [
+      ['x', 'y'],
+      ['y', 'x'],
+      ['x', 'y'],
+      ['y', 'x'],
+    ], // A: checkerboard
+    [
+      ['x', 'x'],
+      ['y', 'x'],
+      ['x', 'y'],
+      ['y', 'y'],
+    ], // B: blocks
+    [
+      ['x', 'y'],
+      ['x', 'x'],
+      ['y', 'y'],
+      ['y', 'x'],
+    ], // C: diagonal
+    [
+      ['x', 'y'],
+      ['y', 'y'],
+      ['x', 'x'],
+      ['y', 'x'],
+    ], // D: cross
+    [
+      ['x', 'x'],
+      ['y', 'y'],
+      ['x', 'y'],
+      ['y', 'x'],
+    ], // E: symmetric
+    [
+      ['x', 'y'],
+      ['y', 'x'],
+      ['y', 'x'],
+      ['x', 'y'],
+    ], // F: zigzag
   ];
 
   // Generate satu mosaic block berdasarkan pola layout
@@ -470,12 +512,18 @@ class _HomePageState extends State<HomePage> {
           bannerPlaced = true;
         } else if (type == 'x') {
           // Slot 'x' berikutnya = product card (portrait, sama ukuran dengan banner)
-          items.add(Map<String, dynamic>.from(
-            _productTemplates[random.nextInt(_productTemplates.length)]));
+          items.add(
+            Map<String, dynamic>.from(
+              _productTemplates[random.nextInt(_productTemplates.length)],
+            ),
+          );
         } else {
           // Slot 'y' = course card (1:1 square)
-          items.add(Map<String, dynamic>.from(
-            _learningTemplates[random.nextInt(_learningTemplates.length)]));
+          items.add(
+            Map<String, dynamic>.from(
+              _learningTemplates[random.nextInt(_learningTemplates.length)],
+            ),
+          );
         }
       }
     }
@@ -641,7 +689,10 @@ class _HomePageState extends State<HomePage> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [_orangeSale, const Color(0xFFFF9800)],
@@ -659,7 +710,11 @@ class _HomePageState extends State<HomePage> {
                     ),
                     child: Row(
                       children: const [
-                        Icon(Icons.workspace_premium_rounded, color: Colors.white, size: 16),
+                        Icon(
+                          Icons.workspace_premium_rounded,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                         SizedBox(width: 4),
                         Text(
                           "BEST DEAL",
@@ -676,15 +731,24 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(width: 8),
                   // POIN 8: label mitra
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF3E0),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFFFFB300).withValues(alpha: 0.4)),
+                      border: Border.all(
+                        color: const Color(0xFFFFB300).withValues(alpha: 0.4),
+                      ),
                     ),
                     child: Row(
                       children: const [
-                        Icon(Icons.verified_rounded, color: Color(0xFFFFB300), size: 10),
+                        Icon(
+                          Icons.verified_rounded,
+                          color: Color(0xFFFFB300),
+                          size: 10,
+                        ),
                         SizedBox(width: 3),
                         Text(
                           "Produk Mitra",
@@ -706,12 +770,20 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Text(
                           "Lihat Semua",
-                          style: TextStyle(color: _primaryBlue, fontWeight: FontWeight.bold, fontSize: 12),
+                          style: TextStyle(
+                            color: _primaryBlue,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
                         ),
-                        Icon(Icons.chevron_right_rounded, color: _primaryBlue, size: 16),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: _primaryBlue,
+                          size: 16,
+                        ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -766,11 +838,7 @@ class _HomePageState extends State<HomePage> {
     );
 
     // POIN 5: Banner Sponsor antara Flash Sale dan Rekomendasi diganti dengan gambar statis
-    slivers.add(
-      SliverToBoxAdapter(
-        child: _buildStaticSeparatorBanner(),
-      ),
-    );
+    slivers.add(SliverToBoxAdapter(child: _buildStaticSeparatorBanner()));
 
     // 5. Header Rekomendasi
     slivers.add(
@@ -788,7 +856,11 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const Spacer(),
-              const Icon(Icons.star_outline_rounded, color: Colors.grey, size: 20),
+              const Icon(
+                Icons.star_outline_rounded,
+                color: Colors.grey,
+                size: 20,
+              ),
             ],
           ),
         ),
@@ -797,65 +869,69 @@ class _HomePageState extends State<HomePage> {
 
     // 6. Mosaic blocks — setiap blok = 4 baris × 2 kolom (8 card), lalu jeda banner statis
     for (int blockIdx = 0; blockIdx < _mosaicBlocks.length; blockIdx++) {
-      slivers.add(SliverToBoxAdapter(
-        child: _buildMosaicBlock(context, _mosaicBlocks[blockIdx]),
-      ));
+      slivers.add(
+        SliverToBoxAdapter(
+          child: _buildMosaicBlock(context, _mosaicBlocks[blockIdx]),
+        ),
+      );
       // Separator setelah setiap blok 8 card: Gambar PHOTO-2026-07-22-20-20-24 statis tanpa slider
-      slivers.add(SliverToBoxAdapter(
-        child: _buildStaticSeparatorBanner(),
-      ));
+      slivers.add(SliverToBoxAdapter(child: _buildStaticSeparatorBanner()));
     }
 
     // 7. Loading skeleton
     if (_isLoadingMore) {
-      slivers.add(SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: Column(
-            children: List.generate(2, (_) => Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Row(
-                children: [
-                  Expanded(child: AspectRatio(
-                    aspectRatio: 1.0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(10),
+      slivers.add(
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Column(
+              children: List.generate(
+                2,
+                (_) => Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: AspectRatio(
+                          aspectRatio: 1.0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  )),
-                  const SizedBox(width: 6),
-                  Expanded(child: AspectRatio(
-                    aspectRatio: 1.0,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(10),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: AspectRatio(
+                          aspectRatio: 1.0,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                  )),
-                ],
+                    ],
+                  ),
+                ),
               ),
-            )),
+            ),
           ),
         ),
-      ));
+      );
     }
 
     // POIN 14: Hardware Solution Section
     slivers.add(SliverToBoxAdapter(child: _buildHardwareSolutionSection()));
 
     // 8. Safe area padding
-    slivers.add(
-      const SliverToBoxAdapter(
-        child: SizedBox(height: 100),
-      ),
-    );
+    slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 100)));
 
     return slivers;
   }
-
 
   // ---- MOSAIC BLOCK BUILDER ----
   // Layout Masonry (2 kolom independen):
@@ -924,7 +1000,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Pilih widget berdasarkan type cell
-  Widget _buildMosaicCell(BuildContext context, String type, Map<String, dynamic> item) {
+  Widget _buildMosaicCell(
+    BuildContext context,
+    String type,
+    Map<String, dynamic> item,
+  ) {
     if (item['type'] == 'banner_sponsor') {
       return const SponsorSliderCard();
     }
@@ -934,7 +1014,10 @@ class _HomePageState extends State<HomePage> {
         : _buildZStackCourseCard(context, item);
   }
 
-  Widget _buildZStackProductCard(BuildContext context, Map<String, dynamic> item) {
+  Widget _buildZStackProductCard(
+    BuildContext context,
+    Map<String, dynamic> item,
+  ) {
     final bool isMitra = item['isMitra'] == true;
     final String? partner = item['partner'] as String?;
 
@@ -951,7 +1034,11 @@ class _HomePageState extends State<HomePage> {
               fit: BoxFit.cover,
               errorBuilder: (_, _, _) => Container(
                 color: const Color(0xFFE8EAF6),
-                child: Icon(Icons.inventory_2_rounded, color: _primaryBlue.withValues(alpha: 0.4), size: 36),
+                child: Icon(
+                  Icons.inventory_2_rounded,
+                  color: _primaryBlue.withValues(alpha: 0.4),
+                  size: 36,
+                ),
               ),
             ),
             // Gradient overlay gelap 70% dari bawah
@@ -977,7 +1064,12 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: const Text(
                   'PRODUK',
-                  style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold, letterSpacing: 0.3),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 7,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.3,
+                  ),
                 ),
               ),
             ),
@@ -987,7 +1079,10 @@ class _HomePageState extends State<HomePage> {
                 top: 7,
                 right: 7,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFB300),
                     borderRadius: BorderRadius.circular(4),
@@ -995,9 +1090,20 @@ class _HomePageState extends State<HomePage> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: const [
-                      Icon(Icons.verified_rounded, color: Colors.white, size: 8),
+                      Icon(
+                        Icons.verified_rounded,
+                        color: Colors.white,
+                        size: 8,
+                      ),
                       SizedBox(width: 2),
-                      Text('MITRA', style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold)),
+                      Text(
+                        'MITRA',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 7,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1014,12 +1120,20 @@ class _HomePageState extends State<HomePage> {
                   if (isMitra && partner != null) ...[
                     Row(
                       children: [
-                        const Icon(Icons.store_rounded, size: 9, color: Color(0xFFFFD54F)),
+                        const Icon(
+                          Icons.store_rounded,
+                          size: 9,
+                          color: Color(0xFFFFD54F),
+                        ),
                         const SizedBox(width: 2),
                         Flexible(
                           child: Text(
                             partner,
-                            style: const TextStyle(color: Color(0xFFFFD54F), fontSize: 9, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                              color: Color(0xFFFFD54F),
+                              fontSize: 9,
+                              fontWeight: FontWeight.w600,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -1030,19 +1144,31 @@ class _HomePageState extends State<HomePage> {
                   ],
                   Text(
                     item['name'] ?? '',
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, height: 1.2),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 3),
                   Row(
                     children: [
-                      const Icon(Icons.star_rounded, color: Colors.amber, size: 10),
+                      const Icon(
+                        Icons.star_rounded,
+                        color: Colors.amber,
+                        size: 10,
+                      ),
                       const SizedBox(width: 2),
                       Flexible(
                         child: Text(
                           '${item['rating'] ?? ''} • ${item['sold'] ?? ''} terjual',
-                          style: const TextStyle(color: Colors.white70, fontSize: 9),
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 9,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -1051,7 +1177,11 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 2),
                   Text(
                     item['price'] ?? '',
-                    style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
@@ -1063,7 +1193,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   // ---- COURSE CARD: 1:1 square mutlak ----
-  Widget _buildZStackCourseCard(BuildContext context, Map<String, dynamic> item) {
+  Widget _buildZStackCourseCard(
+    BuildContext context,
+    Map<String, dynamic> item,
+  ) {
     final String badge = item['badge'] ?? 'FREE';
     final bool isPremium = badge == 'PREMIUM';
 
@@ -1079,7 +1212,9 @@ class _HomePageState extends State<HomePage> {
           children: [
             Container(color: const Color(0xFF0D0D1A)),
             VideoPreviewWidget(
-              videoUrl: item['videoUrl'] ?? 'assets/videos/VIDEO-2026-07-26-21-31-11.mp4',
+              videoUrl:
+                  item['videoUrl'] ??
+                  'assets/videos/VIDEO-2026-07-26-21-31-11.mp4',
               fallbackImage: item['image'] ?? '',
             ),
             // Gradient gelap dari bawah agar teks terbaca jelas
@@ -1096,64 +1231,101 @@ class _HomePageState extends State<HomePage> {
             // Tombol play di tengah
             Center(
               child: Container(
-                width: 42, height: 42,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.55),
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2),
                 ),
-                child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 24),
+                child: const Icon(
+                  Icons.play_arrow_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
               ),
             ),
             // Badge KURSUS di pojok kiri atas
             Positioned(
-              top: 7, left: 7,
+              top: 7,
+              left: 7,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.red.shade600,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: const Text('KURSUS',
-                  style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold, letterSpacing: 0.3)),
+                child: const Text(
+                  'KURSUS',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 7,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.3,
+                  ),
+                ),
               ),
             ),
             // Badge FREE / PREMIUM di pojok kanan atas
             Positioned(
-              top: 7, right: 7,
+              top: 7,
+              right: 7,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: isPremium ? const Color(0xFF7B1FA2) : Colors.green.shade600,
+                  color: isPremium
+                      ? const Color(0xFF7B1FA2)
+                      : Colors.green.shade600,
                   borderRadius: BorderRadius.circular(4),
                 ),
-                child: Text(badge,
-                  style: const TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold)),
+                child: Text(
+                  badge,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 7,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
             // Info teks di pojok kiri bawah (overlay di atas foto)
             Positioned(
-              left: 8, right: 8, bottom: 8,
+              left: 8,
+              right: 8,
+              bottom: 8,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
                     item['title'] ?? '',
-                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold, height: 1.2),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      height: 1.2,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 3),
                   Row(
                     children: [
-                      const Icon(Icons.person_rounded, color: Color(0xFF90CAF9), size: 10),
+                      const Icon(
+                        Icons.person_rounded,
+                        color: Color(0xFF90CAF9),
+                        size: 10,
+                      ),
                       const SizedBox(width: 3),
                       Expanded(
                         child: Text(
                           item['instructor'] ?? '',
-                          style: const TextStyle(color: Color(0xFF90CAF9), fontSize: 9),
-                          maxLines: 1, overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Color(0xFF90CAF9),
+                            fontSize: 9,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
@@ -1162,13 +1334,33 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(height: 3),
                     Row(
                       children: [
-                        const Icon(Icons.access_time_rounded, color: Colors.white70, size: 9),
+                        const Icon(
+                          Icons.access_time_rounded,
+                          color: Colors.white70,
+                          size: 9,
+                        ),
                         const SizedBox(width: 2),
-                        Text(item['duration'], style: const TextStyle(color: Colors.white70, fontSize: 8)),
+                        Text(
+                          item['duration'],
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 8,
+                          ),
+                        ),
                         const SizedBox(width: 8),
-                        const Icon(Icons.visibility_rounded, color: Colors.white70, size: 9),
+                        const Icon(
+                          Icons.visibility_rounded,
+                          color: Colors.white70,
+                          size: 9,
+                        ),
                         const SizedBox(width: 2),
-                        Text(item['views'] ?? '', style: const TextStyle(color: Colors.white70, fontSize: 8)),
+                        Text(
+                          item['views'] ?? '',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 8,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -1180,7 +1372,6 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
 
   // ---- BANNER PROMO SLIDER (GAYA TOKOPEDIA) ----
   Widget _buildPromoBannerSlider() {
@@ -1211,7 +1402,11 @@ class _HomePageState extends State<HomePage> {
                         errorBuilder: (_, _, _) => Container(
                           color: const Color(0xFFE8EAF6),
                           child: const Center(
-                            child: Icon(Icons.local_offer_rounded, color: Color(0xFF1B4F9B), size: 36),
+                            child: Icon(
+                              Icons.local_offer_rounded,
+                              color: Color(0xFF1B4F9B),
+                              size: 36,
+                            ),
                           ),
                         ),
                       );
@@ -1248,7 +1443,9 @@ class _HomePageState extends State<HomePage> {
                           width: isActive ? 18.0 : 6.0,
                           height: 5.0,
                           decoration: BoxDecoration(
-                            color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.5),
+                            color: isActive
+                                ? Colors.white
+                                : Colors.white.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         );
@@ -1279,7 +1476,11 @@ class _HomePageState extends State<HomePage> {
             errorBuilder: (_, _, _) => Container(
               color: const Color(0xFFE8EAF6),
               child: const Center(
-                child: Icon(Icons.image_rounded, color: Color(0xFF1B4F9B), size: 36),
+                child: Icon(
+                  Icons.image_rounded,
+                  color: Color(0xFF1B4F9B),
+                  size: 36,
+                ),
               ),
             ),
           ),
@@ -1344,7 +1545,10 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: _orangeSale.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(6),
@@ -1378,7 +1582,11 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Icon(Icons.chevron_right_rounded, color: _primaryBlue, size: 14),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        color: _primaryBlue,
+                        size: 14,
+                      ),
                     ],
                   ),
                 ),
@@ -1411,9 +1619,7 @@ class _HomePageState extends State<HomePage> {
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.06),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: color.withValues(alpha: 0.2),
-                      ),
+                      border: Border.all(color: color.withValues(alpha: 0.2)),
                     ),
                     padding: const EdgeInsets.all(12),
                     child: Column(
@@ -1430,7 +1636,11 @@ class _HomePageState extends State<HomePage> {
                                     color: color.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: Icon(sol["icon"] as IconData, color: color, size: 18),
+                                  child: Icon(
+                                    sol["icon"] as IconData,
+                                    color: color,
+                                    size: 18,
+                                  ),
                                 ),
                                 Positioned(
                                   right: 0,
@@ -1441,7 +1651,11 @@ class _HomePageState extends State<HomePage> {
                                       color: Colors.grey.shade300,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(Icons.lock_rounded, color: Colors.grey.shade700, size: 10),
+                                    child: Icon(
+                                      Icons.lock_rounded,
+                                      color: Colors.grey.shade700,
+                                      size: 10,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -1475,10 +1689,7 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 8),
                         Text(
                           sol["model"] as String,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: _textGray,
-                          ),
+                          style: TextStyle(fontSize: 10, color: _textGray),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1486,21 +1697,29 @@ class _HomePageState extends State<HomePage> {
                         Wrap(
                           spacing: 4,
                           runSpacing: 4,
-                          children: topics.take(3).map((t) => Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: color.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              t,
-                              style: TextStyle(
-                                fontSize: 8,
-                                color: color,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          )).toList(),
+                          children: topics
+                              .take(3)
+                              .map(
+                                (t) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: color.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    t,
+                                    style: TextStyle(
+                                      fontSize: 8,
+                                      color: color,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
                         ),
                       ],
                     ),
@@ -1587,7 +1806,10 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 7,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.25),
                       borderRadius: BorderRadius.circular(6),
@@ -1603,7 +1825,11 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 12),
+                  const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.white,
+                    size: 12,
+                  ),
                 ],
               ),
             ],
@@ -1643,7 +1869,9 @@ class _HomePageState extends State<HomePage> {
     ];
 
     // POIN 12: Batasi jumlah sponsor sesuai konfigurasi admin (3-6)
-    final displayedSponsors = sponsors.take(maxCount ?? _adminSponsorCount).toList();
+    final displayedSponsors = sponsors
+        .take(maxCount ?? _adminSponsorCount)
+        .toList();
 
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 0, 0, 4),
@@ -1681,7 +1909,11 @@ class _HomePageState extends State<HomePage> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                Icon(Icons.chevron_right_rounded, color: _primaryBlue, size: 14),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: _primaryBlue,
+                  size: 14,
+                ),
               ],
             ),
           ),
@@ -1722,7 +1954,10 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
                     child: Row(
                       children: [
                         Container(
@@ -1745,7 +1980,10 @@ class _HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 5,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.25),
                                   borderRadius: BorderRadius.circular(4),
@@ -1935,7 +2173,8 @@ class _HomePageState extends State<HomePage> {
             "sold": "250+",
             "isMitra": true,
             "partner": partner,
-            "link": "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095",
+            "link":
+                "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095",
           },
         );
       },
@@ -1944,7 +2183,9 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFFFB300).withValues(alpha: 0.35)),
+          border: Border.all(
+            color: const Color(0xFFFFB300).withValues(alpha: 0.35),
+          ),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFFFFB300).withValues(alpha: 0.08),
@@ -1963,16 +2204,25 @@ class _HomePageState extends State<HomePage> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(12),
+                      ),
                     ),
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(12),
+                      ),
                       child: Image.asset(
                         assetImage,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Center(
-                          child: Icon(Icons.phone_android_rounded, color: Colors.grey, size: 36),
-                        ),
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(
+                              child: Icon(
+                                Icons.phone_android_rounded,
+                                color: Colors.grey,
+                                size: 36,
+                              ),
+                            ),
                       ),
                     ),
                   ),
@@ -1981,14 +2231,21 @@ class _HomePageState extends State<HomePage> {
                     top: 6,
                     left: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.red,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         discount,
-                        style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -1997,7 +2254,10 @@ class _HomePageState extends State<HomePage> {
                     top: 6,
                     right: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFB300),
                         borderRadius: BorderRadius.circular(4),
@@ -2005,11 +2265,19 @@ class _HomePageState extends State<HomePage> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: const [
-                          Icon(Icons.verified_rounded, color: Colors.white, size: 8),
+                          Icon(
+                            Icons.verified_rounded,
+                            color: Colors.white,
+                            size: 8,
+                          ),
                           SizedBox(width: 2),
                           Text(
                             "MITRA",
-                            style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 7,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -2026,7 +2294,11 @@ class _HomePageState extends State<HomePage> {
                   // POIN 8: nama partner/mitra
                   Row(
                     children: [
-                      const Icon(Icons.store_rounded, size: 9, color: Color(0xFFFFB300)),
+                      const Icon(
+                        Icons.store_rounded,
+                        size: 9,
+                        color: Color(0xFFFFB300),
+                      ),
                       const SizedBox(width: 2),
                       Text(
                         partner,
@@ -2045,7 +2317,11 @@ class _HomePageState extends State<HomePage> {
                     name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _textDark),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: _textDark,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
@@ -2058,7 +2334,11 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Text(
                     price,
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: _orangeSale),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: _orangeSale,
+                    ),
                   ),
                 ],
               ),
@@ -2076,8 +2356,16 @@ class _HomePageState extends State<HomePage> {
     final bool isMitra = item["isMitra"] == true;
     final String? partnerName = item["partner"] as String?;
     // Random location & shipping tags
-    final List<String> locations = ["Jakarta Selatan", "Bandung", "Surabaya", "Tangerang", "Bekasi"];
-    final String locationKey = isProduct ? item["name"].toString() : (item["title"] ?? "").toString();
+    final List<String> locations = [
+      "Jakarta Selatan",
+      "Bandung",
+      "Surabaya",
+      "Tangerang",
+      "Bekasi",
+    ];
+    final String locationKey = isProduct
+        ? item["name"].toString()
+        : (item["title"] ?? "").toString();
     final String location = locations[locationKey.length % locations.length];
     final bool hasFreeShipping = (locationKey.length % 3 == 0);
 
@@ -2096,7 +2384,9 @@ class _HomePageState extends State<HomePage> {
           // POIN 9: border berbeda: produk abu, video merah tipis
           border: Border.all(
             color: isProduct
-                ? (isMitra ? const Color(0xFFFFB300).withValues(alpha: 0.4) : Colors.grey.shade100)
+                ? (isMitra
+                      ? const Color(0xFFFFB300).withValues(alpha: 0.4)
+                      : Colors.grey.shade100)
                 : Colors.red.withValues(alpha: 0.15),
           ),
           boxShadow: [
@@ -2119,13 +2409,19 @@ class _HomePageState extends State<HomePage> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       color: isProduct ? Colors.grey.shade50 : Colors.black,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(8),
+                      ),
                     ),
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(8),
+                      ),
                       child: !isProduct
                           ? VideoPreviewWidget(
-                              videoUrl: item["videoUrl"] ?? "assets/videos/VIDEO-2026-07-26-21-31-11.mp4",
+                              videoUrl:
+                                  item["videoUrl"] ??
+                                  "assets/videos/VIDEO-2026-07-26-21-31-11.mp4",
                               fallbackImage: item["image"] ?? "",
                             )
                           : Image.asset(
@@ -2133,13 +2429,14 @@ class _HomePageState extends State<HomePage> {
                               fit: BoxFit.cover,
                               width: double.infinity,
                               height: double.infinity,
-                              errorBuilder: (context, error, stackTrace) => Center(
-                                child: Icon(
-                                  Icons.handyman_rounded,
-                                  color: _primaryBlue,
-                                  size: 36,
-                                ),
-                              ),
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Center(
+                                    child: Icon(
+                                      Icons.handyman_rounded,
+                                      color: _primaryBlue,
+                                      size: 36,
+                                    ),
+                                  ),
                             ),
                     ),
                   ),
@@ -2169,7 +2466,10 @@ class _HomePageState extends State<HomePage> {
                       bottom: 6,
                       right: 6,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(4),
@@ -2189,14 +2489,21 @@ class _HomePageState extends State<HomePage> {
                     top: 6,
                     left: 6,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: isProduct ? _primaryBlue : Colors.red,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         isProduct ? "PRODUK" : "KURSUS",
-                        style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 8,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -2207,7 +2514,10 @@ class _HomePageState extends State<HomePage> {
                       left: 0,
                       right: 0,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
                         decoration: const BoxDecoration(
                           gradient: LinearGradient(
                             colors: [Color(0xFFFFB300), Color(0xFFFF8F00)],
@@ -2218,7 +2528,11 @@ class _HomePageState extends State<HomePage> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.verified_rounded, color: Colors.white, size: 9),
+                            const Icon(
+                              Icons.verified_rounded,
+                              color: Colors.white,
+                              size: 9,
+                            ),
                             const SizedBox(width: 3),
                             Expanded(
                               child: Text(
@@ -2243,18 +2557,27 @@ class _HomePageState extends State<HomePage> {
                       left: 0,
                       right: 0,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade600,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
                         ),
+                        decoration: BoxDecoration(color: Colors.green.shade600),
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.local_shipping_outlined, color: Colors.white, size: 10),
+                            Icon(
+                              Icons.local_shipping_outlined,
+                              color: Colors.white,
+                              size: 10,
+                            ),
                             SizedBox(width: 3),
                             Text(
                               "Gratis Ongkir",
-                              style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ],
                         ),
@@ -2287,7 +2610,11 @@ class _HomePageState extends State<HomePage> {
                     if (isProduct)
                       Row(
                         children: [
-                          const Icon(Icons.star_rounded, color: Colors.amber, size: 12),
+                          const Icon(
+                            Icons.star_rounded,
+                            color: Colors.amber,
+                            size: 12,
+                          ),
                           const SizedBox(width: 2),
                           Text(
                             "${item['rating']}",
@@ -2302,7 +2629,11 @@ class _HomePageState extends State<HomePage> {
                     else
                       Row(
                         children: [
-                          const Icon(Icons.person_rounded, color: Colors.grey, size: 12),
+                          const Icon(
+                            Icons.person_rounded,
+                            color: Colors.grey,
+                            size: 12,
+                          ),
                           const SizedBox(width: 2),
                           Expanded(
                             child: Text(
@@ -2330,7 +2661,11 @@ class _HomePageState extends State<HomePage> {
                         padding: const EdgeInsets.only(top: 3),
                         child: Row(
                           children: [
-                            Icon(Icons.location_on_outlined, size: 10, color: _textGray),
+                            Icon(
+                              Icons.location_on_outlined,
+                              size: 10,
+                              color: _textGray,
+                            ),
                             const SizedBox(width: 2),
                             Expanded(
                               child: Text(
@@ -2353,7 +2688,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   // --- Partner Banner ---
   Widget _buildPartnerBannerWidget() {
     return Container(
@@ -2371,12 +2705,18 @@ class _HomePageState extends State<HomePage> {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) => Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [_primaryBlue, Colors.blue.shade900]),
+              gradient: LinearGradient(
+                colors: [_primaryBlue, Colors.blue.shade900],
+              ),
             ),
             child: const Center(
               child: Text(
                 "BRADERPARTS OFFICIAL PARTNER",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
@@ -2396,9 +2736,14 @@ class _HomePageState extends State<HomePage> {
             Text("Streak Belajar"),
           ],
         ),
-        content: const Text("Hebat! Anda telah belajar 3 hari berturut-turut. Pertahankan streak Anda untuk mendapatkan bonus poin!"),
+        content: const Text(
+          "Hebat! Anda telah belajar 3 hari berturut-turut. Pertahankan streak Anda untuk mendapatkan bonus poin!",
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Mantap")),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Mantap"),
+          ),
         ],
       ),
     );
@@ -2415,15 +2760,18 @@ class _HomePageState extends State<HomePage> {
             Text("Member VBat"),
           ],
         ),
-        content: const Text("Sebagai Member VBat, Anda berhak mendapatkan diskon 10% untuk semua pembelian suku cadang di BraderParts resmi."),
+        content: const Text(
+          "Sebagai Member VBat, Anda berhak mendapatkan diskon 10% untuk semua pembelian suku cadang di BraderParts resmi.",
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Tutup")),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Tutup"),
+          ),
         ],
       ),
     );
   }
-
-
 }
 
 // --- Sliding Banner Card Widget (Auto Sliding Carousel) ---
@@ -2431,7 +2779,8 @@ class SlidingBannerCardWidget extends StatefulWidget {
   const SlidingBannerCardWidget({super.key});
 
   @override
-  State<SlidingBannerCardWidget> createState() => _SlidingBannerCardWidgetState();
+  State<SlidingBannerCardWidget> createState() =>
+      _SlidingBannerCardWidgetState();
 }
 
 class _SlidingBannerCardWidgetState extends State<SlidingBannerCardWidget> {
@@ -2463,7 +2812,7 @@ class _SlidingBannerCardWidgetState extends State<SlidingBannerCardWidget> {
       "color2": const Color(0xFF2ECC71),
       "image": null,
       "badge": "FREE SHIPPING",
-    }
+    },
   ];
 
   @override
@@ -2556,14 +2905,21 @@ class _SlidingBannerCardWidgetState extends State<SlidingBannerCardWidget> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.25),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
                               promo["badge"]!,
-                              style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -2605,7 +2961,9 @@ class _SlidingBannerCardWidgetState extends State<SlidingBannerCardWidget> {
                     width: _currentPage == index ? 12 : 5,
                     height: 5,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: _currentPage == index ? 0.9 : 0.4),
+                      color: Colors.white.withValues(
+                        alpha: _currentPage == index ? 0.9 : 0.4,
+                      ),
                       borderRadius: BorderRadius.circular(3),
                     ),
                   ),
@@ -2628,9 +2986,7 @@ class PartnerLogoCardWidget extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             const Icon(Icons.verified_rounded, color: Colors.blue),
@@ -2676,7 +3032,11 @@ class PartnerLogoCardWidget extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.verified_user_rounded, color: Colors.blue, size: 18),
+                  const Icon(
+                    Icons.verified_user_rounded,
+                    color: Colors.blue,
+                    size: 18,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -2749,13 +3109,20 @@ class PartnerLogoCardWidget extends StatelessWidget {
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.grey.shade200),
                   ),
-                  child: partner["image"] != null 
-                    ? ClipOval(child: Image.asset(partner["image"], fit: BoxFit.cover))
-                    : Icon(
-                        partner["icon"] ?? Icons.star,
-                        color: partner["color"] == Colors.white ? const Color(0xFF1B4F9B) : Colors.white,
-                        size: 26,
-                      ),
+                  child: partner["image"] != null
+                      ? ClipOval(
+                          child: Image.asset(
+                            partner["image"],
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Icon(
+                          partner["icon"] ?? Icons.star,
+                          color: partner["color"] == Colors.white
+                              ? const Color(0xFF1B4F9B)
+                              : Colors.white,
+                          size: 26,
+                        ),
                 ),
                 Positioned(
                   bottom: 0,
@@ -2767,7 +3134,11 @@ class PartnerLogoCardWidget extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white, width: 1.5),
                     ),
-                    child: const Icon(Icons.check, color: Colors.white, size: 8),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 8,
+                    ),
                   ),
                 ),
               ],
@@ -2784,10 +3155,7 @@ class PartnerLogoCardWidget extends StatelessWidget {
             const SizedBox(height: 4),
             const Text(
               "Mitra Terverifikasi",
-              style: TextStyle(
-                fontSize: 9,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 9, color: Colors.grey),
             ),
             const SizedBox(height: 12),
             Container(
@@ -2872,14 +3240,20 @@ class _SponsorSliderCardState extends State<SponsorSliderCard> {
               errorBuilder: (_, _, _) => Container(
                 color: const Color(0xFF1B4F9B),
                 child: const Center(
-                  child: Icon(Icons.image_rounded, color: Colors.white54, size: 40),
+                  child: Icon(
+                    Icons.image_rounded,
+                    color: Colors.white54,
+                    size: 40,
+                  ),
                 ),
               ),
             ),
           ),
           // Gradient bawah tipis agar dot terlihat
           Positioned(
-            left: 0, right: 0, bottom: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
             child: Container(
               height: 40,
               decoration: const BoxDecoration(
@@ -2893,7 +3267,9 @@ class _SponsorSliderCardState extends State<SponsorSliderCard> {
           ),
           // Dot indicator bawah tengah
           Positioned(
-            left: 0, right: 0, bottom: 8,
+            left: 0,
+            right: 0,
+            bottom: 8,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(_bannerImages.length, (i) {
@@ -2963,7 +3339,9 @@ class _ShimmerProductCardState extends State<_ShimmerProductCard>
                 aspectRatio: 1.0,
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(8),
+                    ),
                     gradient: LinearGradient(
                       begin: Alignment(-1.0 + 2.0 * _controller.value, 0),
                       end: Alignment(-1.0 + 2.0 * _controller.value + 1.0, 0),

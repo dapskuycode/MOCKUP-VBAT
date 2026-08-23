@@ -15,13 +15,15 @@ class CourseSyllabusPage extends StatelessWidget {
     List<Map<String, dynamic>> modules = [
       {
         "title": "Modul 1: Pengenalan Alat & K3",
-        "desc": "Mempelajari alat servis dasar, multimeter, dan keselamatan kerja.",
+        "desc":
+            "Mempelajari alat servis dasar, multimeter, dan keselamatan kerja.",
         "icon": Icons.build_circle_rounded,
         "count": "5 Materi",
       },
       {
         "title": "Modul 2: Teardown & Perakitan",
-        "desc": "Cara bongkar pasang perangkat dengan aman tanpa merusak fleksibel.",
+        "desc":
+            "Cara bongkar pasang perangkat dengan aman tanpa merusak fleksibel.",
         "icon": Icons.phone_android_rounded,
         "count": "8 Materi",
       },
@@ -33,13 +35,15 @@ class CourseSyllabusPage extends StatelessWidget {
       },
       {
         "title": "Modul 4: Dasar Microsoldering",
-        "desc": "Pengenalan mikroskop, solder, blower, dan teknik dasar angkat IC.",
+        "desc":
+            "Pengenalan mikroskop, solder, blower, dan teknik dasar angkat IC.",
         "icon": Icons.memory_rounded,
         "count": "10 Materi",
       },
       {
         "title": "Modul 5: Analisis Skema & Jalur",
-        "desc": "Membaca schematic diagram, layout, dan nilai hambatan dalam (Diode Mode).",
+        "desc":
+            "Membaca schematic diagram, layout, dan nilai hambatan dalam (Diode Mode).",
         "icon": Icons.schema_rounded,
         "count": "7 Materi",
       },
@@ -103,7 +107,10 @@ class CourseSyllabusPage extends StatelessWidget {
   }) {
     return GestureDetector(
       onTap: () {
-        context.push('/course-detail', extra: {'module': title, 'category': category});
+        context.push(
+          '/course-detail',
+          extra: {'module': title, 'category': category},
+        );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -157,7 +164,11 @@ class CourseSyllabusPage extends StatelessWidget {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Icon(Icons.play_circle_outline_rounded, size: 14, color: Colors.grey.shade600),
+                        Icon(
+                          Icons.play_circle_outline_rounded,
+                          size: 14,
+                          color: Colors.grey.shade600,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           itemCount,
@@ -169,7 +180,10 @@ class CourseSyllabusPage extends StatelessWidget {
                         ),
                         const Spacer(),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFFD761A),
                             borderRadius: BorderRadius.circular(20),

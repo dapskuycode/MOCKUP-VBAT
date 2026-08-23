@@ -40,7 +40,8 @@ class LearningHistoryPage extends StatelessWidget {
             title: "Pengenalan Dasar Komponen iPhone",
             date: "Selesai pada 12 Okt 2023",
             progress: 1.0,
-            imageUrl: "https://images.unsplash.com/photo-1512054502232-10a0a035d672?q=80&w=200&auto=format&fit=crop",
+            imageUrl:
+                "https://images.unsplash.com/photo-1512054502232-10a0a035d672?q=80&w=200&auto=format&fit=crop",
           ),
           const SizedBox(height: 16),
           _buildHistoryCard(
@@ -48,7 +49,8 @@ class LearningHistoryPage extends StatelessWidget {
             title: "Teknik Jumper Jalur Putus",
             date: "Terakhir dilihat 15 Nov 2023",
             progress: 0.75,
-            imageUrl: "https://images.unsplash.com/photo-1597740985671-2a8a3b80502e?q=80&w=200&auto=format&fit=crop",
+            imageUrl:
+                "https://images.unsplash.com/photo-1597740985671-2a8a3b80502e?q=80&w=200&auto=format&fit=crop",
           ),
           const SizedBox(height: 16),
           _buildHistoryCard(
@@ -56,7 +58,8 @@ class LearningHistoryPage extends StatelessWidget {
             title: "Reballing IC Power Android",
             date: "Selesai pada 02 Jan 2024",
             progress: 1.0,
-            imageUrl: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?q=80&w=200&auto=format&fit=crop",
+            imageUrl:
+                "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?q=80&w=200&auto=format&fit=crop",
           ),
         ],
       ),
@@ -71,7 +74,7 @@ class LearningHistoryPage extends StatelessWidget {
     required String imageUrl,
   }) {
     bool isCompleted = progress >= 1.0;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -96,10 +99,7 @@ class LearningHistoryPage extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    imageUrl,
-                    fit: BoxFit.cover,
-                  ),
+                  Image.network(imageUrl, fit: BoxFit.cover),
                   Container(
                     color: Colors.black.withValues(alpha: 0.2),
                     child: Center(
@@ -109,11 +109,11 @@ class LearningHistoryPage extends StatelessWidget {
                         size: 32,
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-            
+
             // Info Content
             Expanded(
               child: Padding(
@@ -134,13 +134,10 @@ class LearningHistoryPage extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       date,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: _textGray,
-                      ),
+                      style: TextStyle(fontSize: 11, color: _textGray),
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Progress Bar
                     Row(
                       children: [
@@ -150,7 +147,9 @@ class LearningHistoryPage extends StatelessWidget {
                             child: LinearProgressIndicator(
                               value: progress,
                               backgroundColor: Colors.grey.shade200,
-                              color: isCompleted ? const Color(0xFF10B981) : _orangeCTA,
+                              color: isCompleted
+                                  ? const Color(0xFF10B981)
+                                  : _orangeCTA,
                               minHeight: 6,
                             ),
                           ),
@@ -161,7 +160,9 @@ class LearningHistoryPage extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: isCompleted ? const Color(0xFF10B981) : _orangeCTA,
+                            color: isCompleted
+                                ? const Color(0xFF10B981)
+                                : _orangeCTA,
                           ),
                         ),
                       ],

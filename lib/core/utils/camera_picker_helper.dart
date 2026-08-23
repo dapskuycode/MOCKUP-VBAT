@@ -53,7 +53,10 @@ class CameraPickerHelper {
                       color: const Color(0xFF1B4F9B),
                       onTap: () {
                         Navigator.pop(context);
-                        _showResultSnackBar(context, "Membuka Kamera (Simulasi)");
+                        _showResultSnackBar(
+                          context,
+                          "Membuka Kamera (Simulasi)",
+                        );
                       },
                     ),
                     _buildOption(
@@ -63,7 +66,10 @@ class CameraPickerHelper {
                       color: const Color(0xFFFD761A),
                       onTap: () {
                         Navigator.pop(context);
-                        _showResultSnackBar(context, "Membuka Galeri (Simulasi)");
+                        _showResultSnackBar(
+                          context,
+                          "Membuka Galeri (Simulasi)",
+                        );
                       },
                     ),
                   ],
@@ -120,10 +126,7 @@ class CameraPickerHelper {
           children: [
             const Icon(Icons.info_outline_rounded, color: Colors.white),
             const SizedBox(width: 8),
-            Text(
-              message,
-              style: const TextStyle(fontFamily: 'Inter'),
-            ),
+            Text(message, style: const TextStyle(fontFamily: 'Inter')),
           ],
         ),
         backgroundColor: const Color(0xFF1B4F9B),

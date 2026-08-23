@@ -18,11 +18,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final Color _greenSuccess = const Color(0xFF10B981);
 
   // Form Controllers
-  final TextEditingController _nameController = TextEditingController(text: "Budi Teknisi");
-  final TextEditingController _emailController = TextEditingController(text: "budi@vbatponsel.com");
-  final TextEditingController _phoneController = TextEditingController(text: "081234567890");
-  final TextEditingController _waController = TextEditingController(text: "6281234567890");
-  final TextEditingController _addressController = TextEditingController(text: "Jl. Merdeka No 123, Blok C");
+  final TextEditingController _nameController = TextEditingController(
+    text: "Budi Teknisi",
+  );
+  final TextEditingController _emailController = TextEditingController(
+    text: "budi@vbatponsel.com",
+  );
+  final TextEditingController _phoneController = TextEditingController(
+    text: "081234567890",
+  );
+  final TextEditingController _waController = TextEditingController(
+    text: "6281234567890",
+  );
+  final TextEditingController _addressController = TextEditingController(
+    text: "Jl. Merdeka No 123, Blok C",
+  );
   final TextEditingController _igController = TextEditingController();
   final TextEditingController _fbController = TextEditingController();
   final TextEditingController _tiktokController = TextEditingController();
@@ -87,7 +97,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.orange.shade800, size: 20),
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.orange.shade800,
+                    size: 20,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -102,7 +116,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ],
               ),
             ),
-            
+
             // --- Avatar Section ---
             Center(
               child: Stack(
@@ -147,11 +161,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
             const SizedBox(height: 16),
             _buildTextField("Nama Lengkap *", _nameController),
             const SizedBox(height: 16),
-            _buildDropdown("Jenis Kelamin", ["Laki-laki", "Perempuan"], _selectedGender, (val) => setState(() => _selectedGender = val)),
+            _buildDropdown(
+              "Jenis Kelamin",
+              ["Laki-laki", "Perempuan"],
+              _selectedGender,
+              (val) => setState(() => _selectedGender = val),
+            ),
             const SizedBox(height: 32),
 
             // --- INFORMASI KONTAK ---
-            _buildSectionHeader(Icons.contact_mail_outlined, "INFORMASI KONTAK"),
+            _buildSectionHeader(
+              Icons.contact_mail_outlined,
+              "INFORMASI KONTAK",
+            ),
             const SizedBox(height: 16),
             _buildTextField(
               "Alamat Email",
@@ -163,7 +185,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildTextField("Nomor Telepon *", _phoneController)),
+                Expanded(
+                  child: _buildTextField("Nomor Telepon *", _phoneController),
+                ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildTextField(
@@ -176,7 +200,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ],
             ),
             const SizedBox(height: 16),
-            _buildTextField("Alamat Lengkap *", _addressController, maxLines: 3),
+            _buildTextField(
+              "Alamat Lengkap *",
+              _addressController,
+              maxLines: 3,
+            ),
             const SizedBox(height: 32),
 
             // --- WILAYAH ---
@@ -184,17 +212,45 @@ class _EditProfilePageState extends State<EditProfilePage> {
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildDropdown("Provinsi *", ["Jawa Barat", "Jawa Tengah", "Jawa Timur"], _selectedProvinsi, (val) => setState(() => _selectedProvinsi = val))),
+                Expanded(
+                  child: _buildDropdown(
+                    "Provinsi *",
+                    ["Jawa Barat", "Jawa Tengah", "Jawa Timur"],
+                    _selectedProvinsi,
+                    (val) => setState(() => _selectedProvinsi = val),
+                  ),
+                ),
                 const SizedBox(width: 16),
-                Expanded(child: _buildDropdown("Kota/Kabupaten *", ["Bandung", "Semarang", "Surabaya"], _selectedKota, (val) => setState(() => _selectedKota = val))),
+                Expanded(
+                  child: _buildDropdown(
+                    "Kota/Kabupaten *",
+                    ["Bandung", "Semarang", "Surabaya"],
+                    _selectedKota,
+                    (val) => setState(() => _selectedKota = val),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildDropdown("Kecamatan *", ["Kecamatan A", "Kecamatan B"], _selectedKecamatan, (val) => setState(() => _selectedKecamatan = val))),
+                Expanded(
+                  child: _buildDropdown(
+                    "Kecamatan *",
+                    ["Kecamatan A", "Kecamatan B"],
+                    _selectedKecamatan,
+                    (val) => setState(() => _selectedKecamatan = val),
+                  ),
+                ),
                 const SizedBox(width: 16),
-                Expanded(child: _buildDropdown("Kelurahan/Desa *", ["Kelurahan X", "Kelurahan Y"], _selectedKelurahan, (val) => setState(() => _selectedKelurahan = val))),
+                Expanded(
+                  child: _buildDropdown(
+                    "Kelurahan/Desa *",
+                    ["Kelurahan X", "Kelurahan Y"],
+                    _selectedKelurahan,
+                    (val) => setState(() => _selectedKelurahan = val),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 32),
@@ -204,17 +260,41 @@ class _EditProfilePageState extends State<EditProfilePage> {
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildTextField("Instagram", _igController, hintText: "@namapengguna")),
+                Expanded(
+                  child: _buildTextField(
+                    "Instagram",
+                    _igController,
+                    hintText: "@namapengguna",
+                  ),
+                ),
                 const SizedBox(width: 16),
-                Expanded(child: _buildTextField("Facebook", _fbController, hintText: "URL profil")),
+                Expanded(
+                  child: _buildTextField(
+                    "Facebook",
+                    _fbController,
+                    hintText: "URL profil",
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: _buildTextField("TikTok", _tiktokController, hintText: "@namapengguna")),
+                Expanded(
+                  child: _buildTextField(
+                    "TikTok",
+                    _tiktokController,
+                    hintText: "@namapengguna",
+                  ),
+                ),
                 const SizedBox(width: 16),
-                Expanded(child: _buildTextField("YouTube", _ytController, hintText: "URL channel")),
+                Expanded(
+                  child: _buildTextField(
+                    "YouTube",
+                    _ytController,
+                    hintText: "URL channel",
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 40),
@@ -225,23 +305,41 @@ class _EditProfilePageState extends State<EditProfilePage> {
               children: [
                 TextButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Data diatur ulang")));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Data diatur ulang")),
+                    );
                   },
-                  child: Text("Atur Ulang", style: TextStyle(color: _textDark, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    "Atur Ulang",
+                    style: TextStyle(
+                      color: _textDark,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Perubahan disimpan")));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Perubahan disimpan")),
+                    );
                     context.pop();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _primaryBlue,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
-                  child: const Text("Simpan Perubahan", style: TextStyle(fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    "Simpan Perubahan",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
               ],
             ),
@@ -252,7 +350,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
             const SizedBox(height: 24),
             Text(
               "Hapus Akun",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: _textDark),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: _textDark,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -262,15 +364,25 @@ class _EditProfilePageState extends State<EditProfilePage> {
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Proses hapus akun...")));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Proses hapus akun...")),
+                );
               },
               icon: const Icon(Icons.delete_outline_rounded, size: 18),
-              label: const Text("Hapus Akun Saya", style: TextStyle(fontWeight: FontWeight.bold)),
+              label: const Text(
+                "Hapus Akun Saya",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _redWarning,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
             const SizedBox(height: 40),
@@ -312,7 +424,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: _textDark),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: _textDark,
+          ),
         ),
         const SizedBox(height: 8),
         TextField(
@@ -328,7 +444,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
             hintStyle: TextStyle(color: Colors.grey.shade400),
             filled: true,
             fillColor: isReadOnly ? Colors.grey.shade100 : Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Colors.grey.shade300),
@@ -349,7 +468,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             helperText,
             style: TextStyle(fontSize: 11, color: helperColor ?? _textGray),
           ),
-        ]
+        ],
       ],
     );
   }
@@ -365,7 +484,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: _textDark),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: _textDark,
+          ),
         ),
         const SizedBox(height: 8),
         Container(
@@ -379,12 +502,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
             child: DropdownButton<String>(
               isExpanded: true,
               value: selectedItem,
-              hint: Text("Pilih $label".replaceAll(" *", ""), style: TextStyle(color: Colors.grey.shade400, fontSize: 14)),
+              hint: Text(
+                "Pilih $label".replaceAll(" *", ""),
+                style: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+              ),
               icon: Icon(Icons.keyboard_arrow_down_rounded, color: _textGray),
               items: items.map((String item) {
                 return DropdownMenuItem<String>(
                   value: item,
-                  child: Text(item, style: TextStyle(color: _textDark, fontSize: 14)),
+                  child: Text(
+                    item,
+                    style: TextStyle(color: _textDark, fontSize: 14),
+                  ),
                 );
               }).toList(),
               onChanged: onChanged,

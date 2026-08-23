@@ -122,7 +122,7 @@ class TransactionHistoryPage extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Main Info
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,11 +133,7 @@ class TransactionHistoryPage extends StatelessWidget {
                   color: _primaryBlue.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  icon,
-                  color: _primaryBlue,
-                  size: 20,
-                ),
+                child: Icon(icon, color: _primaryBlue, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -155,10 +151,7 @@ class TransactionHistoryPage extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       date,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: _textGray,
-                      ),
+                      style: TextStyle(fontSize: 11, color: _textGray),
                     ),
                   ],
                 ),
@@ -168,17 +161,14 @@ class TransactionHistoryPage extends StatelessWidget {
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 12),
-          
+
           // Footer: Total Amount
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 "Total Pembayaran",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: _textGray,
-                ),
+                style: TextStyle(fontSize: 12, color: _textGray),
               ),
               Text(
                 amount,

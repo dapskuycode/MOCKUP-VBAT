@@ -13,11 +13,18 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
   final Color _bgLight = const Color(0xFFF5F7FA);
 
   int _selectedTabIndex = 0;
-  final List<String> _tabs = ["Schematic", "Board Layout", "Diode Value", "IC Pinout", "Component"];
+  final List<String> _tabs = [
+    "Schematic",
+    "Board Layout",
+    "Diode Value",
+    "IC Pinout",
+    "Component",
+  ];
 
   // Dummy scale untuk interaksi zoom
   double _scale = 1.0;
-  final TransformationController _transformationController = TransformationController();
+  final TransformationController _transformationController =
+      TransformationController();
 
   @override
   Widget build(BuildContext context) {
@@ -92,8 +99,12 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
                       child: Text(
                         _tabs[index],
                         style: TextStyle(
-                          color: isSelected ? _primaryBlue : Colors.grey.shade500,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                          color: isSelected
+                              ? _primaryBlue
+                              : Colors.grey.shade500,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.w500,
                         ),
                       ),
                     ),
@@ -102,7 +113,7 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
               },
             ),
           ),
-          
+
           // Viewer Area
           Expanded(
             child: Container(
@@ -116,7 +127,8 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
                       onDoubleTap: () {
                         setState(() {
                           _scale = _scale == 1.0 ? 2.0 : 1.0;
-                          _transformationController.value = Matrix4.diagonal3Values(_scale, _scale, 1.0);
+                          _transformationController.value =
+                              Matrix4.diagonal3Values(_scale, _scale, 1.0);
                         });
                       },
                       child: InteractiveViewer(
@@ -137,19 +149,19 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
                             children: [
                               // Placeholder grid/image
                               Positioned.fill(
-                                child: CustomPaint(
-                                  painter: GridPainter(),
-                                ),
+                                child: CustomPaint(painter: GridPainter()),
                               ),
                               Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(
-                                      _selectedTabIndex == 0 ? Icons.schema_rounded 
-                                      : _selectedTabIndex == 1 ? Icons.memory_rounded 
-                                      : Icons.electrical_services_rounded,
-                                      size: 100, 
+                                      _selectedTabIndex == 0
+                                          ? Icons.schema_rounded
+                                          : _selectedTabIndex == 1
+                                          ? Icons.memory_rounded
+                                          : Icons.electrical_services_rounded,
+                                      size: 100,
                                       color: Colors.white24,
                                     ),
                                     const SizedBox(height: 16),
@@ -177,7 +189,7 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
                       ),
                     ),
                   ),
-                  
+
                   // Zoom Controls overlay
                   Positioned(
                     bottom: 24,
@@ -204,7 +216,7 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
                       ],
                     ),
                   ),
-                  
+
                   // Selection Info overlay
                   if (_selectedTabIndex == 1 || _selectedTabIndex == 2)
                     Positioned(
@@ -222,18 +234,28 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
                           children: [
                             Text(
                               "Selected Component: U3100",
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               "VCC_MAIN",
-                              style: TextStyle(color: Colors.red.shade400, fontSize: 11),
+                              style: TextStyle(
+                                color: Colors.red.shade400,
+                                fontSize: 11,
+                              ),
                             ),
                             if (_selectedTabIndex == 2) ...[
                               const SizedBox(height: 4),
                               Text(
                                 "Diode: 0.345v",
-                                style: const TextStyle(color: Colors.green, fontSize: 11),
+                                style: const TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 11,
+                                ),
                               ),
                             ],
                           ],
@@ -248,7 +270,7 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
       ),
     );
   }
-  
+
   Widget _buildControlButton(IconData icon, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,

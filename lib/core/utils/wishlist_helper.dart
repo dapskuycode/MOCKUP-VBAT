@@ -7,14 +7,16 @@ class WishlistHelper {
       "name": "Baterai Infinix Hot 9/10/11 Play BL-58BX Original",
       "price": "Rp145.000",
       "image": "assets/images/brand_infinix.png",
-      "link": "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095?extraParams=%7B%22display_model_id%22%3A350188294975%2C%22model_selection_logic%22%3A3%7D&sp_atk=f8d0ca69-2d93-4324-b982-5cd7d983550e&xptdk=f8d0ca69-2d93-4324-b982-5cd7d983550e"
+      "link":
+          "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095?extraParams=%7B%22display_model_id%22%3A350188294975%2C%22model_selection_logic%22%3A3%7D&sp_atk=f8d0ca69-2d93-4324-b982-5cd7d983550e&xptdk=f8d0ca69-2d93-4324-b982-5cd7d983550e",
     },
     {
       "name": "LCD iPhone 11 Pro Max OLED Original Quality",
       "price": "Rp1.250.000",
       "image": "assets/images/brand_apple.png",
-      "link": "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095"
-    }
+      "link":
+          "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095",
+    },
   ];
 
   static void show(BuildContext context) {
@@ -50,7 +52,11 @@ class WishlistHelper {
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.favorite_rounded, color: Colors.red, size: 24),
+                          Icon(
+                            Icons.favorite_rounded,
+                            color: Colors.red,
+                            size: 24,
+                          ),
                           SizedBox(width: 8),
                           Text(
                             "Wishlist Saya",
@@ -80,11 +86,18 @@ class WishlistHelper {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.favorite_border_rounded, size: 64, color: Colors.grey.shade300),
+                                Icon(
+                                  Icons.favorite_border_rounded,
+                                  size: 64,
+                                  color: Colors.grey.shade300,
+                                ),
                                 const SizedBox(height: 12),
                                 Text(
                                   "Belum ada barang di wishlist",
-                                  style: TextStyle(color: Colors.grey.shade500, fontSize: 14),
+                                  style: TextStyle(
+                                    color: Colors.grey.shade500,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ],
                             ),
@@ -110,17 +123,23 @@ class WishlistHelper {
                                         height: 60,
                                         decoration: BoxDecoration(
                                           color: Colors.grey.shade100,
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         padding: const EdgeInsets.all(6),
                                         child: Center(
-                                          child: Icon(Icons.image_outlined, color: Colors.grey.shade400),
+                                          child: Icon(
+                                            Icons.image_outlined,
+                                            color: Colors.grey.shade400,
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(width: 12),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               item["name"]!,
@@ -150,20 +169,34 @@ class WishlistHelper {
                                       ElevatedButton(
                                         onPressed: () {
                                           Navigator.pop(context);
-                                          _showMarketplaceSheet(context, item["name"]!, item["link"]!);
+                                          _showMarketplaceSheet(
+                                            context,
+                                            item["name"]!,
+                                            item["link"]!,
+                                          );
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF1B4F9B),
+                                          backgroundColor: const Color(
+                                            0xFF1B4F9B,
+                                          ),
                                           foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                           elevation: 0,
                                         ),
                                         child: const Text(
                                           "Beli",
-                                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -182,7 +215,11 @@ class WishlistHelper {
     );
   }
 
-  static void _showMarketplaceSheet(BuildContext context, String productName, String link) {
+  static void _showMarketplaceSheet(
+    BuildContext context,
+    String productName,
+    String link,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -219,10 +256,7 @@ class WishlistHelper {
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -301,7 +335,11 @@ class WishlistHelper {
     );
   }
 
-  static void _showRedirectOverlay(BuildContext context, String platform, String url) {
+  static void _showRedirectOverlay(
+    BuildContext context,
+    String platform,
+    String url,
+  ) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -312,14 +350,18 @@ class WishlistHelper {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text("Mengalihkan ke $platform... ($url)"),
-                backgroundColor: platform == "Shopee" ? const Color(0xFFEE4D2D) : const Color(0xFF03AC0E),
+                backgroundColor: platform == "Shopee"
+                    ? const Color(0xFFEE4D2D)
+                    : const Color(0xFF03AC0E),
               ),
             );
           }
         });
 
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           backgroundColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(24.0),
@@ -332,7 +374,9 @@ class WishlistHelper {
                   child: CircularProgressIndicator(
                     strokeWidth: 3,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      platform == "Shopee" ? const Color(0xFFEE4D2D) : const Color(0xFF03AC0E),
+                      platform == "Shopee"
+                          ? const Color(0xFFEE4D2D)
+                          : const Color(0xFF03AC0E),
                     ),
                   ),
                 ),
@@ -349,10 +393,7 @@ class WishlistHelper {
                 const Text(
                   "Mohon tunggu, Anda sedang dialihkan...",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 13, color: Colors.grey),
                 ),
               ],
             ),
