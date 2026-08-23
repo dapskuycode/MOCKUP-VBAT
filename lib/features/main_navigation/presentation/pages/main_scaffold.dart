@@ -114,9 +114,9 @@ class _MainScaffoldState extends State<MainScaffold> {
                           children: [
                             _buildNavItem(
                               3,
-                              Icons.forum_rounded,
-                              Icons.forum_outlined,
-                              "Forum",
+                              Icons.info_rounded,
+                              Icons.info_outline_rounded,
+                              "Informasi",
                             ),
                             _buildNavItem(
                               4,

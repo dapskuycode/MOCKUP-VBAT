@@ -11,25 +11,38 @@ class ForumPage extends StatefulWidget {
 class _ForumPageState extends State<ForumPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
   final Color _bgLight = const Color(0xFFF5F7FA);
-
   final Color _textGray = const Color(0xFF737782);
-  final Color _orangeCTA = const Color(0xFFFD761A);
+  
+  // Warna brand WhatsApp
+  final Color _waGreen = const Color(0xFF25D366);
 
   String _selectedCategory = "Semua";
+  
+  // Simulasi status premium pengguna
+  bool _isPremiumSimulation = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bgLight,
-      // --- FAB (Buat Postingan Baru) ---
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/create-thread'),
-        backgroundColor: _orangeCTA,
-        foregroundColor: Colors.white,
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: const Icon(Icons.add_rounded, size: 28),
-      ),
+      // --- FAB WhatsApp Helpdesk (Hanya untuk Premium) ---
+      floatingActionButton: _isPremiumSimulation 
+        ? FloatingActionButton.extended(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Membuka WhatsApp: wa.me/62811268717 (Pak Tomi)"),
+                  backgroundColor: Color(0xFF25D366),
+                )
+              );
+            },
+            backgroundColor: _waGreen,
+            foregroundColor: Colors.white,
+            elevation: 4,
+            icon: const Icon(Icons.chat_bubble_outline_rounded),
+            label: const Text("Bantuan (Premium)", style: TextStyle(fontWeight: FontWeight.bold)),
+          )
+        : null,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -45,7 +58,7 @@ class _ForumPageState extends State<ForumPage> {
               onPressed: () => context.pop(),
             ),
             title: Text(
-              "Forum Teknisi",
+              "Pusat Informasi",
               style: TextStyle(
                 color: _primaryBlue,
                 fontSize: 18,
@@ -54,13 +67,27 @@ class _ForumPageState extends State<ForumPage> {
             ),
             centerTitle: false,
             actions: [
-              IconButton(
-                icon: Icon(Icons.search_rounded, color: _primaryBlue),
-                onPressed: () => context.push('/forum-search'),
-              ),
-              IconButton(
-                icon: Icon(Icons.add_rounded, color: _primaryBlue),
-                onPressed: () => context.push('/create-thread'),
+              // Toggle simulasi Premium
+              Row(
+                children: [
+                  Text(
+                    _isPremiumSimulation ? "Premium" : "Free",
+                    style: TextStyle(
+                      color: _isPremiumSimulation ? Colors.orange.shade700 : Colors.grey,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12
+                    ),
+                  ),
+                  Switch(
+                    value: _isPremiumSimulation,
+                    activeColor: Colors.orange,
+                    onChanged: (val) {
+                      setState(() {
+                        _isPremiumSimulation = val;
+                      });
+                    },
+                  ),
+                ],
               ),
             ],
             bottom: PreferredSize(
@@ -86,49 +113,175 @@ class _ForumPageState extends State<ForumPage> {
                 physics: const BouncingScrollPhysics(),
                 children: [
                   _buildCategoryChip("Semua"),
-                  _buildCategoryChip("Tips & Trik"),
-                  _buildCategoryChip("Tanya Jawab"),
-                  _buildCategoryChip("Pengumuman Resmi"),
-                  _buildCategoryChip("Diskusi Umum"),
+                  _buildCategoryChip("Ruang Konsultasi"),
+                  _buildCategoryChip("Lowongan Pekerjaan"),
+                  _buildCategoryChip("Magang"),
+                  _buildCategoryChip("Upgrade Kelas Offline"),
                 ],
               ),
             ),
           ),
 
-          // --- 4. Main Feed (Daftar Postingan) ---
+          // --- 3. Main Feed (Daftar Pengumuman Admin) ---
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                 PostCard(
-                  author: "Budi Teknisi",
-                  badge: "Teknisi Senior",
-                  badgeColor: Colors.blue.shade100,
-                  badgeTextColor: _primaryBlue,
-                  time: "2 jam yang lalu",
-                  title: "Cara jumper IC Power iPhone 11",
-                  content:
-                      "Kasus masuk iPhone 11 mati total setelah jatuh. Cek tegangan vbat normal, tapi vdd main short tipis. Setelah angkat kaleng, ternyata jalur dekat IC power putus. Ini skema jumpernya brader.",
-                  hasImage: true,
-                  likes: "12 Suka",
-                  comments: "5 Komentar",
+              delegate: SliverChildListDelegate(
+                _getFilteredPosts().map((post) {
+                  return _buildInfoCard(post);
+                }).toList(),
+              ),
+            ),
+          ),
+          
+          // Spacer for FAB
+          SliverToBoxAdapter(
+            child: SizedBox(height: _isPremiumSimulation ? 80 : 24),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryChip(String title) {
+    bool isSelected = _selectedCategory == title;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedCategory = title;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? _primaryBlue : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? _primaryBlue : Colors.grey.shade300,
+          ),
+        ),
+        child: Center(
+          child: Text(
+            title,
+            style: TextStyle(
+              color: isSelected ? Colors.white : _textGray,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontSize: 13,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(Map<String, dynamic> data) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Jika ada gambar
+          if (data['imageUrl'] != null)
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              child: Image.network(
+                data['imageUrl'],
+                height: 180,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+          
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Kategori Label
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    data['category'],
+                    style: TextStyle(
+                      color: _primaryBlue,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
+                const SizedBox(height: 12),
+                
+                // Judul
+                Text(
+                  data['title'],
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF001944),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                
+                // Konten (Preview)
+                Text(
+                  data['content'],
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade700,
+                    height: 1.5,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                
                 const SizedBox(height: 16),
-                PostCard(
-                  author: "Agus Fixit",
-                  badge: "Pemula",
-                  badgeColor: Colors.grey.shade200,
-                  badgeTextColor: Colors.grey.shade700,
-                  time: "5 jam yang lalu",
-                  title: "Rekomendasi blower pemula?",
-                  content:
-                      "Malam suhu-suhu sekalian, mohon pencerahan. Saya baru mau buka konter kecil-kecilan. Budget terbatas, kira-kira rekomendasi blower yang awet untuk angkat IC dasar apa ya?",
-                  hasImage: false,
-                  likes: "4 Suka",
-                  comments: "18 Komentar",
+                
+                // Waktu & Tombol Aksi
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      data['date'],
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Action dummy
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Membuka detail: ${data['title']}"))
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: _primaryBlue,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text("Lihat Selengkapnya", style: TextStyle(fontWeight: FontWeight.bold)),
+                    )
+                  ],
                 ),
-                const SizedBox(height: 100), // Safe area for FAB & Bottom Nav
-              ]),
+              ],
             ),
           ),
         ],
@@ -136,293 +289,42 @@ class _ForumPageState extends State<ForumPage> {
     );
   }
 
-  // --- Helper Widgets ---
+  // --- Dummy Data ---
+  List<Map<String, dynamic>> _getFilteredPosts() {
+    List<Map<String, dynamic>> allPosts = [
+      {
+        "category": "Ruang Konsultasi",
+        "title": "Jadwal Konsultasi Live Bersama Master Teknisi Bulan Ini",
+        "content": "Jangan lewatkan sesi live Q&A via Zoom eksklusif untuk member Premium. Siapkan kasus terberat kalian dan mari kita bahas tuntas bersama instruktur senior dari Quantum Semarang.",
+        "date": "Hari ini, 10:00",
+        "imageUrl": "https://img.freepik.com/free-photo/repairman-fixing-broken-smartphone_171337-18451.jpg",
+      },
+      {
+        "category": "Lowongan Pekerjaan",
+        "title": "Dibutuhkan Segera: Teknisi Senior di Quantum Telecom Pontianak",
+        "content": "Kami membuka lowongan bagi lulusan VbatPonsel yang telah menguasai reparasi iPhone dan Android tingkat dewa (Level 3). Penempatan di cabang baru Pontianak dengan benefit menarik.",
+        "date": "Kemarin",
+        "imageUrl": null,
+      },
+      {
+        "category": "Upgrade Kelas Offline",
+        "title": "Roadshow Training Teknisi Ponsel - Pontianak",
+        "content": "Dibimbing langsung dari nol menjadi teknisi profesional. Segera daftarkan diri Anda pada roadshow offline terdekat di Pontianak. Kuota sangat terbatas!",
+        "date": "2 hari yang lalu",
+        "imageUrl": "https://img.freepik.com/free-vector/gradient-mobile-repair-logo-template_23-2149806497.jpg",
+      },
+      {
+        "category": "Magang",
+        "title": "Program Magang Intensif 3 Bulan (Batch 4)",
+        "content": "Bagi alumni yang membutuhkan jam terbang dan pengalaman menghadapi pelanggan secara nyata, pendaftaran program magang Batch 4 kini resmi dibuka. Tersedia mes/tempat tinggal.",
+        "date": "1 minggu yang lalu",
+        "imageUrl": null,
+      },
+    ];
 
-  Widget _buildCategoryChip(String label) {
-    bool isSelected = _selectedCategory == label;
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: GestureDetector(
-        onTap: () => setState(() => _selectedCategory = label),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: isSelected
-                ? _primaryBlue.withValues(alpha: 0.1)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isSelected ? _primaryBlue : Colors.grey.shade300,
-            ),
-          ),
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-              color: isSelected ? _primaryBlue : _textGray,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-}
-
-class PostCard extends StatefulWidget {
-  final String author;
-  final String badge;
-  final Color badgeColor;
-  final Color badgeTextColor;
-  final String time;
-  final String title;
-  final String content;
-  final bool hasImage;
-  final String likes;
-  final String comments;
-
-  const PostCard({
-    super.key,
-    required this.author,
-    required this.badge,
-    required this.badgeColor,
-    required this.badgeTextColor,
-    required this.time,
-    required this.title,
-    required this.content,
-    required this.hasImage,
-    required this.likes,
-    required this.comments,
-  });
-
-  @override
-  State<PostCard> createState() => _PostCardState();
-}
-
-class _PostCardState extends State<PostCard> {
-  final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
-
-  bool _isLiked = false;
-  late int _likesCount;
-
-  @override
-  void initState() {
-    super.initState();
-    _likesCount = int.tryParse(widget.likes.split(' ').first) ?? 0;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => context.push('/forum-detail'),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 1. Header Post (Avatar & Info)
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundColor: Colors.grey.shade100,
-                    child: Icon(
-                      Icons.person_rounded,
-                      color: Colors.grey.shade400,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              widget.author,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: _textDark,
-                                fontSize: 14,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: widget.badgeColor,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                widget.badge,
-                                style: TextStyle(
-                                  color: widget.badgeTextColor,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          widget.time,
-                          style: TextStyle(fontSize: 11, color: _textGray),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.more_vert_rounded),
-                    color: Colors.grey.shade400,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Menu opsi selengkapnya")),
-                      );
-                    },
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                  ),
-                ],
-              ),
-            ),
-
-            // 2. Isi Teks Post
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    widget.title,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: _textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.content,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 14, color: _textGray, height: 1.4),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            // 3. Gambar (Jika ada)
-            if (widget.hasImage)
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: Container(
-                  color: Colors.grey.shade200,
-                  child: const Center(
-                    child: Icon(
-                      Icons.image_outlined,
-                      color: Colors.grey,
-                      size: 40,
-                    ),
-                  ),
-                ),
-              ),
-
-            // 4. Footer (Action Bar: Like & Comment)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade50,
-                border: Border(top: BorderSide(color: Colors.grey.shade100)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      // Tombol Like Stateful
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            if (_isLiked) {
-                              _isLiked = false;
-                              _likesCount--;
-                            } else {
-                              _isLiked = true;
-                              _likesCount++;
-                            }
-                          });
-                        },
-                        child: Row(
-                          children: [
-                            Icon(
-                              _isLiked ? Icons.thumb_up_rounded : Icons.thumb_up_outlined,
-                              color: _isLiked ? _primaryBlue : _textGray,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              "$_likesCount Suka",
-                              style: TextStyle(
-                                color: _isLiked ? _primaryBlue : _textGray,
-                                fontSize: 13,
-                                fontWeight: _isLiked ? FontWeight.bold : FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 24),
-                      // Tombol Comment
-                      InkWell(
-                        onTap: () => context.push('/forum-detail'),
-                        child: Row(
-                          children: [
-                            Icon(Icons.chat_bubble_outline_rounded, color: _textGray, size: 18),
-                            const SizedBox(width: 6),
-                            Text(
-                              widget.comments,
-                              style: TextStyle(
-                                color: _textGray,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  InkWell(
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Membuka menu bagikan")),
-                      );
-                    },
-                    child: Icon(Icons.share_outlined, color: _textGray, size: 20),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    if (_selectedCategory == "Semua") {
+      return allPosts;
+    }
+    return allPosts.where((post) => post['category'] == _selectedCategory).toList();
   }
 }
