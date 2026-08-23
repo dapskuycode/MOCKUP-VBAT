@@ -9,12 +9,14 @@ class VideoPlayerPage extends StatefulWidget {
   final String? title;
   final List<Map<String, dynamic>> playlist;
   final int currentIndex;
+  final bool isPreview;
 
   const VideoPlayerPage({
     super.key,
     this.title,
     this.playlist = const [],
     this.currentIndex = 0,
+    this.isPreview = false,
   });
 
   @override
@@ -32,6 +34,7 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
   double _currentPosition = 0;
   double _duration = 1; // avoid division by 0
   bool _isFullScreen = false;
+  bool _showPaywall = false;
 
   // Controls Auto-Hide State
   Timer? _hideTimer;
@@ -197,6 +200,12 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
     setState(() {
       _currentPosition = _controller!.value.position.inSeconds.toDouble();
       _isPlaying = _controller!.value.isPlaying;
+
+      if (widget.isPreview && _currentPosition >= 10 && !_showPaywall) {
+        _showPaywall = true;
+        _controller!.pause();
+        return;
+      }
 
       if (_currentPosition >= _duration - 1 &&
           _duration > 1 &&
@@ -379,6 +388,41 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
               ),
             ),
           ),
+          if (_showPaywall)
+            Container(
+              color: Colors.black.withValues(alpha: 0.8),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.workspace_premium_rounded, color: Colors.orange, size: 48),
+                    const SizedBox(height: 16),
+                    const Text(
+                      "Waktu Preview Habis",
+                      style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Langganan Premium untuk menonton selengkapnya.",
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () {
+                        if (_isFullScreen) _toggleFullScreen(); // exit full screen first
+                        context.push('/pricelist');
+                      },
+                      child: const Text("Lihat Pricelist"),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );

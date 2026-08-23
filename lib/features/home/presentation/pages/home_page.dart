@@ -1203,7 +1203,7 @@ class _HomePageState extends State<HomePage> {
     return GestureDetector(
       onTap: () {
         // Memutar video langsung di dalam aplikasi (In-App Video Player)
-        context.push('/video-player', extra: item);
+        context.push('/video-player', extra: {...item, 'isPreview': true});
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),

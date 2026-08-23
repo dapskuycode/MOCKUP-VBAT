@@ -103,10 +103,12 @@ class AppRouter {
           final playlist =
               extra?['playlist'] as List<Map<String, dynamic>>? ?? const [];
           final currentIndex = extra?['currentIndex'] as int? ?? 0;
+          final isPreview = extra?['isPreview'] as bool? ?? false;
           return VideoPlayerPage(
             title: title.toString(),
             playlist: playlist,
             currentIndex: currentIndex,
+            isPreview: isPreview,
           );
         },
       ),
