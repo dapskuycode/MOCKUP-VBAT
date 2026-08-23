@@ -246,7 +246,8 @@ class _MainScaffoldState extends State<MainScaffold> {
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        width: 66,
+        padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
               ? _primaryBlue.withValues(alpha: 0.08)
