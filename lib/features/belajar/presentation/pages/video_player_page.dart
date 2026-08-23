@@ -288,19 +288,6 @@ class _VideoPlayerPageState extends State<VideoPlayerPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 32),
-                          GestureDetector(
-                            onTap: () {
-                              _startHideTimer(); // Reset timer on click
-                              final newPos = (_currentPosition + 10).clamp(0.0, _duration);
-                              _controller?.seekTo(Duration(seconds: newPos.toInt()));
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(color: Colors.black.withOpacity(0.4), shape: BoxShape.circle),
-                              child: const Icon(Icons.forward_10_rounded, color: Colors.white, size: 32),
-                            ),
-                          ),
                         ],
                       ),
                     ),
