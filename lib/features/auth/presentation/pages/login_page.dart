@@ -229,7 +229,49 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
+
+                  // Quick Demo Accounts Chips
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFBFDBFE)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.bolt_rounded, size: 16, color: _vbatBlue),
+                            const SizedBox(width: 4),
+                            Text(
+                              "1-Tap Akun Demo Teknisi:",
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: _vbatBlue,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            _buildDemoChip("Andi (Gen-Z / 22 Th)", "andi@teknisi.id"),
+                            _buildDemoChip("Siti (Surabaya / 28 Th)", "siti@service.id"),
+                            _buildDemoChip("Rian (Bandung / 26 Th)", "rian@repair.id"),
+                            _buildDemoChip("Budi (Jkt Sel / 33 Th)", "budi@vbatponsel.com"),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
                   // Primary CTA Button
                   AnimatedContainer(
@@ -239,6 +281,48 @@ class _LoginPageState extends State<LoginPage> {
                     child: ElevatedButton(
                       onPressed: _isButtonEnabled
                           ? () {
+                              final email = _emailController.text.trim().toLowerCase();
+                              if (email == 'andi@teknisi.id') {
+                                SessionManager.userName = 'Andi Teknisi';
+                                SessionManager.birthDate = DateTime(2004, 3, 15);
+                                SessionManager.gender = 'Laki-laki';
+                                SessionManager.city = 'Jakarta Pusat';
+                                SessionManager.province = 'DKI Jakarta';
+                              } else if (email == 'rian@repair.id') {
+                                SessionManager.userName = 'Rian Repair';
+                                SessionManager.birthDate = DateTime(2000, 7, 22);
+                                SessionManager.gender = 'Laki-laki';
+                                SessionManager.city = 'Bandung';
+                                SessionManager.province = 'Jawa Barat';
+                              } else if (email == 'siti@service.id') {
+                                SessionManager.userName = 'Siti Solder';
+                                SessionManager.birthDate = DateTime(1998, 11, 5);
+                                SessionManager.gender = 'Perempuan';
+                                SessionManager.city = 'Surabaya';
+                                SessionManager.province = 'Jawa Timur';
+                              } else if (email == 'budi@vbatponsel.com') {
+                                SessionManager.userName = 'Budi Hardware';
+                                SessionManager.birthDate = DateTime(1993, 1, 30);
+                                SessionManager.gender = 'Laki-laki';
+                                SessionManager.city = 'Jakarta Selatan';
+                                SessionManager.province = 'DKI Jakarta';
+                              } else if (email == 'dewi@flash.id') {
+                                SessionManager.userName = 'Dewi Flasher';
+                                SessionManager.birthDate = DateTime(1988, 9, 18);
+                                SessionManager.gender = 'Perempuan';
+                                SessionManager.city = 'Bandung';
+                                SessionManager.province = 'Jawa Barat';
+                              } else if (email == 'hendra@master.id') {
+                                SessionManager.userName = 'Hendra Master';
+                                SessionManager.birthDate = DateTime(1982, 12, 10);
+                                SessionManager.gender = 'Laki-laki';
+                                SessionManager.city = 'Aceh Selatan';
+                                SessionManager.province = 'Aceh';
+                              } else if (_emailController.text.trim().isNotEmpty) {
+                                final rawName = _emailController.text.split('@').first;
+                                SessionManager.userName = rawName[0].toUpperCase() + rawName.substring(1);
+                              }
+
                               SessionManager.login();
                               context.go('/main');
                             }
@@ -417,6 +501,35 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDemoChip(String label, String email) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _emailController.text = email;
+          _passwordController.text = "password";
+          _isButtonEnabled = true;
+        });
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFF93C5FD)),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            color: _vbatBlue,
+          ),
         ),
       ),
     );

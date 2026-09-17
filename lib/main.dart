@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:vbat_ponsel/core/routes/app_router.dart';
+import 'package:vbat_ponsel/core/utils/push_notification_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await PushNotificationService.initialize();
   runApp(const MyApp());
 }
 

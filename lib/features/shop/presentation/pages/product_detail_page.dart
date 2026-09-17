@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/features/home/presentation/pages/home_page.dart';
 
@@ -104,11 +105,30 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       widget.productData?["name"] ??
       "LCD iPhone 11 Pro Max OLED Kualitas Original";
   String get _productPrice => widget.productData?["price"] ?? "Rp1.250.000";
-  String get _productImage =>
-      widget.productData?["image"] ?? "assets/images/product_lcd.png";
-  String get _productLink =>
-      widget.productData?["link"] ??
-      "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095?extraParams=%7B%22display_model_id%22%3A350188294975%2C%22model_selection_logic%22%3A3%7D&sp_atk=f8d0ca69-2d93-4324-b982-5cd7d983550e&xptdk=f8d0ca69-2d93-4324-b982-5cd7d983550e";
+  String get _productImage {
+    final img = widget.productData?["image"] ??
+        widget.productData?["image_path"];
+    if (img != null && img.toString().trim().isNotEmpty) {
+      return img.toString().trim();
+    }
+    return "assets/images/product_lcd.png";
+  }
+
+  String get _productLink {
+    final raw = widget.productData?["link"] ??
+        widget.productData?["shopee_url"] ??
+        widget.productData?["tokopedia_url"];
+    if (raw != null && raw.toString().trim().isNotEmpty) {
+      return raw.toString().trim();
+    }
+    return "https://shopee.co.id/brader_parts";
+  }
+
+  bool get _isTokopedia => _productLink.toLowerCase().contains("tokopedia");
+  String get _marketplaceName => _isTokopedia ? "Tokopedia" : "Shopee";
+  Color get _marketplaceColor =>
+      _isTokopedia ? const Color(0xFF03AC0E) : const Color(0xFFEE4D2D);
+
   String get _productRating => widget.productData?["rating"] ?? "4.8";
   String get _productSold => widget.productData?["sold"] ?? "800+";
   String get _productDescription {
@@ -194,187 +214,122 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     });
   }
 
-  void _showMarketplacePurchaseSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const Text(
-                  "Pilih Marketplace Pembelian",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF001944),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  "Kami tidak melayani penjualan langsung di platform ini. Anda akan dialihkan ke toko resmi kami.",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildMarketplaceOption(
-                      context,
-                      label: "Beli di Shopee",
-                      color: const Color(0xFFEE4D2D), // Shopee Orange
-                      logoAsset: "assets/images/shopee_logo.png",
-                      onTap: () {
-                        Navigator.pop(context);
-                        _showRedirectOverlay(context, "Shopee", _productLink);
-                      },
-                    ),
-                    _buildMarketplaceOption(
-                      context,
-                      label: "Beli di Tokopedia",
-                      color: const Color(0xFF03AC0E), // Tokopedia Green
-                      logoAsset: "assets/images/tokopedia_logo.png",
-                      onTap: () {
-                        Navigator.pop(context);
-                        _showRedirectOverlay(
-                          context,
-                          "Tokopedia",
-                          "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095",
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  Future<void> _handleDirectMarketplacePurchase(BuildContext context) async {
+    final url = _productLink;
+    final platform = _marketplaceName;
 
-  Widget _buildMarketplaceOption(
-    BuildContext context, {
-    required String label,
-    required Color color,
-    required String logoAsset,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: 140,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Column(
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
           children: [
-            Image.asset(
-              logoAsset,
-              width: 48,
-              height: 48,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) =>
-                  Icon(Icons.storefront_rounded, color: color, size: 28),
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: color,
-                fontFamily: 'Inter',
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                "Membuka $platform...",
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ],
         ),
+        backgroundColor: _marketplaceColor,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
       ),
     );
+
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+      }
+    } catch (_) {}
   }
 
-  void _showRedirectOverlay(BuildContext context, String platform, String url) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        Future.delayed(const Duration(milliseconds: 1500), () {
-          if (context.mounted) {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Mengalihkan ke $platform... ($url)"),
-                backgroundColor: platform == "Shopee"
-                    ? const Color(0xFFEE4D2D)
-                    : const Color(0xFF03AC0E),
-              ),
-            );
-          }
-        });
+  Widget _buildProductImage(
+    String image, {
+    BoxFit fit = BoxFit.contain,
+    double? iconSize = 80,
+  }) {
+    final raw = image.trim();
+    final n = _productName.toLowerCase();
+    String fallbackAsset = "assets/images/product_1.png";
+    if (n.contains("lcd") ||
+        n.contains("layar") ||
+        n.contains("screen") ||
+        n.contains("oled")) {
+      fallbackAsset = "assets/images/product_lcd.png";
+    } else if (n.contains("baterai") ||
+        n.contains("battery") ||
+        n.contains("batre") ||
+        n.contains("bl-58bx")) {
+      fallbackAsset = "assets/images/product_battery.png";
+    }
 
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 50,
-                  height: 50,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 3,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      platform == "Shopee"
-                          ? const Color(0xFFEE4D2D)
-                          : const Color(0xFF03AC0E),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  "Menghubungkan ke $platform",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF001944),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  "Mohon tunggu, Anda sedang dialihkan...",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-              ],
+    if (raw.startsWith("http://") || raw.startsWith("https://")) {
+      return Image.network(
+        raw,
+        fit: fit,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: SizedBox(
+              width: 32,
+              height: 32,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) => Image.asset(
+          fallbackAsset,
+          fit: fit,
+          errorBuilder: (context, error, stackTrace) => Center(
+            child: Icon(
+              Icons.inventory_2_outlined,
+              size: iconSize,
+              color: Colors.grey.shade400,
             ),
           ),
-        );
-      },
+        ),
+      );
+    }
+
+    String assetPath = raw;
+    if (assetPath.isEmpty ||
+        assetPath.contains("brand_apple") ||
+        assetPath.contains("brand_infinix")) {
+      assetPath = fallbackAsset;
+    }
+
+    return Image.asset(
+      assetPath,
+      fit: fit,
+      errorBuilder: (context, error, stackTrace) => Image.asset(
+        fallbackAsset,
+        fit: fit,
+        errorBuilder: (context, error, stackTrace) => Center(
+          child: Icon(
+            Icons.inventory_2_outlined,
+            size: iconSize,
+            color: Colors.grey.shade400,
+          ),
+        ),
+      ),
     );
   }
 
@@ -487,17 +442,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(16),
                       ),
-                      child: Image.asset(
-                        item["image"],
+                      child: _buildProductImage(
+                        item["image"] ?? "",
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Center(
-                              child: Icon(
-                                Icons.handyman_rounded,
-                                color: Colors.grey,
-                                size: 36,
-                              ),
-                            ),
+                        iconSize: 36,
                       ),
                     ),
                   ),
@@ -639,20 +587,26 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: ElevatedButton(
-                onPressed: () => _showMarketplacePurchaseSheet(context),
+              child: ElevatedButton.icon(
+                onPressed: () => _handleDirectMarketplacePurchase(context),
+                icon: Icon(
+                  _isTokopedia
+                      ? Icons.storefront_outlined
+                      : Icons.shopping_bag_outlined,
+                  size: 18,
+                ),
+                label: Text(
+                  "Beli Langsung di $_marketplaceName",
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _orangeSale,
+                  backgroundColor: _marketplaceColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-                child: const Text(
-                  "Beli Langsung di Marketplace",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ),
             ),
@@ -742,17 +696,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       return Container(
                         color: Colors.grey.shade100,
                         padding: const EdgeInsets.all(24),
-                        child: Image.asset(
+                        child: _buildProductImage(
                           _productImage,
                           fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Center(
-                                child: Icon(
-                                  Icons.handyman_rounded,
-                                  size: 80,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                          iconSize: 80,
                         ),
                       );
                     },
@@ -881,7 +828,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         Row(
                           children: [
                             Text(
-                              "BraderParts Official",
+                              widget.productData?["partner"] ?? "BraderParts Official",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: _textDark,
@@ -903,7 +850,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     ),
                   ),
                   OutlinedButton(
-                    onPressed: () => _showMarketplacePurchaseSheet(context),
+                    onPressed: () {
+                      final partner = widget.productData?["partner"] ?? "Mitra Resmi";
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text("Berhasil mengikuti $partner!"),
+                          duration: const Duration(seconds: 1),
+                        ),
+                      );
+                    },
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: _primaryBlue),
                       shape: RoundedRectangleBorder(

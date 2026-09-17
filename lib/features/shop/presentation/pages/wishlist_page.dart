@@ -21,189 +21,7 @@ class _WishlistPageState extends State<WishlistPage> {
     String productName,
     String link,
   ) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const Text(
-                  "Beli Produk",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF001944),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  productName,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildMarketplaceBtn(
-                      context,
-                      label: "Beli di Shopee",
-                      color: const Color(0xFFEE4D2D), // Shopee Orange
-                      logoAsset: "assets/images/shopee_logo.png",
-                      onTap: () {
-                        Navigator.pop(context);
-                        _showRedirectOverlay(context, "Shopee", link);
-                      },
-                    ),
-                    _buildMarketplaceBtn(
-                      context,
-                      label: "Beli di Tokopedia",
-                      color: const Color(0xFF03AC0E), // Tokopedia Green
-                      logoAsset: "assets/images/tokopedia_logo.png",
-                      onTap: () {
-                        Navigator.pop(context);
-                        _showRedirectOverlay(
-                          context,
-                          "Tokopedia",
-                          "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095",
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildMarketplaceBtn(
-    BuildContext context, {
-    required String label,
-    required Color color,
-    required String logoAsset,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: 140,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          children: [
-            Image.asset(
-              logoAsset,
-              width: 48,
-              height: 48,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) =>
-                  Icon(Icons.storefront_rounded, color: color, size: 28),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: color,
-                fontFamily: 'Inter',
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showRedirectOverlay(BuildContext context, String platform, String url) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        Future.delayed(const Duration(milliseconds: 1500), () {
-          if (context.mounted) {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Mengalihkan ke $platform... ($url)"),
-                backgroundColor: platform == "Shopee"
-                    ? const Color(0xFFEE4D2D)
-                    : const Color(0xFF03AC0E),
-              ),
-            );
-          }
-        });
-
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 50,
-                  height: 50,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 3,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      platform == "Shopee"
-                          ? const Color(0xFFEE4D2D)
-                          : const Color(0xFF03AC0E),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  "Menghubungkan ke $platform",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF001944),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  "Mohon tunggu, Anda sedang dialihkan...",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    WishlistHelper.showMarketplaceSheet(context, productName, link);
   }
 
   @override
@@ -257,17 +75,6 @@ class _WishlistPageState extends State<WishlistPage> {
               physics: const BouncingScrollPhysics(),
               itemBuilder: (context, index) {
                 final item = items[index];
-                // Check if image points to Apple/Infinix brand logo. If so, map it to LCD/Battery product images
-                // to look much more premium on a cart list!
-                String displayImg =
-                    item["image"] ?? "assets/images/product_lcd.png";
-                if (displayImg.contains("brand_apple") ||
-                    displayImg.contains("brand_infinix")) {
-                  displayImg = displayImg.contains("apple")
-                      ? "assets/images/product_lcd.png"
-                      : "assets/images/product_battery.png";
-                }
-
                 return Card(
                   margin: const EdgeInsets.only(bottom: 12),
                   elevation: 0,
@@ -291,15 +98,13 @@ class _WishlistPageState extends State<WishlistPage> {
                               color: Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: const EdgeInsets.all(6),
-                            child: Image.asset(
-                              displayImg,
-                              fit: BoxFit.contain,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  const Icon(
-                                    Icons.handyman_rounded,
-                                    color: Colors.grey,
-                                  ),
+                            padding: const EdgeInsets.all(4),
+                            child: Center(
+                              child: WishlistHelper.buildThumbnail(
+                                item["image"],
+                                item["name"] ?? "",
+                                size: 62,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 12),

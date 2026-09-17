@@ -55,7 +55,21 @@ class _ProfilePageState extends State<ProfilePage> {
                           children: [
                             _buildTopIconButton(
                               Icons.edit_rounded,
-                              onPressed: () => context.push('/edit-profile'),
+                              onPressed: () async {
+                                final updated = await context.push<bool>('/edit-profile');
+                                if (!context.mounted) return;
+                                setState(() {});
+                                if (updated == true) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("Perubahan berhasil disimpan! (Nama: ${SessionManager.userName})"),
+                                      backgroundColor: const Color(0xFF1B4F9B),
+                                      behavior: SnackBarBehavior.floating,
+                                      duration: const Duration(seconds: 3),
+                                    ),
+                                  );
+                                }
+                              },
                             ),
                             const SizedBox(width: 8),
                             _buildTopIconButton(
@@ -103,19 +117,40 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    "Budi Teknisi",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  ValueListenableBuilder<String>(
+                    valueListenable: SessionManager.userNameNotifier,
+                    builder: (context, name, _) {
+                      return Text(
+                        name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    },
                   ),
                   Text(
                     "budi@vbatponsel.com",
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.8),
                       fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      "${SessionManager.city ?? 'Bandung'} • Usia: ${SessionManager.userAge ?? 28} Thn",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],

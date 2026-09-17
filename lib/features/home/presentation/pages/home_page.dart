@@ -1,11 +1,15 @@
 // ignore_for_file: unused_element
 import 'dart:async';
 import 'dart:math';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
+import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'home_header_sliver.dart';
 import 'package:vbat_ponsel/core/widgets/video_preview_widget.dart';
+import 'package:vbat_ponsel/core/widgets/horizontal_sponsor_slider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,21 +25,148 @@ class _HomePageState extends State<HomePage> {
   final Color _textDark = const Color(0xFF001944);
   final Color _textGray = const Color(0xFF737782);
 
+  String _formatRupiah(num value) {
+    final str = value.toInt().toString();
+    final buffer = StringBuffer();
+    for (int i = 0; i < str.length; i++) {
+      if (i > 0 && (str.length - i) % 3 == 0) {
+        buffer.write('.');
+      }
+      buffer.write(str[i]);
+    }
+    return "Rp${buffer.toString()}";
+  }
+
+  // Dynamic products for Best Deal (Synced with Web Backend)
+  List<Map<String, dynamic>> _bestDeals = [
+    {
+      "name": "LCD iPhone 11 Pro Max Original Quality",
+      "price": 1250000,
+      "discount_price": 1250000,
+      "discount_percentage": 0,
+      "image": "assets/images/product_lcd.png",
+      "partner": "BraderParts",
+      "link": "https://shopee.co.id/brader_parts",
+    },
+    {
+      "name": "Baterai Infinix Hot 9/10/11 Play BL-58BX",
+      "price": 145000,
+      "discount_price": 145000,
+      "discount_percentage": 0,
+      "image": "assets/images/product_battery.png",
+      "partner": "BraderParts",
+      "link": "https://shopee.co.id/brader_parts",
+    },
+    {
+      "name": "Obeng Set Magnetik 24 in 1 Presisi S2",
+      "price": 45000,
+      "discount_price": 45000,
+      "discount_percentage": 0,
+      "image": "assets/images/product_1.png",
+      "partner": "TITAN Tools",
+      "link": "https://shopee.co.id/titan_tools",
+    },
+    {
+      "name": "Flux Amtech NC-559-ASM 10cc",
+      "price": 85000,
+      "discount_price": 85000,
+      "discount_percentage": 0,
+      "image": "assets/images/product_1.png",
+      "partner": "TITAN Tools",
+      "link": "https://shopee.co.id/titan_tools",
+    },
+    {
+      "name": "Solder Listrik T12 Digital Auto Sleep",
+      "price": 389000,
+      "discount_price": 389000,
+      "discount_percentage": 0,
+      "image": "assets/images/product_1.png",
+      "partner": "TITAN Tools",
+      "link": "https://shopee.co.id/titan_tools",
+    },
+    {
+      "name": "Blower Quick 857D Hot Air Gun Digital",
+      "price": 850000,
+      "discount_price": 850000,
+      "discount_percentage": 0,
+      "image": "assets/images/product_1.png",
+      "partner": "TITAN Tools",
+      "link": "https://shopee.co.id/titan_tools",
+    },
+    {
+      "name": "Baterai Samsung S20 Ultra Original IC",
+      "price": 249000,
+      "discount_price": 249000,
+      "discount_percentage": 0,
+      "image": "assets/images/product_battery.png",
+      "partner": "BT-ACC",
+      "link": "https://shopee.co.id",
+    },
+  ];
+
   final ScrollController _scrollController = ScrollController();
 
-  // Banner Promo Ala Tokopedia
-  final PageController _promoPageController = PageController();
-  int _currentPromoIndex = 0;
-  Timer? _promoTimer;
-  static bool _adShown = false;
-  final List<String> _promoBanners = [
-    'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
-    'assets/images/banner_promo_diskon.png',
-    'assets/images/PHOTO-2026-07-22-20-36-05.jpg',
+  List<Map<String, dynamic>> _promoBanners = [
+    {
+      "id": 1,
+      "title": "Diskon Akbar Suku Cadang BraderParts",
+      "description":
+          "Potongan harga spesial sparepart LCD dan IC original hingga 30% khusus anggota resmi VbatPonsel.",
+      "image": "assets/images/banner_braderparts.png",
+      "sponsor": "BraderParts Indonesia",
+      "tier": "PLATINUM",
+      "logo": "assets/images/logo_braderparts.png",
+      "target_url": "https://shopee.co.id/brader_parts",
+    },
+    {
+      "id": 2,
+      "title": "Toolkit Lengkap Teknisi TITAN Tools",
+      "description":
+          "Paket toolkit solder, timah presisi, dan mikroskop siap kerja bergaransi resmi 1 tahun.",
+      "image": "assets/images/banner_promo_diskon.png",
+      "sponsor": "TITAN Tools Official",
+      "tier": "GOLD",
+      "logo": "assets/images/logo_titan.png",
+      "target_url": "https://tokopedia.com",
+    },
+    {
+      "id": 3,
+      "title": "Baterai Kapasitas Murni BT-ACC",
+      "description":
+          "Baterai IC protection kualitas premium untuk iPhone & Android garansi ganti baru.",
+      "image": "assets/images/PHOTO-2026-07-22-20-21-55.jpg",
+      "sponsor": "BT-ACC Battery Super",
+      "tier": "SILVER",
+      "logo": "assets/images/logo_btacc.png",
+      "target_url": "https://shopee.co.id",
+    },
+  ];
+
+  // Horizontal Sponsor Banners (Sama persis dengan yang di Shop)
+  List<Map<String, dynamic>> _horizontalSponsorBanners = [
+    {
+      "id": 18,
+      "title": "TESTING 4",
+      "sponsor": "BraderParts Indonesia",
+      "tier": "PLATINUM",
+      "image": "assets/images/banner_braderparts.png",
+      "media_type": "video",
+      "link": "https://shopee.co.id",
+    },
+    {
+      "id": 15,
+      "title": "UHUYYY TESTING BANNER HORIZONTAL",
+      "sponsor": "BraderParts Indonesia",
+      "tier": "PLATINUM",
+      "image": "assets/images/banner_braderparts.png",
+      "media_type": "image",
+      "link": "https://shopee.co.id",
+    },
   ];
 
   // POIN 12: Konfigurasi admin - jumlah sponsor yang muncul (3-6)
   final int _adminSponsorCount = 4;
+  static bool _adShown = false;
 
   // Mosaic blocks: setiap blok punya 'pattern' (4×2 grid of 'x'/'y') dan 'items' (8 cards)
   // x = course/banner (1:1 square), y = product (portrait 0.68)
@@ -203,18 +334,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-
-    _promoTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
-      if (_promoBanners.isEmpty) return;
-      int nextIndex = (_currentPromoIndex + 1) % _promoBanners.length;
-      if (_promoPageController.hasClients) {
-        _promoPageController.animateToPage(
-          nextIndex,
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
-        );
-      }
-    });
+    _fetchBestDeals();
+    _fetchHeroSliders();
+    _fetchShopHorizontalBanners();
 
     // Generate 3 mosaic blocks awal
     for (int i = 0; i < 3; i++) {
@@ -238,7 +360,129 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _showAdDialog() {
+  Future<void> _fetchHeroSliders() async {
+    try {
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 4),
+        ),
+      );
+      final res = await dio.get('/banners/hero');
+      if (res.data != null && res.data['data'] != null) {
+        final List list = res.data['data'];
+        if (mounted) {
+          setState(() {
+            if (list.isEmpty) {
+              _promoBanners = [];
+            } else {
+              _promoBanners = list.map((item) {
+                return {
+                  "id": item['id'],
+                  "title": item['title'] ?? '',
+                  "description": item['description'] ?? '',
+                  "image": item['media_path'] ?? 'assets/images/banner_braderparts.png',
+                  "thumbnail": item['thumbnail_url'] ?? '',
+                  "sponsor": item['sponsor_name'] ?? item['sponsor']?['name'] ?? 'Sponsor Vbat',
+                  "tier": (item['tier'] ?? item['sponsor']?['tier'] ?? 'PLATINUM').toString().toUpperCase(),
+                  "logo": item['sponsor']?['logo'] ?? 'assets/images/logo_braderparts.png',
+                  "target_url": item['target_url'] ?? 'https://shopee.co.id',
+                  "link": item['target_url'] ?? 'https://shopee.co.id',
+                  "media_type": item['media_type'] ?? 'image',
+                };
+              }).toList();
+            }
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _fetchShopHorizontalBanners() async {
+    try {
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 4),
+        ),
+      );
+      final res = await dio.get('/banners/shop-horizontal');
+      if (res.data != null && res.data['data'] != null) {
+        final List list = res.data['data'];
+        if (mounted) {
+          setState(() {
+            if (list.isEmpty) {
+              _horizontalSponsorBanners = [];
+            } else {
+              _horizontalSponsorBanners = list.map((item) {
+                return {
+                  "id": item['id'],
+                  "title": item['title'] ?? '',
+                  "description": item['description'] ?? '',
+                  "image": item['media_path'] ?? 'assets/images/banner_braderparts.png',
+                  "thumbnail": item['thumbnail_url'] ?? '',
+                  "sponsor": item['sponsor_name'] ?? item['sponsor']?['name'] ?? 'Sponsor Vbat',
+                  "tier": (item['tier'] ?? item['sponsor']?['tier'] ?? 'PLATINUM').toString().toUpperCase(),
+                  "logo": item['sponsor']?['logo'] ?? 'assets/images/logo_braderparts.png',
+                  "target_url": item['target_url'] ?? 'https://shopee.co.id',
+                  "link": item['target_url'] ?? 'https://shopee.co.id',
+                  "media_type": item['media_type'] ?? 'image',
+                };
+              }).toList();
+            }
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _fetchBestDeals() async {
+    try {
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 4),
+        ),
+      );
+      final dealsRes = await dio.get('/shop/best-deals');
+      if (dealsRes.data != null && dealsRes.data['data'] != null) {
+        final List list = dealsRes.data['data'];
+        if (list.isNotEmpty && mounted) {
+          setState(() {
+            _bestDeals = list.map((item) => Map<String, dynamic>.from(item)).toList();
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _showAdDialog() async {
+    List<Map<String, dynamic>> popupList = [];
+    try {
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 4),
+        ),
+      );
+      final res = await dio.get('/banners/popup');
+      if (res.data != null && res.data['data'] != null) {
+        final List list = res.data['data'];
+        if (list.isNotEmpty) {
+          popupList = list.map((item) => Map<String, dynamic>.from(item)).toList();
+        }
+      }
+    } catch (_) {}
+
+    if (popupList.isEmpty || !mounted) return;
+
+    int activeIndex = 0;
+    final PageController pageController = PageController();
+
     showGeneralDialog(
       context: context,
       barrierDismissible: true,
@@ -252,195 +496,304 @@ class _HomePageState extends State<HomePage> {
         );
       },
       pageBuilder: (ctx, anim, secondAnim) {
-        return Center(
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              width: MediaQuery.of(ctx).size.width * 0.88,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF0A1628),
-                    Color(0xFF0D2045),
-                    Color(0xFF0A1628),
-                  ],
-                ),
-                border: Border.all(color: const Color(0xFF1B4F9B), width: 1.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF1B4F9B).withValues(alpha: 0.5),
-                    blurRadius: 30,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Header label iklan
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(19),
-                        topRight: Radius.circular(19),
-                      ),
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF1B4F9B), Color(0xFF0D6EFD)],
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.campaign_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 8),
-                        const Expanded(
-                          child: Text(
-                            'Sponsor & Mitra VBat',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.5,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => Navigator.of(ctx).pop(),
-                          child: Container(
-                            width: 26,
-                            height: 26,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.close_rounded,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                          ),
-                        ),
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final currentItem = popupList[activeIndex];
+            final sponsorName = currentItem['sponsor_name'] ?? currentItem['sponsor']?['name'] ?? 'Sponsor VBat';
+            final sponsorTier = (currentItem['tier'] ?? currentItem['sponsor']?['tier'] ?? 'PARTNER').toString().toUpperCase();
+            final title = currentItem['title'] ?? '';
+            final description = currentItem['description'] ?? '';
+            final targetUrl = currentItem['target_url'] ?? '';
+
+            return Center(
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  width: MediaQuery.of(ctx).size.width * 0.88,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xFF0A1628),
+                        Color(0xFF0D2045),
+                        Color(0xFF0A1628),
                       ],
                     ),
-                  ),
-                  // Gambar iklan
-                  ClipRRect(
-                    borderRadius: BorderRadius.zero,
-                    child: Image.asset(
-                      'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
-                      width: double.infinity,
-                      fit: BoxFit.fitWidth,
-                    ),
-                  ),
-                  // Footer dengan tombol aksi
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(19),
-                        bottomRight: Radius.circular(19),
+                    border: Border.all(color: const Color(0xFF1B4F9B), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1B4F9B).withValues(alpha: 0.5),
+                        blurRadius: 30,
+                        spreadRadius: 2,
                       ),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => Navigator.of(ctx).pop(),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: const Color(
-                                    0xFF1B4F9B,
-                                  ).withValues(alpha: 0.5),
-                                  width: 1,
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header label sponsor
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(19),
+                            topRight: Radius.circular(19),
+                          ),
+                          gradient: LinearGradient(
+                            colors: [Color(0xFF1B4F9B), Color(0xFF0D6EFD)],
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.campaign_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                '$sponsorName ($sponsorTier)',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.3,
                                 ),
-                                borderRadius: BorderRadius.circular(10),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              alignment: Alignment.center,
-                              child: const Text(
-                                'Tutup',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
+                            ),
+                            if (popupList.length > 1)
+                              Container(
+                                margin: const EdgeInsets.only(right: 8),
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  '${activeIndex + 1}/${popupList.length}',
+                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            GestureDetector(
+                              onTap: () => Navigator.of(ctx).pop(),
+                              child: Container(
+                                width: 26,
+                                height: 26,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.close_rounded,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Slider media pop up
+                      SizedBox(
+                        height: 240,
+                        child: PageView.builder(
+                          controller: pageController,
+                          itemCount: popupList.length,
+                          onPageChanged: (idx) {
+                            setModalState(() {
+                              activeIndex = idx;
+                            });
+                          },
+                          itemBuilder: (context, index) {
+                            final item = popupList[index];
+                            final img = (item['media_path'] ?? '').toString();
+                            return ClipRRect(
+                              child: img.startsWith('http')
+                                  ? Image.network(
+                                      img,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (ctx, err, stack) => Image.asset(
+                                        'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
+                                        fit: BoxFit.cover,
+                                      ),
+                                    )
+                                  : Image.asset(
+                                      img.isNotEmpty ? img : 'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (ctx, err, stack) => Image.asset(
+                                        'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                            );
+                          },
+                        ),
+                      ),
+                      // Indikator dots slider jika > 1 pop up
+                      if (popupList.length > 1)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                              popupList.length,
+                              (dotIdx) => AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                margin: const EdgeInsets.symmetric(horizontal: 3),
+                                width: dotIdx == activeIndex ? 16 : 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: dotIdx == activeIndex ? const Color(0xFF0D6EFD) : Colors.white24,
+                                  borderRadius: BorderRadius.circular(3),
                                 ),
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          flex: 2,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.of(ctx).pop();
-                              // TODO: navigasi ke halaman Digital Ways / toko
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF1B4F9B),
-                                    Color(0xFF0D6EFD),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(
-                                      0xFF0D6EFD,
-                                    ).withValues(alpha: 0.4),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
+                      // Title & deskripsi pop up
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
                               ),
-                              alignment: Alignment.center,
-                              child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.storefront_rounded,
-                                    color: Colors.white,
-                                    size: 16,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (description.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                description,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 11,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      // Footer tombol aksi
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => Navigator.of(ctx).pop(),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: const Color(0xFF1B4F9B).withValues(alpha: 0.5),
+                                      width: 1,
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    'Kunjungi Toko',
+                                  alignment: Alignment.center,
+                                  child: const Text(
+                                    'Tutup',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.white70,
                                       fontSize: 13,
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              flex: 2,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  Navigator.of(ctx).pop();
+                                  if (targetUrl.isNotEmpty) {
+                                    try {
+                                      Dio(BaseOptions(baseUrl: 'http://127.0.0.1:8000/api/v1')).post(
+                                        '/track',
+                                        data: {'campaign_id': currentItem['id'], 'event_type': 'click'},
+                                      );
+
+                                      final uri = Uri.parse(targetUrl);
+                                      if (await canLaunchUrl(uri)) {
+                                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                      }
+                                    } catch (_) {}
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 10),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFF1B4F9B),
+                                        Color(0xFF0D6EFD),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF0D6EFD).withValues(alpha: 0.4),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.storefront_rounded,
+                                        color: Colors.white,
+                                        size: 16,
+                                      ),
+                                      SizedBox(width: 6),
+                                      Text(
+                                        'Lihat Promo',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -448,8 +801,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
-    _promoTimer?.cancel();
-    _promoPageController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -546,14 +897,26 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _refreshAll() async {
+    await Future.wait([
+      _fetchHeroSliders(),
+      _fetchShopHorizontalBanners(),
+      _fetchBestDeals(),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bgLight,
-      body: CustomScrollView(
-        controller: _scrollController,
-        physics: const BouncingScrollPhysics(),
-        slivers: _buildSlivers(context),
+      body: RefreshIndicator(
+        onRefresh: _refreshAll,
+        color: _primaryBlue,
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
+          slivers: _buildSlivers(context),
+        ),
       ),
     );
   }
@@ -789,46 +1152,28 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 12),
               SizedBox(
                 height: 170,
-                child: ListView(
+                child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
-                  children: [
-                    _buildBestDealCard(
-                      "Infinix Hot 10 Play Battery",
-                      "Rp145.000",
-                      "Rp220.000",
-                      "35%",
-                      "assets/images/product_battery.png",
-                      partner: "BraderParts",
-                    ),
-                    const SizedBox(width: 12),
-                    _buildBestDealCard(
-                      "LCD iPhone 11 Pro Max OLED",
-                      "Rp1.250.000",
-                      "Rp1.850.000",
-                      "32%",
-                      "assets/images/product_lcd.png",
-                      partner: "BraderParts",
-                    ),
-                    const SizedBox(width: 12),
-                    _buildBestDealCard(
-                      "Obeng Set Presisi 24 in 1 Magnet",
-                      "Rp45.000",
-                      "Rp80.000",
-                      "44%",
-                      "assets/images/product_battery.png",
-                      partner: "TITAN Tools",
-                    ),
-                    const SizedBox(width: 12),
-                    _buildBestDealCard(
-                      "Flux Amtech NC-559-ASM 10cc",
-                      "Rp85.000",
-                      "Rp130.000",
-                      "34%",
-                      "assets/images/product_battery.png",
-                      partner: "BT-ACC",
-                    ),
-                  ],
+                  itemCount: _bestDeals.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 12),
+                  itemBuilder: (context, idx) {
+                    final item = _bestDeals[idx];
+                    final origPrice = _formatRupiah(item['price'] ?? 0);
+                    final discPrice = _formatRupiah(item['discount_price'] ?? item['price'] ?? 0);
+                    final discPercent = "${item['discount_percentage'] ?? 15}%";
+                    final partnerName = item['sponsor'] != null && item['sponsor']['name'] != null
+                        ? item['sponsor']['name'].toString()
+                        : (item['partner'] ?? 'BraderParts');
+                    return _buildBestDealCard(
+                      item['name'] ?? '',
+                      discPrice,
+                      origPrice,
+                      discPercent,
+                      item['image'] ?? 'assets/images/product_battery.png',
+                      partner: partnerName,
+                    );
+                  },
                 ),
               ),
             ],
@@ -1373,119 +1718,161 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // ---- BANNER PROMO SLIDER (GAYA TOKOPEDIA) ----
+  // ---- BANNER PROMO SLIDER (GAYA TOKOPEDIA - HERO SLIDER) ----
   Widget _buildPromoBannerSlider() {
-    return Container(
+    return HorizontalSponsorSlider(
+      key: const ValueKey('home_top_hero_slider'),
+      banners: _promoBanners,
       margin: const EdgeInsets.only(top: 14, bottom: 12),
-      child: Column(
-        children: [
-          AspectRatio(
-            aspectRatio: 2.7, // Rasio banner memanjang ala e-commerce Tokopedia
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Stack(
-                fit: StackFit.expand,
+      aspectRatio: 2.7,
+      borderRadius: 12,
+    );
+  }
+
+  void _showSponsorDetailDialog(BuildContext context, Map<String, dynamic> promo) {
+    final String title = promo["title"] ?? "Promo Spesial";
+    final String description = promo["description"] ?? "";
+    final String sponsor = promo["sponsor"] ?? "Official Sponsor";
+    final String tier = promo["tier"] ?? "PARTNER";
+    final String targetUrl = promo["target_url"] ?? "https://shopee.co.id";
+    final String image = promo["image"] ?? "";
+
+    Color tierColor = const Color(0xFF1B4F9B);
+    if (tier == "PLATINUM") tierColor = const Color(0xFF6C5CE7);
+    if (tier == "GOLD") tierColor = const Color(0xFFFD761A);
+    if (tier == "SILVER") tierColor = const Color(0xFF718096);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  PageView.builder(
-                    controller: _promoPageController,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: _promoBanners.length,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentPromoIndex = index;
-                      });
-                    },
-                    itemBuilder: (context, index) {
-                      return Image.asset(
-                        _promoBanners[index],
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(
-                          color: const Color(0xFFE8EAF6),
-                          child: const Center(
-                            child: Icon(
-                              Icons.local_offer_rounded,
-                              color: Color(0xFF1B4F9B),
-                              size: 36,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  // Gradient halus di bawah untuk memperjelas indikator slide
-                  Positioned(
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    height: 35,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Colors.transparent, Color(0x77000000)],
-                        ),
-                      ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: tierColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: tierColor.withValues(alpha: 0.3)),
                     ),
-                  ),
-                  // Indikator Slide ala Tokopedia (Pill + Dots di tengah bawah)
-                  Positioned(
-                    bottom: 8,
-                    left: 0,
-                    right: 0,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(_promoBanners.length, (index) {
-                        final bool isActive = index == _currentPromoIndex;
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          margin: const EdgeInsets.symmetric(horizontal: 2.5),
-                          width: isActive ? 18.0 : 6.0,
-                          height: 5.0,
-                          decoration: BoxDecoration(
-                            color: isActive
-                                ? Colors.white
-                                : Colors.white.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(4),
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.verified_rounded, size: 14, color: tierColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          "$tier SPONSOR",
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            color: tierColor,
+                            letterSpacing: 0.5,
                           ),
-                        );
-                      }),
+                        ),
+                      ],
                     ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 12),
+              if (image.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AspectRatio(
+                    aspectRatio: 2.2,
+                    child: Image.asset(
+                      image,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, _, _) => Container(
+                        color: const Color(0xFFF1F3FF),
+                        child: const Icon(Icons.local_offer, size: 40, color: Color(0xFF1B4F9B)),
+                      ),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 14),
+              Text(
+                sponsor,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF737782),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF001944),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                description,
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: Color(0xFF4A5568),
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    try {
+                      final uri = Uri.parse(targetUrl);
+                      if (await canLaunchUrl(uri)) {
+                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                      }
+                    } catch (_) {}
+                  },
+                  icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                  label: const Text(
+                    "Kunjungi Sponsor",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1B4F9B),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  // ---- STATIC SEPARATOR BANNER (PHOTO-2026-07-22-20-20-24.jpg) ----
-  // Tanpa slider, sebagai jeda antar section 8 card & menggantikan bagian sponsor/mitra/promo oren.
+  // ---- SEPARATOR BANNER (HORIZONTAL SLIDER SPONSOR - SAMA PERSIS DENGAN SHOP) ----
   Widget _buildStaticSeparatorBanner() {
-    return Container(
+    return HorizontalSponsorSlider(
+      key: const ValueKey('home_bottom_horizontal_separator_slider'),
+      banners: _horizontalSponsorBanners,
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-      child: AspectRatio(
-        aspectRatio: 2.7, // Rasio banner memanjang ala e-commerce
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.asset(
-            'assets/images/PHOTO-2026-07-22-20-20-24.jpg',
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
-              color: const Color(0xFFE8EAF6),
-              child: const Center(
-                child: Icon(
-                  Icons.image_rounded,
-                  color: Color(0xFF1B4F9B),
-                  size: 36,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+      aspectRatio: 2.7,
+      borderRadius: 12,
     );
   }
 
@@ -2163,19 +2550,10 @@ class _HomePageState extends State<HomePage> {
   }) {
     return GestureDetector(
       onTap: () {
-        context.push(
-          '/product-detail',
-          extra: {
-            "name": name,
-            "price": price,
-            "image": assetImage,
-            "rating": "4.9",
-            "sold": "250+",
-            "isMitra": true,
-            "partner": partner,
-            "link":
-                "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095",
-          },
+        WishlistHelper.showMarketplaceSheet(
+          context,
+          name,
+          "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095",
         );
       },
       child: Container(
@@ -2212,43 +2590,57 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(12),
                       ),
-                      child: Image.asset(
-                        assetImage,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Center(
-                              child: Icon(
-                                Icons.phone_android_rounded,
-                                color: Colors.grey,
-                                size: 36,
-                              ),
+                      child: assetImage.startsWith('http')
+                          ? Image.network(
+                              assetImage,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Center(
+                                    child: Icon(
+                                      Icons.phone_android_rounded,
+                                      color: Colors.grey,
+                                      size: 36,
+                                    ),
+                                  ),
+                            )
+                          : Image.asset(
+                              assetImage,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Center(
+                                    child: Icon(
+                                      Icons.phone_android_rounded,
+                                      color: Colors.grey,
+                                      size: 36,
+                                    ),
+                                  ),
                             ),
-                      ),
                     ),
                   ),
                   // Discount badge
-                  Positioned(
-                    top: 6,
-                    left: 6,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(
-                        discount,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
+                  if (discount != "0%" && discount != "0")
+                    Positioned(
+                      top: 6,
+                      left: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          discount,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   // POIN 10: Badge Mitra di pojok kanan atas
                   Positioned(
                     top: 6,
@@ -2323,15 +2715,17 @@ class _HomePageState extends State<HomePage> {
                       color: _textDark,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    originalPrice,
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: Colors.grey.shade400,
-                      decoration: TextDecoration.lineThrough,
+                  if (discount != "0%" && discount != "0") ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      originalPrice,
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: Colors.grey.shade400,
+                        decoration: TextDecoration.lineThrough,
+                      ),
                     ),
-                  ),
+                  ],
                   Text(
                     price,
                     style: TextStyle(
@@ -2424,20 +2818,37 @@ class _HomePageState extends State<HomePage> {
                                   "assets/videos/VIDEO-2026-07-26-21-31-11.mp4",
                               fallbackImage: item["image"] ?? "",
                             )
-                          : Image.asset(
-                              item["image"] ?? "",
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Center(
-                                    child: Icon(
-                                      Icons.handyman_rounded,
-                                      color: _primaryBlue,
-                                      size: 36,
-                                    ),
-                                  ),
-                            ),
+                          : (item["image"] != null && item["image"].toString().startsWith('http'))
+                              ? Image.network(
+                                  item["image"].toString(),
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Center(
+                                        child: Icon(
+                                          Icons.handyman_rounded,
+                                          color: _primaryBlue,
+                                          size: 36,
+                                        ),
+                                      ),
+                                )
+                              : Image.asset(
+                                  (item["image"] != null && item["image"].toString().isNotEmpty)
+                                      ? item["image"].toString()
+                                      : 'assets/images/product_1.png',
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Center(
+                                        child: Icon(
+                                          Icons.handyman_rounded,
+                                          color: _primaryBlue,
+                                          size: 36,
+                                        ),
+                                      ),
+                                ),
                     ),
                   ),
                   // POIN 1: Overlay play button preview untuk card kursus
@@ -3180,114 +3591,36 @@ class PartnerLogoCardWidget extends StatelessWidget {
   }
 }
 
-// --- Sponsor Slider Card (banner foto di pojok kiri tiap section) ---
-class SponsorSliderCard extends StatefulWidget {
+// --- Sponsor Card (banner profil mitra di pojok kiri grid mozaik Beranda) ---
+class SponsorSliderCard extends StatelessWidget {
   const SponsorSliderCard({super.key});
 
   @override
-  State<SponsorSliderCard> createState() => _SponsorSliderCardState();
-}
-
-class _SponsorSliderCardState extends State<SponsorSliderCard> {
-  late final PageController _pageController;
-  Timer? _autoTimer;
-  int _currentPage = 0;
-
-  // 3 slide dummy — gambar sama, nanti bisa diganti per sponsor
-  static const List<String> _bannerImages = [
-    'assets/images/banner_sponsor_1.jpg',
-    'assets/images/banner_sponsor_2.jpg',
-    'assets/images/banner_sponsor_3.jpg',
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-    _autoTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-      if (!mounted || !_pageController.hasClients) return;
-      final next = (_currentPage + 1) % _bannerImages.length;
-      _pageController.animateToPage(
-        next,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _autoTimer?.cancel();
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          // PageView foto
-          PageView.builder(
-            controller: _pageController,
-            itemCount: _bannerImages.length,
-            onPageChanged: (i) => setState(() => _currentPage = i),
-            itemBuilder: (context, i) => Image.asset(
-              _bannerImages[i],
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => Container(
-                color: const Color(0xFF1B4F9B),
-                child: const Center(
-                  child: Icon(
-                    Icons.image_rounded,
-                    color: Colors.white54,
-                    size: 40,
-                  ),
-                ),
+    return GestureDetector(
+      onTap: () {
+        WishlistHelper.showMarketplaceSheet(
+          context,
+          "Mitra Resmi: Felindo Comm",
+          "https://shopee.co.id",
+        );
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: Image.asset(
+          'assets/images/banner_sponsor_1.jpg',
+          fit: BoxFit.cover,
+          errorBuilder: (_, _, _) => Container(
+            color: const Color(0xFF1B4F9B),
+            child: const Center(
+              child: Icon(
+                Icons.image_rounded,
+                color: Colors.white54,
+                size: 40,
               ),
             ),
           ),
-          // Gradient bawah tipis agar dot terlihat
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: Container(
-              height: 40,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Color(0x99000000)],
-                ),
-              ),
-            ),
-          ),
-          // Dot indicator bawah tengah
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 8,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_bannerImages.length, (i) {
-                final isActive = i == _currentPage;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  margin: const EdgeInsets.symmetric(horizontal: 3),
-                  width: isActive ? 16 : 6,
-                  height: 6,
-                  decoration: BoxDecoration(
-                    color: isActive ? Colors.white : Colors.white54,
-                    borderRadius: BorderRadius.circular(3),
-                  ),
-                );
-              }),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

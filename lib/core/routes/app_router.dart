@@ -35,6 +35,7 @@ import 'package:vbat_ponsel/features/profile/presentation/pages/language_page.da
 import 'package:vbat_ponsel/features/profile/presentation/pages/theme_settings_page.dart';
 import 'package:vbat_ponsel/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:vbat_ponsel/features/forum/presentation/pages/forum_search_page.dart';
+import 'package:vbat_ponsel/features/shop/presentation/pages/sponsor_detail_page.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -149,6 +150,13 @@ class AppRouter {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
           return ProductDetailPage(productData: extra);
+        },
+      ),
+      GoRoute(
+        path: '/sponsor-detail',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return SponsorDetailPage(sponsorData: extra);
         },
       ),
       GoRoute(

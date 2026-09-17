@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -19,7 +20,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   // Form Controllers
   final TextEditingController _nameController = TextEditingController(
-    text: "Budi Teknisi",
+    text: SessionManager.userName,
   );
   final TextEditingController _emailController = TextEditingController(
     text: "budi@vbatponsel.com",
@@ -38,11 +39,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _tiktokController = TextEditingController();
   final TextEditingController _ytController = TextEditingController();
 
-  String? _selectedGender;
-  String? _selectedProvinsi;
-  String? _selectedKota;
+  DateTime? _selectedBirthDate = SessionManager.birthDate ?? DateTime(1998, 5, 15);
+  String? _selectedGender = SessionManager.gender ?? "Laki-laki";
+  String? _selectedProvinsi = SessionManager.province ?? "Jawa Barat";
+  String? _selectedKota = SessionManager.city ?? "Bandung";
   String? _selectedKecamatan;
   String? _selectedKelurahan;
+
+  int? get _calculatedAge {
+    if (_selectedBirthDate == null) return null;
+    final now = DateTime.now();
+    int age = now.year - _selectedBirthDate!.year;
+    if (now.month < _selectedBirthDate!.month ||
+        (now.month == _selectedBirthDate!.month && now.day < _selectedBirthDate!.day)) {
+      age--;
+    }
+    return age;
+  }
 
   @override
   void dispose() {
@@ -157,12 +170,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
             const SizedBox(height: 32),
 
             // --- DATA PRIBADI ---
-            _buildSectionHeader(Icons.person_outline_rounded, "DATA PRIBADI"),
+            _buildSectionHeader(Icons.person_outline_rounded, "DATA PRIBADI & DEMOGRAFI"),
             const SizedBox(height: 16),
             _buildTextField("Nama Lengkap *", _nameController),
             const SizedBox(height: 16),
+            _buildDatePicker(),
+            const SizedBox(height: 16),
             _buildDropdown(
-              "Jenis Kelamin",
+              "Jenis Kelamin *",
               ["Laki-laki", "Perempuan"],
               _selectedGender,
               (val) => setState(() => _selectedGender = val),
@@ -215,7 +230,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 Expanded(
                   child: _buildDropdown(
                     "Provinsi *",
-                    ["Jawa Barat", "Jawa Tengah", "Jawa Timur"],
+                    [
+                      "Jawa Barat",
+                      "DKI Jakarta",
+                      "Jawa Tengah",
+                      "Jawa Timur",
+                      "Banten",
+                      "Sumatera Utara",
+                      "Sulawesi Selatan",
+                      "Bali",
+                    ],
                     _selectedProvinsi,
                     (val) => setState(() => _selectedProvinsi = val),
                   ),
@@ -224,7 +248,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 Expanded(
                   child: _buildDropdown(
                     "Kota/Kabupaten *",
-                    ["Bandung", "Semarang", "Surabaya"],
+                    [
+                      "Bandung",
+                      "Jakarta Pusat",
+                      "Jakarta Selatan",
+                      "Surabaya",
+                      "Semarang",
+                      "Medan",
+                      "Makassar",
+                      "Denpasar",
+                    ],
                     _selectedKota,
                     (val) => setState(() => _selectedKota = val),
                   ),
@@ -320,10 +353,60 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Perubahan disimpan")),
+                    if (_nameController.text.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Nama Lengkap wajib diisi")),
+                      );
+                      return;
+                    }
+                    if (_selectedBirthDate == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Tanggal Lahir wajib diisi untuk kelengkapan data demografi"),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    if (_selectedGender == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Jenis Kelamin wajib dipilih"),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                    if (_selectedKota == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Kota/Domisili wajib dipilih"),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+
+                    // Simpan data demografi ke SessionManager
+                    final updatedName = _nameController.text.trim();
+                    SessionManager.userName = updatedName;
+                    SessionManager.birthDate = _selectedBirthDate;
+                    SessionManager.gender = _selectedGender;
+                    SessionManager.province = _selectedProvinsi;
+                    SessionManager.city = _selectedKota;
+                    SessionManager.profileCompleted = true;
+
+                    // Sync secara real-time ke Database Web Laravel via API
+                    SessionManager.syncProfileToBackend(
+                      name: updatedName,
+                      birthDate: _selectedBirthDate,
+                      gender: _selectedGender,
+                      province: _selectedProvinsi,
+                      city: _selectedKota,
                     );
-                    context.pop();
+
+                    // Langsung kembali ke halaman profil
+                    Navigator.of(context).pop(true);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _primaryBlue,
@@ -519,6 +602,104 @@ class _EditProfilePageState extends State<EditProfilePage> {
               onChanged: onChanged,
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDatePicker() {
+    final age = _calculatedAge;
+    final dateStr = _selectedBirthDate != null
+        ? "${_selectedBirthDate!.day.toString().padLeft(2, '0')}/${_selectedBirthDate!.month.toString().padLeft(2, '0')}/${_selectedBirthDate!.year}"
+        : "Pilih Tanggal Lahir";
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Tanggal Lahir *",
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: _textDark,
+              ),
+            ),
+            if (age != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: _primaryBlue.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: _primaryBlue.withValues(alpha: 0.2)),
+                ),
+                child: Text(
+                  "Usia: $age Tahun",
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: _primaryBlue,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        InkWell(
+          onTap: () async {
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: _selectedBirthDate ?? DateTime(2000, 1, 1),
+              firstDate: DateTime(1950),
+              lastDate: DateTime.now(),
+              builder: (context, child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: ColorScheme.light(
+                      primary: _primaryBlue,
+                      onPrimary: Colors.white,
+                      onSurface: _textDark,
+                    ),
+                  ),
+                  child: child!,
+                );
+              },
+            );
+            if (picked != null) {
+              setState(() {
+                _selectedBirthDate = picked;
+              });
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.shade300),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  dateStr,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: _selectedBirthDate != null ? _textDark : Colors.grey.shade400,
+                  ),
+                ),
+                Icon(Icons.calendar_month_rounded, color: _primaryBlue, size: 20),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          "Wajib diisi untuk verifikasi data diri & demografi teknisi",
+          style: TextStyle(fontSize: 11, color: _textGray),
         ),
       ],
     );

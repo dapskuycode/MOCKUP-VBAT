@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WishlistHelper {
   // Simpan data wishlist sementara di memory
@@ -6,18 +7,122 @@ class WishlistHelper {
     {
       "name": "Baterai Infinix Hot 9/10/11 Play BL-58BX Original",
       "price": "Rp145.000",
-      "image": "assets/images/brand_infinix.png",
+      "image": "assets/images/product_battery.png",
       "link":
           "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095?extraParams=%7B%22display_model_id%22%3A350188294975%2C%22model_selection_logic%22%3A3%7D&sp_atk=f8d0ca69-2d93-4324-b982-5cd7d983550e&xptdk=f8d0ca69-2d93-4324-b982-5cd7d983550e",
     },
     {
       "name": "LCD iPhone 11 Pro Max OLED Original Quality",
       "price": "Rp1.250.000",
-      "image": "assets/images/brand_apple.png",
+      "image": "assets/images/product_lcd.png",
       "link":
           "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095",
     },
   ];
+
+  static Widget buildThumbnail(String? image, String name, {double size = 60}) {
+    final raw = (image ?? "").trim();
+    final n = name.toLowerCase();
+
+    String fallbackAsset = "assets/images/product_1.png";
+    if (n.contains("lcd") || n.contains("layar") || n.contains("screen") || n.contains("oled")) {
+      fallbackAsset = "assets/images/product_lcd.png";
+    } else if (n.contains("baterai") || n.contains("battery") || n.contains("batre") || n.contains("bl-58bx")) {
+      fallbackAsset = "assets/images/product_battery.png";
+    }
+
+    if (raw.startsWith("http://") || raw.startsWith("https://")) {
+      return Image.network(
+        raw,
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(
+            child: SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+              ),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) => Image.asset(
+          fallbackAsset,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+          errorBuilder: (context, error, stackTrace) => const Icon(
+            Icons.inventory_2_outlined,
+            color: Colors.grey,
+            size: 24,
+          ),
+        ),
+      );
+    }
+
+    String assetPath = raw;
+    if (assetPath.isEmpty ||
+        assetPath.contains("brand_apple") ||
+        assetPath.contains("brand_infinix")) {
+      assetPath = fallbackAsset;
+    }
+
+    return Image.asset(
+      assetPath,
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) => Image.asset(
+        fallbackAsset,
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => const Icon(
+          Icons.inventory_2_outlined,
+          color: Colors.grey,
+          size: 24,
+        ),
+      ),
+    );
+  }
+
+  static bool isWishlisted(String productName) {
+    return items.any((element) => element["name"] == productName);
+  }
+
+  static bool toggleWishlist(BuildContext context, Map<String, String> item) {
+    final index = items.indexWhere((element) => element["name"] == item["name"]);
+    final isAdded = index == -1;
+    if (isAdded) {
+      items.add(item);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("${item["name"]} ditambahkan ke Wishlist ❤️"),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: const Color(0xFF1B4F9B),
+        ),
+      );
+    } else {
+      items.removeAt(index);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("${item["name"]} dihapus dari Wishlist"),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.grey.shade800,
+        ),
+      );
+    }
+    return isAdded;
+  }
 
   static void show(BuildContext context) {
     showModalBottomSheet(
@@ -123,15 +228,14 @@ class WishlistHelper {
                                         height: 60,
                                         decoration: BoxDecoration(
                                           color: Colors.grey.shade100,
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
+                                          borderRadius: BorderRadius.circular(12),
                                         ),
-                                        padding: const EdgeInsets.all(6),
+                                        padding: const EdgeInsets.all(4),
                                         child: Center(
-                                          child: Icon(
-                                            Icons.image_outlined,
-                                            color: Colors.grey.shade400,
+                                          child: buildThumbnail(
+                                            item["image"],
+                                            item["name"] ?? "",
+                                            size: 52,
                                           ),
                                         ),
                                       ),
@@ -169,7 +273,7 @@ class WishlistHelper {
                                       ElevatedButton(
                                         onPressed: () {
                                           Navigator.pop(context);
-                                          _showMarketplaceSheet(
+                                          showMarketplaceSheet(
                                             context,
                                             item["name"]!,
                                             item["link"]!,
@@ -215,191 +319,49 @@ class WishlistHelper {
     );
   }
 
-  static void _showMarketplaceSheet(
+  static Future<void> showMarketplaceSheet(
     BuildContext context,
     String productName,
     String link,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const Text(
-                  "Beli Produk",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF001944),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  productName,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildMarketplaceBtn(
-                      context,
-                      label: "Beli di Shopee",
-                      color: const Color(0xFFEE4D2D), // Shopee Orange
-                      icon: Icons.storefront_rounded,
-                      onTap: () {
-                        Navigator.pop(context);
-                        _showRedirectOverlay(context, "Shopee", link);
-                      },
-                    ),
-                    _buildMarketplaceBtn(
-                      context,
-                      label: "Beli di Tokopedia",
-                      color: const Color(0xFF03AC0E), // Tokopedia Green
-                      icon: Icons.storefront_outlined,
-                      onTap: () {
-                        Navigator.pop(context);
-                        // Tokopedia default to store link
-                        _showRedirectOverlay(
-                          context,
-                          "Tokopedia",
-                          "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095",
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+  ) async {
+    final bool isTokopedia = link.toLowerCase().contains("tokopedia");
+    final String platform = isTokopedia ? "Tokopedia" : "Shopee";
+    final Color color = isTokopedia ? const Color(0xFF03AC0E) : const Color(0xFFEE4D2D);
 
-  static Widget _buildMarketplaceBtn(
-    BuildContext context, {
-    required String label,
-    required Color color,
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        width: 140,
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Column(
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
           children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: color,
-                fontFamily: 'Inter',
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                "Membuka $platform...",
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ],
         ),
+        backgroundColor: color,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
       ),
     );
-  }
 
-  static void _showRedirectOverlay(
-    BuildContext context,
-    String platform,
-    String url,
-  ) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) {
-        Future.delayed(const Duration(milliseconds: 1500), () {
-          if (context.mounted) {
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Mengalihkan ke $platform... ($url)"),
-                backgroundColor: platform == "Shopee"
-                    ? const Color(0xFFEE4D2D)
-                    : const Color(0xFF03AC0E),
-              ),
-            );
-          }
-        });
-
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 50,
-                  height: 50,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 3,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      platform == "Shopee"
-                          ? const Color(0xFFEE4D2D)
-                          : const Color(0xFF03AC0E),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  "Menghubungkan ke $platform",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF001944),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  "Mohon tunggu, Anda sedang dialihkan...",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+    try {
+      final uri = Uri.parse(link);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+      }
+    } catch (_) {}
   }
 }
