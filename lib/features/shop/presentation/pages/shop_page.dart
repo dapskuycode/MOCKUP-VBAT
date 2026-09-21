@@ -41,6 +41,9 @@ class _ShopPageState extends State<ShopPage> {
     return "Rp${buffer.toString()}";
   }
 
+  // Dynamic all store products for main catalog
+  List<Map<String, dynamic>> _catalogProducts = [];
+
   // Dynamic products for Flash Sale & Event Diskon (Synced with Web Backend)
   List<Map<String, dynamic>> _bestDeals = [
     {
@@ -127,7 +130,8 @@ class _ShopPageState extends State<ShopPage> {
   };
 
   List<Map<String, String>> get _filteredProducts {
-    final list = _bestDeals.map((p) {
+    final sourceList = _catalogProducts.isNotEmpty ? _catalogProducts : _bestDeals;
+    final list = sourceList.map((p) {
       final origPrice = _formatRupiah(p['price'] ?? 0);
       final discPrice = _formatRupiah(p['discount_price'] ?? p['price'] ?? 0);
       return {
@@ -201,19 +205,32 @@ class _ShopPageState extends State<ShopPage> {
         }
       }
 
-      // Fetch dynamic products with calculated event discount
+      // Fetch dynamic products with calculated event discount (Best Deals)
       final dealsRes = await dio.get('/shop/best-deals');
       if (dealsRes.data != null && dealsRes.data['data'] != null) {
         final List list = dealsRes.data['data'];
         if (list.isNotEmpty && mounted) {
           setState(() {
             _bestDeals = list.map((item) => Map<String, dynamic>.from(item)).toList();
-            if (_bestDeals.length > _itemCount) {
-              _itemCount = _bestDeals.length;
-            }
           });
         }
       }
+
+      // Fetch all store products for main catalog
+      try {
+        final prodsRes = await dio.get('/shop/products');
+        if (prodsRes.data != null && prodsRes.data['data'] != null) {
+          final List list = prodsRes.data['data'];
+          if (list.isNotEmpty && mounted) {
+            setState(() {
+              _catalogProducts = list.map((item) => Map<String, dynamic>.from(item)).toList();
+              if (_catalogProducts.length > _itemCount) {
+                _itemCount = _catalogProducts.length;
+              }
+            });
+          }
+        }
+      } catch (_) {}
 
       // Fetch dynamic horizontal sponsor banners (Kelipatan 12 produk, 1 - 6 slide)
       final bannerRes = await dio.get('/banners/shop-horizontal');
@@ -276,10 +293,7 @@ class _ShopPageState extends State<ShopPage> {
   @override
   Widget build(BuildContext context) {
     final filteredProducts = _filteredProducts;
-    final effectiveItemCount = _itemCount.clamp(
-      0,
-      filteredProducts.isNotEmpty ? filteredProducts.length * 3 : 12,
-    );
+    final effectiveItemCount = filteredProducts.isEmpty ? 0 : _itemCount;
 
     return Scaffold(
       backgroundColor: _bgLight,
@@ -296,93 +310,98 @@ class _ShopPageState extends State<ShopPage> {
           // --- 1.1 Promo Event Ticker (Disinkronkan langsung dari DB Web Event) ---
           if (_activeEvent != null && _activeEvent!['has_active'] == true)
             SliverToBoxAdapter(
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFD761A), Color(0xFFE05300)],
+              child: GestureDetector(
+                onTap: () {
+                  context.push('/discount-event', extra: _activeEvent);
+                },
+                child: Container(
+                  margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFD761A), Color(0xFFE05300)],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFFD761A).withValues(alpha: 0.25),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFFFD761A).withValues(alpha: 0.25),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.campaign_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.campaign_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                _activeEvent!['name'] ?? "Flash Event Akhir Pekan",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 12,
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 1,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  "HEMAT ${_activeEvent!['value']}%",
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  _activeEvent!['name'] ?? "Flash Event Akhir Pekan",
                                   style: const TextStyle(
-                                    color: Color(0xFFFD761A),
+                                    color: Colors.white,
                                     fontWeight: FontWeight.w900,
-                                    fontSize: 9,
+                                    fontSize: 12,
+                                    letterSpacing: 0.3,
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _activeEvent!['banner_text'] ??
-                                "FLASH EVENT - HEMAT 15% SEMUA PART RESMI",
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.95),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 11,
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 1,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    "HEMAT ${_activeEvent!['value']}%",
+                                    style: const TextStyle(
+                                      color: Color(0xFFFD761A),
+                                      fontWeight: FontWeight.w900,
+                                      fontSize: 9,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 2),
+                            Text(
+                              _activeEvent!['banner_text'] ??
+                                  "FLASH EVENT - HEMAT 15% SEMUA PART RESMI",
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.95),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: Colors.white70,
-                      size: 14,
-                    ),
-                  ],
+                      const Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        color: Colors.white70,
+                        size: 14,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -424,11 +443,7 @@ class _ShopPageState extends State<ShopPage> {
                     isHot: true,
                     isActive: false,
                     onTap: () {
-                      _scrollController.animateTo(
-                        350,
-                        duration: const Duration(milliseconds: 500),
-                        curve: Curves.easeInOut,
-                      );
+                      context.push('/best-deals');
                     },
                   ),
                   const SizedBox(width: 8),
@@ -554,22 +569,32 @@ class _ShopPageState extends State<ShopPage> {
                         ),
                       ],
                       const Spacer(),
-                      Row(
-                        children: [
-                          Text(
-                            "Lihat Semua",
-                            style: TextStyle(
-                              color: _primaryBlue,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
+                      InkWell(
+                        onTap: () {
+                          context.push('/best-deals');
+                        },
+                        borderRadius: BorderRadius.circular(6),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                "Lihat Semua",
+                                style: TextStyle(
+                                  color: _primaryBlue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                color: _primaryBlue,
+                                size: 16,
+                              ),
+                            ],
                           ),
-                          Icon(
-                            Icons.chevron_right_rounded,
-                            color: _primaryBlue,
-                            size: 16,
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),

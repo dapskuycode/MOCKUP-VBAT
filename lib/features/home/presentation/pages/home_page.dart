@@ -171,6 +171,7 @@ class _HomePageState extends State<HomePage> {
   // Mosaic blocks: setiap blok punya 'pattern' (4×2 grid of 'x'/'y') dan 'items' (8 cards)
   // x = course/banner (1:1 square), y = product (portrait 0.68)
   final List<Map<String, dynamic>> _mosaicBlocks = [];
+  List<Map<String, dynamic>> _cardSliders = [];
   bool _isLoadingMore = false;
 
   // Template data untuk 2-kolom grid rekomendasi
@@ -337,6 +338,7 @@ class _HomePageState extends State<HomePage> {
     _fetchBestDeals();
     _fetchHeroSliders();
     _fetchShopHorizontalBanners();
+    _fetchCardSliders();
 
     // Generate 3 mosaic blocks awal
     for (int i = 0; i < 3; i++) {
@@ -429,6 +431,42 @@ class _HomePageState extends State<HomePage> {
                   "target_url": item['target_url'] ?? 'https://shopee.co.id',
                   "link": item['target_url'] ?? 'https://shopee.co.id',
                   "media_type": item['media_type'] ?? 'image',
+                };
+              }).toList();
+            }
+          });
+        }
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _fetchCardSliders() async {
+    try {
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 4),
+        ),
+      );
+      final res = await dio.get('/banners/cards');
+      if (res.data != null && res.data['data'] != null) {
+        final List list = res.data['data'];
+        if (mounted) {
+          setState(() {
+            if (list.isEmpty) {
+              _cardSliders = [];
+            } else {
+              _cardSliders = list.map((item) {
+                return {
+                  "id": item['id'],
+                  "title": item['title'] ?? '',
+                  "description": item['description'] ?? '',
+                  "image": item['media_path'] ?? '',
+                  "sponsor": item['sponsor_name'] ?? item['sponsor']?['name'] ?? 'Sponsor Vbat',
+                  "tier": (item['tier'] ?? item['sponsor']?['tier'] ?? 'PARTNER').toString().toUpperCase(),
+                  "target_url": item['target_url'] ?? 'https://shopee.co.id',
+                  "link": item['target_url'] ?? 'https://shopee.co.id',
                 };
               }).toList();
             }
@@ -902,6 +940,7 @@ class _HomePageState extends State<HomePage> {
       _fetchHeroSliders(),
       _fetchShopHorizontalBanners(),
       _fetchBestDeals(),
+      _fetchCardSliders(),
     ]);
   }
 
@@ -1351,7 +1390,7 @@ class _HomePageState extends State<HomePage> {
     Map<String, dynamic> item,
   ) {
     if (item['type'] == 'banner_sponsor') {
-      return const SponsorSliderCard();
+      return SponsorSliderCard(banners: _cardSliders);
     }
     // x = product (portrait), y = course (1:1 square)
     return type == 'x'
@@ -3592,35 +3631,160 @@ class PartnerLogoCardWidget extends StatelessWidget {
 }
 
 // --- Sponsor Card (banner profil mitra di pojok kiri grid mozaik Beranda) ---
-class SponsorSliderCard extends StatelessWidget {
-  const SponsorSliderCard({super.key});
+class SponsorSliderCard extends StatefulWidget {
+  final List<Map<String, dynamic>> banners;
+  const SponsorSliderCard({super.key, this.banners = const []});
+
+  @override
+  State<SponsorSliderCard> createState() => _SponsorSliderCardState();
+}
+
+class _SponsorSliderCardState extends State<SponsorSliderCard> {
+  late PageController _pageController;
+  int _currentIndex = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+    _startTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant SponsorSliderCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.banners.length != widget.banners.length) {
+      _startTimer();
+    }
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    if (widget.banners.length > 1) {
+      _timer = Timer.periodic(const Duration(seconds: 4), (_) {
+        if (!mounted || !_pageController.hasClients) return;
+        final next = (_currentIndex + 1) % widget.banners.length;
+        _pageController.animateToPage(
+          next,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        WishlistHelper.showMarketplaceSheet(
-          context,
-          "Mitra Resmi: Felindo Comm",
-          "https://shopee.co.id",
-        );
-      },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: Image.asset(
-          'assets/images/banner_sponsor_1.jpg',
-          fit: BoxFit.cover,
-          errorBuilder: (_, _, _) => Container(
-            color: const Color(0xFF1B4F9B),
-            child: const Center(
-              child: Icon(
-                Icons.image_rounded,
-                color: Colors.white54,
-                size: 40,
+    if (widget.banners.isEmpty) {
+      return GestureDetector(
+        onTap: () {
+          WishlistHelper.showMarketplaceSheet(
+            context,
+            "Mitra Resmi VBAT",
+            "https://shopee.co.id",
+          );
+        },
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Image.asset(
+            'assets/images/banner_sponsor_1.jpg',
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => Container(
+              color: const Color(0xFF1B4F9B),
+              child: const Center(
+                child: Icon(
+                  Icons.image_rounded,
+                  color: Colors.white54,
+                  size: 40,
+                ),
               ),
             ),
           ),
         ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: PageView.builder(
+        controller: _pageController,
+        itemCount: widget.banners.length,
+        onPageChanged: (idx) => setState(() => _currentIndex = idx),
+        itemBuilder: (context, index) {
+          final banner = widget.banners[index];
+          final String imgPath = (banner['image'] ?? '').toString();
+          final String sponsorName = (banner['sponsor'] ?? 'Sponsor Vbat').toString();
+          final String targetUrl = (banner['target_url'] ?? banner['link'] ?? 'https://shopee.co.id').toString();
+
+          Widget imageWidget;
+          if (imgPath.startsWith('http')) {
+            imageWidget = Image.network(
+              imgPath,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                color: const Color(0xFF1B4F9B),
+                child: const Center(
+                  child: Icon(Icons.broken_image_rounded, color: Colors.white54, size: 40),
+                ),
+              ),
+            );
+          } else {
+            imageWidget = Image.asset(
+              imgPath.isNotEmpty ? imgPath : 'assets/images/banner_sponsor_1.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                color: const Color(0xFF1B4F9B),
+                child: const Center(
+                  child: Icon(Icons.image_rounded, color: Colors.white54, size: 40),
+                ),
+              ),
+            );
+          }
+
+          return GestureDetector(
+            onTap: () {
+              WishlistHelper.showMarketplaceSheet(
+                context,
+                sponsorName,
+                targetUrl,
+              );
+            },
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                imageWidget,
+                Positioned(
+                  top: 7,
+                  left: 7,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1B4F9B),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: const Text(
+                      'SPONSOR',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 7,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

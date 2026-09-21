@@ -36,6 +36,8 @@ import 'package:vbat_ponsel/features/profile/presentation/pages/theme_settings_p
 import 'package:vbat_ponsel/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:vbat_ponsel/features/forum/presentation/pages/forum_search_page.dart';
 import 'package:vbat_ponsel/features/shop/presentation/pages/sponsor_detail_page.dart';
+import 'package:vbat_ponsel/features/shop/presentation/pages/discount_event_page.dart';
+import 'package:vbat_ponsel/features/shop/presentation/pages/best_deals_page.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -162,6 +164,17 @@ class AppRouter {
       GoRoute(
         path: '/wishlist',
         builder: (context, state) => const WishlistPage(),
+      ),
+      GoRoute(
+        path: '/discount-event',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return DiscountEventPage(initialEventData: extra);
+        },
+      ),
+      GoRoute(
+        path: '/best-deals',
+        builder: (context, state) => const BestDealsPage(),
       ),
       GoRoute(
         path: '/settings',

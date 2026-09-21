@@ -346,9 +346,9 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
         }
       } catch (_) {}
 
-      // 2. Fetch Live Products from Database (/shop/best-deals)
+      // 2. Fetch Live Products from Database (/shop/products)
       try {
-        final dealsRes = await dio.get('/shop/best-deals');
+        final dealsRes = await dio.get('/shop/products');
         if (dealsRes.data != null && dealsRes.data['data'] != null) {
           final List list = dealsRes.data['data'];
           if (list.isNotEmpty && mounted) {

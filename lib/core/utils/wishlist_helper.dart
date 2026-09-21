@@ -364,4 +364,164 @@ class WishlistHelper {
       }
     } catch (_) {}
   }
+
+  static void openProductMarketplace(
+    BuildContext context, {
+    required String productName,
+    String? shopeeUrl,
+    String? tokopediaUrl,
+  }) {
+    final hasShopee = shopeeUrl != null && shopeeUrl.trim().isNotEmpty;
+    final hasTokopedia = tokopediaUrl != null && tokopediaUrl.trim().isNotEmpty;
+
+    if (hasShopee && hasTokopedia) {
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (ctx) {
+          return Container(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  "Pilih Toko Pembelian",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF001944),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  productName,
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF737782)),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                // Tombol Shopee
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    showMarketplaceSheet(context, productName, shopeeUrl);
+                  },
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEE4D2D).withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFEE4D2D).withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEE4D2D),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 18),
+                        ),
+                        const SizedBox(width: 14),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Beli di Shopee",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Color(0xFFEE4D2D),
+                                ),
+                              ),
+                              Text(
+                                "Toko resmi mitra terverifikasi",
+                                style: TextStyle(fontSize: 11, color: Color(0xFF737782)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right_rounded, color: Color(0xFFEE4D2D)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // Tombol Tokopedia
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    showMarketplaceSheet(context, productName, tokopediaUrl);
+                  },
+                  borderRadius: BorderRadius.circular(14),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF03AC0E).withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFF03AC0E).withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF03AC0E),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.storefront_outlined, color: Colors.white, size: 18),
+                        ),
+                        const SizedBox(width: 14),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Beli di Tokopedia",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                  color: Color(0xFF03AC0E),
+                                ),
+                              ),
+                              Text(
+                                "Toko resmi mitra terverifikasi",
+                                style: TextStyle(fontSize: 11, color: Color(0xFF737782)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right_rounded, color: Color(0xFF03AC0E)),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    } else if (hasTokopedia) {
+      showMarketplaceSheet(context, productName, tokopediaUrl);
+    } else {
+      showMarketplaceSheet(context, productName, shopeeUrl ?? 'https://shopee.co.id');
+    }
+  }
 }
