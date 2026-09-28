@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -21,16 +22,23 @@ class _SplashPageState extends State<SplashPage> {
 
   void _startLoading() {
     // 25ms per percent will take 2.5 seconds to reach 100%
-    _timer = Timer.periodic(const Duration(milliseconds: 25), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 25), (timer) async {
       if (!mounted) return;
-      setState(() {
-        if (_percentage < 100) {
+      if (_percentage < 100) {
+        setState(() {
           _percentage += 1;
+        });
+      } else {
+        _timer?.cancel();
+        final prefs = await SharedPreferences.getInstance();
+        final bool hasSeenOnboarding = prefs.getBool('has_seen_onboarding') ?? false;
+        if (!mounted) return;
+        if (hasSeenOnboarding) {
+          context.go('/main');
         } else {
-          _timer?.cancel();
           context.go('/onboarding');
         }
-      });
+      }
     });
   }
 

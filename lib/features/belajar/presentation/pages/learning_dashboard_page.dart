@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 
 class LearningDashboardPage extends StatefulWidget {
   const LearningDashboardPage({super.key});
@@ -9,17 +10,37 @@ class LearningDashboardPage extends StatefulWidget {
 
 class _LearningDashboardPageState extends State<LearningDashboardPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _deepNavy = const Color(0xFF0D2B5E);
   final Color _ctaOrange = const Color(0xFFF97316);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textGray = const Color(0xFF434751);
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF0D2B5E);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
+
+  @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bgLight,
       appBar: AppBar(
-        backgroundColor: _primaryBlue,
+        backgroundColor: _isDark ? ThemeManager.darkCard : _primaryBlue,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
@@ -62,8 +83,9 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -91,7 +113,7 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: _deepNavy,
+                      color: _textDark,
                       height: 1.1,
                     ),
                   ),
@@ -129,7 +151,9 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
-            color: isToday ? _primaryBlue : _textGray,
+            color: isToday
+                ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue)
+                : _textGray,
           ),
         ),
         const SizedBox(height: 8),
@@ -137,9 +161,16 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: isDone ? _primaryBlue : Colors.grey.shade200,
+            color: isDone
+                ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue)
+                : (_isDark ? const Color(0xFF2D3748) : Colors.grey.shade200),
             shape: BoxShape.circle,
-            border: isToday ? Border.all(color: Colors.white, width: 2) : null,
+            border: isToday
+                ? Border.all(
+                    color: _isDark ? Colors.white70 : Colors.white,
+                    width: 2,
+                  )
+                : null,
             boxShadow: isToday
                 ? [
                     BoxShadow(
@@ -165,8 +196,9 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -186,7 +218,7 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: _deepNavy,
+                    color: _textDark,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -207,8 +239,8 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                 CircularProgressIndicator(
                   value: 0.65,
                   strokeWidth: 8,
-                  backgroundColor: Colors.grey.shade200,
-                  color: _primaryBlue,
+                  backgroundColor: _isDark ? const Color(0xFF2D3748) : Colors.grey.shade200,
+                  color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
                   strokeCap: StrokeCap.round,
                 ),
                 Center(
@@ -217,7 +249,7 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: _deepNavy,
+                      color: _textDark,
                     ),
                   ),
                 ),
@@ -233,8 +265,9 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
   Widget _buildBadgesCard() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -255,14 +288,14 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: _deepNavy,
+                    color: _textDark,
                   ),
                 ),
-                Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
+                Icon(Icons.chevron_right_rounded, color: _textGray),
               ],
             ),
           ),
-          const Divider(height: 1),
+          Divider(height: 1, color: _borderColor),
           Padding(
             padding: const EdgeInsets.all(16),
             child: GridView.count(
@@ -326,10 +359,12 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: isLocked ? Colors.grey.shade50 : color.withValues(alpha: 0.05),
+        color: isLocked
+            ? (_isDark ? ThemeManager.darkBg : Colors.grey.shade50)
+            : color.withValues(alpha: _isDark ? 0.15 : 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isLocked ? Colors.transparent : Colors.grey.shade200,
+          color: isLocked ? _borderColor : color.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -343,13 +378,13 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                 height: 48,
                 decoration: BoxDecoration(
                   color: isLocked
-                      ? Colors.grey.shade200
+                      ? (_isDark ? const Color(0xFF2D3748) : Colors.grey.shade200)
                       : color.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   icon,
-                  color: isLocked ? Colors.grey.shade500 : color,
+                  color: isLocked ? (_isDark ? Colors.grey.shade400 : Colors.grey.shade500) : color,
                   size: 28,
                 ),
               ),
@@ -359,17 +394,17 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                   right: -2,
                   child: Container(
                     padding: const EdgeInsets.all(2),
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
+                    decoration: BoxDecoration(
+                      color: _cardColor,
                       shape: BoxShape.circle,
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(color: Colors.black12, blurRadius: 2),
                       ],
                     ),
                     child: Icon(
                       Icons.lock_rounded,
                       size: 12,
-                      color: Colors.grey.shade600,
+                      color: _textGray,
                     ),
                   ),
                 ),
@@ -383,7 +418,7 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: isLocked ? Colors.grey.shade500 : _deepNavy,
+              color: isLocked ? _textGray : _textDark,
             ),
           ),
         ],
@@ -395,8 +430,9 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
   Widget _buildMyCoursesCard() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -417,14 +453,14 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: _deepNavy,
+                    color: _textDark,
                   ),
                 ),
-                Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
+                Icon(Icons.chevron_right_rounded, color: _textGray),
               ],
             ),
           ),
-          const Divider(height: 1),
+          Divider(height: 1, color: _borderColor),
           _buildCourseProgressItem(
             "Micro-Soldering Lanjutan",
             "Modul 4: Reballing IC",
@@ -432,7 +468,7 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
             Colors.blue,
             0.75,
           ),
-          const Divider(height: 1, indent: 16, endIndent: 16),
+          Divider(height: 1, indent: 16, endIndent: 16, color: _borderColor),
           _buildCourseProgressItem(
             "Skema iPhone 14",
             "Modul 2: Jalur Audio",
@@ -462,7 +498,7 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
+                  color: color.withValues(alpha: _isDark ? 0.2 : 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, color: color),
@@ -477,7 +513,7 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: _deepNavy,
+                        color: _textDark,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -496,8 +532,8 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
               Expanded(
                 child: LinearProgressIndicator(
                   value: progress,
-                  color: _primaryBlue,
-                  backgroundColor: Colors.grey.shade200,
+                  color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
+                  backgroundColor: _isDark ? const Color(0xFF2D3748) : Colors.grey.shade200,
                   minHeight: 8,
                   borderRadius: BorderRadius.circular(4),
                 ),
@@ -508,7 +544,7 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: _primaryBlue,
+                  color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
                 ),
               ),
             ],
@@ -524,14 +560,14 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: _primaryBlue,
+                    color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
                   ),
                 ),
                 const SizedBox(width: 4),
                 Icon(
                   Icons.arrow_forward_rounded,
                   size: 16,
-                  color: _primaryBlue,
+                  color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
                 ),
               ],
             ),
@@ -550,8 +586,9 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _borderColor),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -568,7 +605,7 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: _deepNavy,
+              color: _textDark,
             ),
           ),
           const SizedBox(height: 24),
@@ -590,8 +627,8 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                       height: 130 * chartData[index],
                       decoration: BoxDecoration(
                         color: isHighlight
-                            ? _primaryBlue
-                            : Colors.grey.shade200,
+                            ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue)
+                            : (_isDark ? const Color(0xFF2D3748) : Colors.grey.shade200),
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(4),
                         ),
@@ -605,7 +642,9 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                         fontWeight: isHighlight
                             ? FontWeight.bold
                             : FontWeight.normal,
-                        color: isHighlight ? _primaryBlue : _textGray,
+                        color: isHighlight
+                            ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue)
+                            : _textGray,
                       ),
                     ),
                   ],
@@ -619,9 +658,9 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: _isDark ? ThemeManager.darkBg : const Color(0xFFF8FAFC),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: _borderColor),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -634,7 +673,7 @@ class _LearningDashboardPageState extends State<LearningDashboardPage> {
                   "385 Menit",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: _deepNavy,
+                    color: _textDark,
                     fontSize: 16,
                   ),
                 ),

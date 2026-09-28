@@ -1,24 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 
-class HelpCenterPage extends StatelessWidget {
+class HelpCenterPage extends StatefulWidget {
   const HelpCenterPage({super.key});
 
+  @override
+  State<HelpCenterPage> createState() => _HelpCenterPageState();
+}
+
+class _HelpCenterPageState extends State<HelpCenterPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardBg => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
+
+  @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bgLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: _cardBg,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: _primaryBlue),
+          icon: Icon(Icons.arrow_back_rounded, color: _isDark ? Colors.blue.shade300 : _primaryBlue),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -39,7 +65,7 @@ class HelpCenterPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: _primaryBlue,
+                color: _isDark ? const Color(0xFF132A4A) : _primaryBlue,
                 borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(32),
                 ),
@@ -59,26 +85,28 @@ class HelpCenterPage extends StatelessWidget {
                   const SizedBox(height: 24),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: _cardBg,
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: _borderColor),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
+                          color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: TextField(
+                      style: TextStyle(color: _textDark, fontSize: 14),
                       decoration: InputDecoration(
                         hintText: "Cari topik bantuan...",
                         hintStyle: TextStyle(
-                          color: Colors.grey.shade400,
+                          color: _textGray,
                           fontSize: 14,
                         ),
                         prefixIcon: Icon(
                           Icons.search_rounded,
-                          color: Colors.grey.shade400,
+                          color: _textGray,
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
@@ -105,9 +133,7 @@ class HelpCenterPage extends StatelessWidget {
                       icon: Icons.chat_rounded,
                       title: "Chat Pak Tomi",
                       subtitle: "(Premium Only)",
-                      color: const Color(
-                        0xFF22C55E,
-                      ), // using green for WhatsApp vibe
+                      color: const Color(0xFF22C55E),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -117,7 +143,7 @@ class HelpCenterPage extends StatelessWidget {
                       icon: Icons.email_rounded,
                       title: "Email Bantuan",
                       subtitle: "Kirim pesan umum",
-                      color: _primaryBlue,
+                      color: _isDark ? Colors.blue.shade300 : _primaryBlue,
                     ),
                   ),
                 ],
@@ -143,9 +169,16 @@ class HelpCenterPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: _cardBg,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.grey.shade200),
+                      border: Border.all(color: _borderColor),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
@@ -153,12 +186,12 @@ class HelpCenterPage extends StatelessWidget {
                           "Bagaimana cara klaim garansi baterai/LCD?",
                           "Untuk klaim garansi, pastikan segel distributor tidak rusak. Sertakan video unboxing dan tes nyala produk (khusus LCD) lalu kirimkan ke tim retur VBat melalui WhatsApp atau fitur retur pada detail pesanan.",
                         ),
-                        Divider(height: 1, color: Colors.grey.shade100),
+                        Divider(height: 1, color: _borderColor),
                         _buildFAQItem(
                           "Apakah saya bisa mengakses video materi selamanya?",
                           "Ya, bagi Anda yang membeli Kelas Premium Teknisi (Online maupun Offline), akses video materi di aplikasi VBat Ponsel berlaku seumur hidup (lifetime).",
                         ),
-                        Divider(height: 1, color: Colors.grey.shade100),
+                        Divider(height: 1, color: _borderColor),
                         _buildFAQItem(
                           "Metode pembayaran apa saja yang tersedia?",
                           "Kami mendukung pembayaran via Transfer Bank (BCA, Mandiri, BRI, BNI), E-Wallet (Gopay, OVO, Dana), dan QRIS.",
@@ -192,9 +225,16 @@ class HelpCenterPage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _cardBg,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: _borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,7 +242,7 @@ class HelpCenterPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
+                color: color.withValues(alpha: _isDark ? 0.2 : 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 20),
@@ -226,7 +266,11 @@ class HelpCenterPage extends StatelessWidget {
 
   Widget _buildFAQItem(String question, String answer) {
     return Theme(
-      data: ThemeData().copyWith(dividerColor: Colors.transparent),
+      data: ThemeData().copyWith(
+        dividerColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        splashColor: Colors.transparent,
+      ),
       child: ExpansionTile(
         title: Text(
           question,
@@ -236,7 +280,7 @@ class HelpCenterPage extends StatelessWidget {
             color: _textDark,
           ),
         ),
-        iconColor: _primaryBlue,
+        iconColor: _isDark ? Colors.blue.shade300 : _primaryBlue,
         collapsedIconColor: _textGray,
         childrenPadding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
         children: [

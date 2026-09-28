@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -11,40 +12,66 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
   final Color _orangeCTA = const Color(0xFFF78B00);
   final Color _redWarning = const Color(0xFFEF4444);
   final Color _greenSuccess = const Color(0xFF10B981);
 
   // Form Controllers
-  final TextEditingController _nameController = TextEditingController(
-    text: SessionManager.userName,
-  );
-  final TextEditingController _emailController = TextEditingController(
-    text: "budi@vbatponsel.com",
-  );
-  final TextEditingController _phoneController = TextEditingController(
-    text: "081234567890",
-  );
-  final TextEditingController _waController = TextEditingController(
-    text: "6281234567890",
-  );
-  final TextEditingController _addressController = TextEditingController(
-    text: "Jl. Merdeka No 123, Blok C",
-  );
-  final TextEditingController _igController = TextEditingController();
-  final TextEditingController _fbController = TextEditingController();
-  final TextEditingController _tiktokController = TextEditingController();
-  final TextEditingController _ytController = TextEditingController();
+  late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _waController;
+  late final TextEditingController _addressController;
+  late final TextEditingController _igController;
+  late final TextEditingController _fbController;
+  late final TextEditingController _tiktokController;
+  late final TextEditingController _ytController;
 
-  DateTime? _selectedBirthDate = SessionManager.birthDate ?? DateTime(1998, 5, 15);
-  String? _selectedGender = SessionManager.gender ?? "Laki-laki";
-  String? _selectedProvinsi = SessionManager.province ?? "Jawa Barat";
-  String? _selectedKota = SessionManager.city ?? "Bandung";
-  String? _selectedKecamatan;
-  String? _selectedKelurahan;
+  DateTime? _selectedBirthDate;
+  String? _selectedGender;
+  String? _selectedProvinsi;
+  String? _selectedKota;
+
+  final List<String> _provinsiList = [
+    "Jawa Tengah",
+    "Jawa Barat",
+    "DKI Jakarta",
+    "Jawa Timur",
+    "Banten",
+    "DI Yogyakarta",
+    "Sumatera Utara",
+    "Sumatera Barat",
+    "Sumatera Selatan",
+    "Riau",
+    "Lampung",
+    "Bali",
+    "Sulawesi Selatan",
+    "Kalimantan Timur",
+  ];
+
+  final List<String> _kotaList = [
+    "Semarang",
+    "Kab. Semarang",
+    "Surakarta (Solo)",
+    "Bandung",
+    "Jakarta Pusat",
+    "Jakarta Selatan",
+    "Jakarta Barat",
+    "Jakarta Timur",
+    "Jakarta Utara",
+    "Surabaya",
+    "Yogyakarta",
+    "Malang",
+    "Medan",
+    "Makassar",
+    "Denpasar",
+  ];
 
   int? get _calculatedAge {
     if (_selectedBirthDate == null) return null;
@@ -58,7 +85,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+    _nameController = TextEditingController(text: SessionManager.userName);
+    _emailController = TextEditingController(text: SessionManager.userEmail);
+    _phoneController = TextEditingController(text: SessionManager.phone ?? "");
+    _waController = TextEditingController(text: SessionManager.whatsapp ?? "");
+    _addressController = TextEditingController(text: SessionManager.address ?? "");
+    _igController = TextEditingController(text: SessionManager.instagram ?? "");
+    _fbController = TextEditingController(text: SessionManager.facebook ?? "");
+    _tiktokController = TextEditingController(text: SessionManager.tiktok ?? "");
+    _ytController = TextEditingController(text: SessionManager.youtube ?? "");
+
+    _selectedBirthDate = SessionManager.birthDate;
+    _selectedGender = SessionManager.gender;
+    _selectedProvinsi = SessionManager.province;
+    _selectedKota = SessionManager.city;
+  }
+
+  @override
   void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
@@ -71,16 +119,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.dispose();
   }
 
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bgLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: _cardColor,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: _primaryBlue),
+          icon: Icon(Icons.arrow_back_rounded, color: _textDark),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -103,16 +155,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
               margin: const EdgeInsets.only(bottom: 24),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.orange.shade50,
+                color: _isDark ? Colors.orange.withValues(alpha: 0.15) : Colors.orange.shade50,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange.shade200),
+                border: Border.all(color: _isDark ? Colors.orange.withValues(alpha: 0.3) : Colors.orange.shade200),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
                     Icons.warning_amber_rounded,
-                    color: Colors.orange.shade800,
+                    color: _isDark ? Colors.orange.shade300 : Colors.orange.shade800,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
@@ -121,7 +173,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       "PENTING: Pastikan Nama Lengkap dan Data Diri sesuai KTP. Data ini akan dicetak permanen pada KTA Digital dan Sertifikat Kelulusan seumur hidup.",
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.orange.shade900,
+                        color: _isDark ? Colors.orange.shade200 : Colors.orange.shade900,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -230,16 +282,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 Expanded(
                   child: _buildDropdown(
                     "Provinsi *",
-                    [
-                      "Jawa Barat",
-                      "DKI Jakarta",
-                      "Jawa Tengah",
-                      "Jawa Timur",
-                      "Banten",
-                      "Sumatera Utara",
-                      "Sulawesi Selatan",
-                      "Bali",
-                    ],
+                    _provinsiList,
                     _selectedProvinsi,
                     (val) => setState(() => _selectedProvinsi = val),
                   ),
@@ -248,40 +291,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 Expanded(
                   child: _buildDropdown(
                     "Kota/Kabupaten *",
-                    [
-                      "Bandung",
-                      "Jakarta Pusat",
-                      "Jakarta Selatan",
-                      "Surabaya",
-                      "Semarang",
-                      "Medan",
-                      "Makassar",
-                      "Denpasar",
-                    ],
+                    _kotaList,
                     _selectedKota,
                     (val) => setState(() => _selectedKota = val),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildDropdown(
-                    "Kecamatan *",
-                    ["Kecamatan A", "Kecamatan B"],
-                    _selectedKecamatan,
-                    (val) => setState(() => _selectedKecamatan = val),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildDropdown(
-                    "Kelurahan/Desa *",
-                    ["Kelurahan X", "Kelurahan Y"],
-                    _selectedKelurahan,
-                    (val) => setState(() => _selectedKelurahan = val),
                   ),
                 ),
               ],
@@ -338,8 +350,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
               children: [
                 TextButton(
                   onPressed: () {
+                    setState(() {
+                      _nameController.text = SessionManager.userName;
+                      _emailController.text = SessionManager.userEmail;
+                      _phoneController.text = SessionManager.phone ?? "";
+                      _waController.text = SessionManager.whatsapp ?? "";
+                      _addressController.text = SessionManager.address ?? "";
+                      _igController.text = SessionManager.instagram ?? "";
+                      _fbController.text = SessionManager.facebook ?? "";
+                      _tiktokController.text = SessionManager.tiktok ?? "";
+                      _ytController.text = SessionManager.youtube ?? "";
+                      _selectedBirthDate = SessionManager.birthDate;
+                      _selectedGender = SessionManager.gender;
+                      _selectedProvinsi = SessionManager.province;
+                      _selectedKota = SessionManager.city;
+                    });
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Data diatur ulang")),
+                      const SnackBar(content: Text("Data formulir berhasil diatur ulang")),
                     );
                   },
                   child: Text(
@@ -352,60 +379,90 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_nameController.text.trim().isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Nama Lengkap wajib diisi")),
-                      );
-                      return;
-                    }
-                    if (_selectedBirthDate == null) {
+                  onPressed: () async {
+                    final updatedName = _nameController.text.trim();
+                    if (updatedName.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text("Tanggal Lahir wajib diisi untuk kelengkapan data demografi"),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      return;
-                    }
-                    if (_selectedGender == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Jenis Kelamin wajib dipilih"),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                      return;
-                    }
-                    if (_selectedKota == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Kota/Domisili wajib dipilih"),
+                          content: Text("Nama Lengkap wajib diisi"),
                           backgroundColor: Colors.red,
                         ),
                       );
                       return;
                     }
 
-                    // Simpan data demografi ke SessionManager
-                    final updatedName = _nameController.text.trim();
+                    final phone = _phoneController.text.trim();
+                    final wa = _waController.text.trim();
+                    final address = _addressController.text.trim();
+                    final ig = _igController.text.trim();
+                    final fb = _fbController.text.trim();
+                    final tiktok = _tiktokController.text.trim();
+                    final yt = _ytController.text.trim();
+
+                    // Simpan data ke SessionManager
                     SessionManager.userName = updatedName;
                     SessionManager.birthDate = _selectedBirthDate;
                     SessionManager.gender = _selectedGender;
+                    SessionManager.phone = phone.isNotEmpty ? phone : null;
+                    SessionManager.whatsapp = wa.isNotEmpty ? wa : null;
+                    SessionManager.address = address.isNotEmpty ? address : null;
                     SessionManager.province = _selectedProvinsi;
                     SessionManager.city = _selectedKota;
-                    SessionManager.profileCompleted = true;
+                    SessionManager.district = null;
+                    SessionManager.village = null;
+                    SessionManager.instagram = ig.isNotEmpty ? ig : null;
+                    SessionManager.facebook = fb.isNotEmpty ? fb : null;
+                    SessionManager.tiktok = tiktok.isNotEmpty ? tiktok : null;
+                    SessionManager.youtube = yt.isNotEmpty ? yt : null;
+                    SessionManager.checkAndNotifyProfileComplete();
 
-                    // Sync secara real-time ke Database Web Laravel via API
-                    SessionManager.syncProfileToBackend(
+                    // Loading indicator overlay
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (ctx) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+
+                    // Sync secara real-time ke Database Web Laravel via REST API
+                    await SessionManager.syncProfileToBackend(
                       name: updatedName,
                       birthDate: _selectedBirthDate,
                       gender: _selectedGender,
+                      phone: phone.isNotEmpty ? phone : null,
+                      whatsapp: wa.isNotEmpty ? wa : null,
+                      address: address.isNotEmpty ? address : null,
                       province: _selectedProvinsi,
                       city: _selectedKota,
+                      instagram: ig.isNotEmpty ? ig : null,
+                      facebook: fb.isNotEmpty ? fb : null,
+                      tiktok: tiktok.isNotEmpty ? tiktok : null,
+                      youtube: yt.isNotEmpty ? yt : null,
                     );
 
-                    // Langsung kembali ke halaman profil
+                    if (!context.mounted) return;
+                    Navigator.of(context).pop(); // dismiss loading dialog
+
+                    if (SessionManager.isProfileComplete) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("✓ Profil lengkap berhasil disimpan!"),
+                          backgroundColor: Color(0xFF10B981),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text("Perubahan disimpan. Lengkapi semua kolom bertanda * agar profil lengkap!"),
+                          backgroundColor: Colors.orange.shade800,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+
+                    // Kembali ke halaman profil
                     Navigator.of(context).pop(true);
                   },
                   style: ElevatedButton.styleFrom(
@@ -524,20 +581,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
           ),
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: TextStyle(color: Colors.grey.shade400),
+            hintStyle: TextStyle(color: _textGray.withValues(alpha: 0.6)),
             filled: true,
-            fillColor: isReadOnly ? Colors.grey.shade100 : Colors.white,
+            fillColor: isReadOnly ? (_isDark ? Colors.black26 : Colors.grey.shade100) : _cardColor,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 12,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide: BorderSide(color: _borderColor),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+              borderSide: BorderSide(color: _borderColor),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -562,6 +619,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
     String? selectedItem,
     ValueChanged<String?> onChanged,
   ) {
+    final effectiveItems = List<String>.from(items);
+    if (selectedItem != null && selectedItem.isNotEmpty && !effectiveItems.contains(selectedItem)) {
+      effectiveItems.insert(0, selectedItem);
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -577,20 +639,23 @@ class _EditProfilePageState extends State<EditProfilePage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: _cardColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: _borderColor),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
+              dropdownColor: _cardColor,
               isExpanded: true,
-              value: selectedItem,
+              value: (selectedItem != null && effectiveItems.contains(selectedItem))
+                  ? selectedItem
+                  : null,
               hint: Text(
                 "Pilih $label".replaceAll(" *", ""),
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                style: TextStyle(color: _textGray.withValues(alpha: 0.6), fontSize: 14),
               ),
               icon: Icon(Icons.keyboard_arrow_down_rounded, color: _textGray),
-              items: items.map((String item) {
+              items: effectiveItems.map((String item) {
                 return DropdownMenuItem<String>(
                   value: item,
                   child: Text(
@@ -677,9 +742,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: _cardColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: _borderColor),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -688,10 +753,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   dateStr,
                   style: TextStyle(
                     fontSize: 14,
-                    color: _selectedBirthDate != null ? _textDark : Colors.grey.shade400,
+                    color: _selectedBirthDate != null ? _textDark : _textGray.withValues(alpha: 0.6),
                   ),
                 ),
-                Icon(Icons.calendar_month_rounded, color: _primaryBlue, size: 20),
+                Icon(Icons.calendar_month_rounded, color: _isDark ? Colors.blue.shade300 : _primaryBlue, size: 20),
               ],
             ),
           ),

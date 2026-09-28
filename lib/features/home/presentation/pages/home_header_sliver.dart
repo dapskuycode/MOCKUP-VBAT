@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/camera_picker_helper.dart';
 
 class HomeHeaderSliver extends StatelessWidget {
@@ -7,7 +8,8 @@ class HomeHeaderSliver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryContainer = Color(0xFF1B4F9B); // Warna biru khas VBat
+    final bool isDark = ThemeManager.isDark(context);
+    final Color primaryContainer = isDark ? const Color(0xFF151B26) : const Color(0xFF1B4F9B);
 
     return SliverAppBar(
       backgroundColor: primaryContainer,
@@ -26,8 +28,9 @@ class HomeHeaderSliver extends StatelessWidget {
             child: Container(
               height: 40,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: isDark ? const Color(0xFF222B38) : Colors.white,
                 borderRadius: BorderRadius.circular(12),
+                border: isDark ? Border.all(color: ThemeManager.darkBorder) : null,
               ),
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(
@@ -38,9 +41,9 @@ class HomeHeaderSliver extends StatelessWidget {
                       behavior: HitTestBehavior.opaque,
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.search_rounded,
-                            color: primaryContainer,
+                            color: isDark ? const Color(0xFF60A5FA) : primaryContainer,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
@@ -51,7 +54,7 @@ class HomeHeaderSliver extends StatelessWidget {
                               decoration: InputDecoration(
                                 hintText: "Cari kursus atau sparepart...",
                                 hintStyle: TextStyle(
-                                  color: Colors.grey.shade500,
+                                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
                                   fontSize: 13,
                                   fontFamily: 'Inter',
                                 ),
@@ -59,9 +62,9 @@ class HomeHeaderSliver extends StatelessWidget {
                                 isDense: true,
                                 contentPadding: EdgeInsets.zero,
                               ),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
-                                color: Colors.black,
+                                color: isDark ? Colors.white : Colors.black,
                               ),
                             ),
                           ),
@@ -78,7 +81,7 @@ class HomeHeaderSliver extends StatelessWidget {
                       ),
                       child: Icon(
                         Icons.camera_alt_outlined,
-                        color: Colors.grey.shade500,
+                        color: isDark ? Colors.grey.shade400 : Colors.grey.shade500,
                         size: 20,
                       ),
                     ),

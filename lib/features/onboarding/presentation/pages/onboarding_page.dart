@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'slide_satu.dart';
 import 'slide_dua.dart';
 import 'slide_tiga.dart';
@@ -31,12 +32,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
     );
   }
 
+  Future<void> _markSeenAndNavigate(String route) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('has_seen_onboarding', true);
+    } catch (_) {}
+    if (mounted) {
+      context.go(route);
+    }
+  }
+
   void _skip() {
-    _pageController.animateToPage(
-      2,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    _markSeenAndNavigate('/main');
   }
 
   @override
@@ -161,7 +168,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () => context.go('/register'),
+            onPressed: () => _markSeenAndNavigate('/register'),
             style: ElevatedButton.styleFrom(
               backgroundColor: _primaryContainer,
               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -186,7 +193,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
-            onPressed: () => context.go('/login'),
+            onPressed: () => _markSeenAndNavigate('/login'),
             style: OutlinedButton.styleFrom(
               side: BorderSide(color: _primaryContainer, width: 2),
               padding: const EdgeInsets.symmetric(vertical: 14),
@@ -208,7 +215,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
         // Tombol 3: Lanjutkan sebagai tamu
         TextButton(
-          onPressed: () => context.go('/main'),
+          onPressed: () => _markSeenAndNavigate('/main'),
           child: const Text(
             "Lanjutkan sebagai tamu",
             style: TextStyle(

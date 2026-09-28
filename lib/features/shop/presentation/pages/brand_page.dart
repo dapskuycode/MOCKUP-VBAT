@@ -1,13 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 
-class BrandPage extends StatelessWidget {
+class BrandPage extends StatefulWidget {
   const BrandPage({super.key});
 
+  @override
+  State<BrandPage> createState() => _BrandPageState();
+}
+
+class _BrandPageState extends State<BrandPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
+
+  @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,19 +47,18 @@ class BrandPage extends StatelessWidget {
                 Container(
                   height: 64,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: _cardColor,
                     border: Border(
-                      bottom: BorderSide(color: Color(0xFFE2E8F0)),
+                      bottom: BorderSide(color: _borderColor),
                     ),
                   ),
                   child: Row(
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back_rounded),
-                        color: _primaryBlue,
-                        onPressed:
-                            () {}, // Akan dihandle oleh router jika perlu
+                        color: _textDark,
+                        onPressed: () => context.pop(),
                       ),
                       Expanded(
                         child: Text(
@@ -43,13 +67,13 @@ class BrandPage extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: _primaryBlue,
+                            color: _textDark,
                           ),
                         ),
                       ),
                       IconButton(
                         icon: const Icon(Icons.help_outline_rounded),
-                        color: _primaryBlue,
+                        color: _textDark,
                         onPressed: () {},
                       ),
                     ],
@@ -71,9 +95,9 @@ class BrandPage extends StatelessWidget {
                       Container(
                         height: 48,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: _cardColor,
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.grey.shade300),
+                          border: Border.all(color: _borderColor),
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         child: Row(
@@ -86,13 +110,14 @@ class BrandPage extends StatelessWidget {
                             const SizedBox(width: 8),
                             Expanded(
                               child: TextField(
+                                style: TextStyle(color: _textDark, fontSize: 14),
                                 decoration: InputDecoration(
                                   hintText: "Cari brand HP...",
                                   border: InputBorder.none,
                                   isDense: true,
                                   contentPadding: EdgeInsets.zero,
                                   hintStyle: TextStyle(
-                                    color: Colors.grey.shade400,
+                                    color: _textGray.withValues(alpha: 0.7),
                                     fontSize: 14,
                                   ),
                                 ),
@@ -116,13 +141,13 @@ class BrandPage extends StatelessWidget {
                             "Brand Terpopuler",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: _primaryBlue,
+                              color: _textDark,
                               fontSize: 15,
                             ),
                           ),
                           Icon(
                             Icons.chevron_right_rounded,
-                            color: _primaryBlue,
+                            color: _textDark,
                           ),
                         ],
                       ),
@@ -221,7 +246,7 @@ class BrandPage extends StatelessWidget {
                         "Semua Brand (A-Z)",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: _primaryBlue,
+                          color: _textDark,
                           fontSize: 15,
                         ),
                       ),
@@ -280,12 +305,12 @@ class BrandPage extends StatelessWidget {
                     horizontal: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.8),
+                    color: _cardColor.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: _borderColor),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.05),
                         blurRadius: 4,
                       ),
                     ],
@@ -329,18 +354,18 @@ class BrandPage extends StatelessWidget {
               height: 56,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: _cardColor,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: _borderColor),
               ),
               child: ClipOval(
                 child: Image.asset(
                   'assets/images/brand_${name.toLowerCase()}.png',
                   fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) => const Center(
+                  errorBuilder: (context, error, stackTrace) => Center(
                     child: Icon(
                       Icons.phone_android_rounded,
-                      color: Colors.grey,
+                      color: _textGray,
                     ),
                   ),
                 ),
@@ -369,7 +394,7 @@ class BrandPage extends StatelessWidget {
         style: TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
-          color: Colors.grey.shade500,
+          color: _isDark ? Colors.blue.shade300 : _primaryBlue,
         ),
       ),
     );
@@ -388,9 +413,9 @@ class BrandPage extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: _borderColor),
         ),
         child: Row(
           children: [
@@ -399,9 +424,9 @@ class BrandPage extends StatelessWidget {
               height: 48,
               padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                color: _bgLight,
+                color: _isDark ? Colors.black26 : _bgLight,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade200),
+                border: Border.all(color: _borderColor),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(6),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 
 class HardwareSolutionPage extends StatefulWidget {
   const HardwareSolutionPage({super.key});
@@ -10,7 +11,12 @@ class HardwareSolutionPage extends StatefulWidget {
 
 class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _bgLight = const Color(0xFFF5F7FA);
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
 
   int _selectedTabIndex = 0;
   final List<String> _tabs = [
@@ -27,11 +33,27 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
       TransformationController();
 
   @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bgLight,
       appBar: AppBar(
-        backgroundColor: _primaryBlue,
+        backgroundColor: _isDark ? ThemeManager.darkCard : _primaryBlue,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
@@ -70,7 +92,12 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
           // Tabs
           Container(
             height: 50,
-            color: Colors.white,
+            decoration: BoxDecoration(
+              color: _cardColor,
+              border: Border(
+                bottom: BorderSide(color: _borderColor),
+              ),
+            ),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: _tabs.length,
@@ -90,7 +117,9 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          color: isSelected ? _primaryBlue : Colors.transparent,
+                          color: isSelected
+                              ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue)
+                              : Colors.transparent,
                           width: 3,
                         ),
                       ),
@@ -100,8 +129,8 @@ class _HardwareSolutionPageState extends State<HardwareSolutionPage> {
                         _tabs[index],
                         style: TextStyle(
                           color: isSelected
-                              ? _primaryBlue
-                              : Colors.grey.shade500,
+                              ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue)
+                              : _textGray,
                           fontWeight: isSelected
                               ? FontWeight.bold
                               : FontWeight.w500,

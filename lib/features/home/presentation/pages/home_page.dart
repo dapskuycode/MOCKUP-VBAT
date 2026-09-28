@@ -5,8 +5,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
+import 'package:vbat_ponsel/features/shop/data/repositories/feed_repository.dart';
 import 'home_header_sliver.dart';
 import 'package:vbat_ponsel/core/widgets/video_preview_widget.dart';
 import 'package:vbat_ponsel/core/widgets/horizontal_sponsor_slider.dart';
@@ -21,9 +23,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
   final Color _orangeSale = const Color(0xFFFD761A);
-  final Color _bgLight = const Color(0xFFF1F3FF);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF1F3FF);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? Colors.white : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
 
   String _formatRupiah(num value) {
     final str = value.toInt().toString();
@@ -335,10 +341,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
     _fetchBestDeals();
     _fetchHeroSliders();
     _fetchShopHorizontalBanners();
     _fetchCardSliders();
+    _fetchHomeFeed();
 
     // Generate 3 mosaic blocks awal
     for (int i = 0; i < 3; i++) {
@@ -839,8 +847,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   // Pola layout mosaic: 4 baris × 2 kolom
@@ -935,12 +948,57 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Future<void> _fetchHomeFeed() async {
+    try {
+      final feed = await FeedRepository.getHomeFeed(perPage: 15);
+      if (mounted && feed.items.isNotEmpty) {
+        setState(() {
+          for (final item in feed.items) {
+            final type = item['content_type'];
+            if (type == 'material') {
+              final title = item['title'] ?? '';
+              if (!_learningTemplates.any((t) => t['title'] == title)) {
+                _learningTemplates.insert(0, {
+                  "type": "learning",
+                  "title": title,
+                  "instructor": "Master Trainer VBAT",
+                  "duration": "${((item['duration_seconds'] ?? 600) / 60).toInt()}:00",
+                  "views": "2.4K",
+                  "image": "assets/images/course_soldering.png",
+                  "videoUrl": item['youtube_url'] ?? "https://www.youtube.com/watch?v=drcMv73jEGE",
+                  "badge": "FREE",
+                });
+              }
+            } else if (type == 'product') {
+              final name = item['name'] ?? '';
+              if (!_productTemplates.any((p) => p['name'] == name)) {
+                _productTemplates.insert(0, {
+                  "id": item['id'],
+                  "type": "product",
+                  "name": name,
+                  "price": _formatRupiah(item['price'] ?? 0),
+                  "rating": "4.9",
+                  "sold": "500+",
+                  "image": item['image'] ?? "assets/images/product_1.png",
+                  "isMitra": true,
+                  "partner": item['sponsor']?['name'] ?? "Sponsor Resmi",
+                  "link": item['shopee_url'] ?? "https://shopee.co.id/brader_parts",
+                });
+              }
+            }
+          }
+        });
+      }
+    } catch (_) {}
+  }
+
   Future<void> _refreshAll() async {
     await Future.wait([
       _fetchHeroSliders(),
       _fetchShopHorizontalBanners(),
       _fetchBestDeals(),
       _fetchCardSliders(),
+      _fetchHomeFeed(),
     ]);
   }
 
@@ -971,7 +1029,7 @@ class _HomePageState extends State<HomePage> {
     slivers.add(
       SliverToBoxAdapter(
         child: Container(
-          color: Colors.white,
+          color: _cardColor,
           // POIN 3: padding vertikal dikurangi agar lebih rapat ke konten 3
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: SizedBox(
@@ -1015,7 +1073,7 @@ class _HomePageState extends State<HomePage> {
     slivers.add(
       SliverToBoxAdapter(
         child: Container(
-          color: Colors.white,
+          color: _cardColor,
           // POIN 3 & 4: margin bottom dikurangi agar lebih rapat ke Flash Sale
           margin: const EdgeInsets.only(bottom: 4),
           // POIN 3: padding atas dikurangi juga
@@ -1082,7 +1140,7 @@ class _HomePageState extends State<HomePage> {
     slivers.add(
       SliverToBoxAdapter(
         child: Container(
-          color: Colors.white,
+          color: _cardColor,
           margin: const EdgeInsets.only(bottom: 8),
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
           child: Column(
@@ -1138,7 +1196,7 @@ class _HomePageState extends State<HomePage> {
                       vertical: 3,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF3E0),
+                      color: _isDark ? const Color(0xFF3B2B15) : const Color(0xFFFFF3E0),
                       borderRadius: BorderRadius.circular(6),
                       border: Border.all(
                         color: const Color(0xFFFFB300).withValues(alpha: 0.4),
@@ -2476,8 +2534,8 @@ class _HomePageState extends State<HomePage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: const Color(0xFFF8FAFC),
-          border: Border.all(color: Colors.grey.shade200),
+          color: _isDark ? const Color(0xFF243042) : const Color(0xFFF8FAFC),
+          border: Border.all(color: _borderColor),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -2490,15 +2548,15 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: _textDark,
                   ),
                 ),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 9, color: Colors.grey),
+                  style: TextStyle(fontSize: 9, color: _textGray),
                 ),
               ],
             ),
@@ -2531,11 +2589,15 @@ class _HomePageState extends State<HomePage> {
                   width: 50,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color: _isDark ? const Color(0xFF243042) : const Color(0xFFF8FAFC),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey.shade200),
+                    border: Border.all(color: _borderColor),
                   ),
-                  child: Icon(icon, color: const Color(0xFF1B4F9B), size: 24),
+                  child: Icon(
+                    icon, 
+                    color: _isDark ? const Color(0xFF60A5FA) : const Color(0xFF1B4F9B), 
+                    size: 24,
+                  ),
                 ),
                 if (badge.isNotEmpty)
                   Positioned(
@@ -2566,10 +2628,11 @@ class _HomePageState extends State<HomePage> {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
                 height: 1.2,
+                color: _textDark,
               ),
             ),
           ],
@@ -2598,7 +2661,7 @@ class _HomePageState extends State<HomePage> {
       child: Container(
         width: 130,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _isDark ? const Color(0xFF243042) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: const Color(0xFFFFB300).withValues(alpha: 0.35),
@@ -2620,7 +2683,7 @@ class _HomePageState extends State<HomePage> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
+                      color: _isDark ? const Color(0xFF1E2430) : Colors.grey.shade50,
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(12),
                       ),
@@ -2812,14 +2875,14 @@ class _HomePageState extends State<HomePage> {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _isDark ? const Color(0xFF243042) : Colors.white,
           borderRadius: BorderRadius.circular(8),
           // POIN 9: border berbeda: produk abu, video merah tipis
           border: Border.all(
             color: isProduct
                 ? (isMitra
                       ? const Color(0xFFFFB300).withValues(alpha: 0.4)
-                      : Colors.grey.shade100)
+                      : _borderColor)
                 : Colors.red.withValues(alpha: 0.15),
           ),
           boxShadow: [
@@ -2841,7 +2904,9 @@ class _HomePageState extends State<HomePage> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: isProduct ? Colors.grey.shade50 : Colors.black,
+                      color: isProduct 
+                          ? (_isDark ? const Color(0xFF1E2430) : Colors.grey.shade50) 
+                          : Colors.black,
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(8),
                       ),
@@ -3144,9 +3209,9 @@ class _HomePageState extends State<HomePage> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       height: 110,
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: _borderColor),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),

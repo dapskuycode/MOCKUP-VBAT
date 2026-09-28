@@ -1,17 +1,20 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
-/// Service untuk menangani penerimaan notifikasi sponsor (FCM Receiver Architecture)
-/// Mendukung background message handler, foreground in-app alert, dan deep-linking sponsor URL.
+/// Item Notifikasi aplikasi (Promo sponsor, transaksi, forum, pengingat belajar, sistem)
 class PushNotificationItem {
   final String id;
   final String title;
   final String body;
   final String? sponsorName;
   final String? targetUrl;
+  final String? targetRoute;
   final String? imageUrl;
+  final String category; // 'promo', 'transaksi', 'forum', 'pengingat_belajar', 'sistem'
   final DateTime receivedAt;
   bool isRead;
 
@@ -21,7 +24,9 @@ class PushNotificationItem {
     required this.body,
     this.sponsorName,
     this.targetUrl,
+    this.targetRoute,
     this.imageUrl,
+    this.category = 'promo',
     DateTime? receivedAt,
     this.isRead = false,
   }) : receivedAt = receivedAt ?? DateTime.now();
@@ -32,7 +37,9 @@ class PushNotificationItem {
         'body': body,
         'sponsor_name': sponsorName,
         'target_url': targetUrl,
+        'target_route': targetRoute,
         'image_url': imageUrl,
+        'category': category,
         'received_at': receivedAt.toIso8601String(),
         'is_read': isRead,
       };
@@ -50,13 +57,18 @@ class PushNotificationItem {
       body: data['body'] ?? data['message'] ?? 'Cek penawaran spesial sekarang juga!',
       sponsorName: data['sponsor_name'] ?? data['sponsor'] ?? 'Sponsor VbatPonsel',
       targetUrl: data['target_url'] ?? data['deep_link'] ?? data['link'] ?? 'https://shopee.co.id',
+      targetRoute: data['target_route'],
       imageUrl: data['image_url'] ?? data['image'],
+      category: (data['category'] ?? 'promo').toString().toLowerCase(),
       receivedAt: parsedTime,
     );
   }
 }
 
 class PushNotificationService {
+  static const String _readStorageKey = 'read_notification_ids';
+  static final Set<String> _readIds = {};
+
   static final StreamController<PushNotificationItem> _notificationStreamController =
       StreamController<PushNotificationItem>.broadcast();
 
@@ -70,6 +82,7 @@ class PushNotificationService {
       body: 'Khusus member VbatPonsel! Dapatkan potongan langsung LCD iPhone & Samsung hari ini.',
       sponsorName: 'BraderParts Indonesia',
       targetUrl: 'https://shopee.co.id/brader_parts',
+      category: 'promo',
       receivedAt: DateTime.now().subtract(const Duration(hours: 2)),
     ),
     PushNotificationItem(
@@ -78,11 +91,37 @@ class PushNotificationService {
       body: 'Paket solder T12 dan mikroskop presisi siap dikirim ke alamat Anda.',
       sponsorName: 'TITAN Tools Official',
       targetUrl: 'https://tokopedia.com',
+      category: 'promo',
       receivedAt: DateTime.now().subtract(const Duration(days: 1)),
+    ),
+    PushNotificationItem(
+      id: 'demo-trx-1',
+      title: 'Pesanan Anda telah dikirim',
+      body: 'Paket berisi "Obeng Set Pro" dan 2 item lainnya sedang dalam perjalanan menuju alamat Anda.',
+      category: 'transaksi',
+      receivedAt: DateTime.now().subtract(const Duration(hours: 5)),
+    ),
+    PushNotificationItem(
+      id: 'demo-forum-1',
+      title: 'Balasan Baru di Diskusi Anda',
+      body: 'Budi Teknisi membalas pertanyaan Anda di topik "Cara Mengatasi Layar Bergaris pada Seri X".',
+      category: 'forum',
+      receivedAt: DateTime.now().subtract(const Duration(hours: 7)),
+    ),
+    PushNotificationItem(
+      id: 'demo-class-1',
+      title: 'Jadwal Kelas Belajar',
+      body: 'Jangan lupa, modul "Dasar Mikrosolder" Anda siap dilanjutkan. Selesaikan materi untuk membuka sertifikat.',
+      category: 'pengingat_belajar',
+      targetRoute: '/learning',
+      receivedAt: DateTime.now().subtract(const Duration(days: 1, hours: 3)),
     ),
   ];
 
-  static List<PushNotificationItem> get notifications => List.unmodifiable(_history);
+  static List<PushNotificationItem> get notifications {
+    syncHardwareUnlockNotification();
+    return List.unmodifiable(_history);
+  }
 
   static int get unreadCount => _history.where((n) => !n.isRead).length;
 
@@ -90,8 +129,72 @@ class PushNotificationService {
 
   /// Inisialisasi service saat aplikasi dibuka (main.dart)
   static Future<void> initialize() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedRead = prefs.getStringList(_readStorageKey) ?? [];
+      _readIds.clear();
+      _readIds.addAll(savedRead);
+
+      for (final item in _history) {
+        if (_readIds.contains(item.id)) {
+          item.isRead = true;
+        }
+      }
+    } catch (e) {
+      debugPrint('[PushNotificationService] Error loading read state: $e');
+    }
+
     debugPrint('[PushNotificationService] FCM Receiver initialized. Token: $fcmToken');
     await fetchNotificationsFromBackend();
+    syncHardwareUnlockNotification();
+  }
+
+  /// Sinkronisasi notifikasi unlock Hardware Solution berdasarkan progress server (>= 90%)
+  static void syncHardwareUnlockNotification() {
+    if (SessionManager.isHardwareSolutionUnlocked) {
+      final bool alreadyExists = _history.any((n) => n.id == 'hw-solution-unlocked');
+      if (!alreadyExists) {
+        final item = PushNotificationItem(
+          id: 'hw-solution-unlocked',
+          title: '🎉 Akses Hardware Solution Terbuka!',
+          body: 'Selamat! Progres belajar Anda telah mencapai 90%+. Fitur Skematik & Solusi Hardware resmi terbuka untuk akun Anda.',
+          category: 'pengingat_belajar',
+          targetRoute: '/hardware-solution',
+          receivedAt: DateTime.now(),
+          isRead: _readIds.contains('hw-solution-unlocked'),
+        );
+        _history.insert(0, item);
+      }
+    }
+  }
+
+  /// Tandai notifikasi spesifik telah dibaca dan simpan secara persisten
+  static Future<void> markAsRead(String id) async {
+    final item = _history.firstWhere((n) => n.id == id, orElse: () => _history.first);
+    if (item.id == id) {
+      item.isRead = true;
+      _readIds.add(id);
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setStringList(_readStorageKey, _readIds.toList());
+      } catch (e) {
+        debugPrint('[PushNotificationService] Error saving read state: $e');
+      }
+    }
+  }
+
+  /// Tandai semua notifikasi telah dibaca
+  static Future<void> markAllAsRead() async {
+    for (final item in _history) {
+      item.isRead = true;
+      _readIds.add(item.id);
+    }
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList(_readStorageKey, _readIds.toList());
+    } catch (e) {
+      debugPrint('[PushNotificationService] Error saving all read: $e');
+    }
   }
 
   /// Sinkronisasi notifikasi langsung dari Backend Laravel API
@@ -99,7 +202,7 @@ class PushNotificationService {
     try {
       final dio = Dio(
         BaseOptions(
-          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          baseUrl: SessionManager.apiBaseUrl,
           connectTimeout: const Duration(seconds: 4),
           receiveTimeout: const Duration(seconds: 4),
         ),
@@ -110,6 +213,9 @@ class PushNotificationService {
         final Set<String> existingIds = _history.map((e) => e.id).toSet();
         for (final raw in list.reversed) {
           final item = PushNotificationItem.fromPayload(Map<String, dynamic>.from(raw));
+          if (_readIds.contains(item.id)) {
+            item.isRead = true;
+          }
           if (!existingIds.contains(item.id)) {
             _history.insert(0, item);
             existingIds.add(item.id);
@@ -117,13 +223,16 @@ class PushNotificationService {
         }
       }
     } catch (e) {
-      debugPrint('[PushNotificationService] Error fetching notifications: $e');
+      debugPrint('[PushNotificationService] Notice: fetching notifications: $e');
     }
   }
 
   /// Handler saat pesan FCM masuk di foreground / background
   static void handleIncomingMessage(Map<String, dynamic> payload, {BuildContext? context}) {
     final item = PushNotificationItem.fromPayload(payload);
+    if (_readIds.contains(item.id)) {
+      item.isRead = true;
+    }
     _history.insert(0, item);
     _notificationStreamController.add(item);
 
@@ -175,9 +284,9 @@ class PushNotificationService {
     );
   }
 
-  /// Melakukan deep-link / eksternal redirect saat user menekan notifikasi sponsor
+  /// Melakukan deep-link / eksternal redirect saat user menekan notifikasi
   static Future<void> openNotificationTarget(PushNotificationItem item) async {
-    item.isRead = true;
+    await markAsRead(item.id);
     if (item.targetUrl != null && item.targetUrl!.isNotEmpty) {
       try {
         final uri = Uri.parse(item.targetUrl!);
@@ -206,6 +315,7 @@ class PushNotificationService {
           maxChildSize: 0.85,
           minChildSize: 0.4,
           builder: (context, scrollController) {
+            final notifs = notifications;
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -227,41 +337,43 @@ class PushNotificationService {
                           Icon(Icons.notifications_active_rounded, color: Color(0xFF1B4F9B)),
                           SizedBox(width: 8),
                           Text(
-                            "Notifikasi & Promo Sponsor",
+                            "Pemberitahuan",
                             style: TextStyle(
-                              fontSize: 16,
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: Color(0xFF001944),
+                              fontFamily: 'Inter',
                             ),
                           ),
                         ],
                       ),
-                      Text(
-                        "${_history.length} Pesan",
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
+                      TextButton(
+                        onPressed: () async {
+                          Navigator.pop(ctx);
+                          await markAllAsRead();
+                        },
+                        child: const Text("Tandai Semua Dibaca", style: TextStyle(fontSize: 12)),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Expanded(
-                    child: _history.isEmpty
-                        ? const Center(child: Text("Belum ada notifikasi"))
+                    child: notifs.isEmpty
+                        ? const Center(child: Text("Tidak ada notifikasi"))
                         : ListView.builder(
                             controller: scrollController,
-                            itemCount: _history.length,
-                            itemBuilder: (ctx, index) {
-                              final notif = _history[index];
+                            itemCount: notifs.length,
+                            itemBuilder: (context, index) {
+                              final notif = notifs[index];
                               return Card(
-                                elevation: 0,
-                                margin: const EdgeInsets.only(bottom: 10),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  side: BorderSide(color: Colors.grey.shade200),
-                                ),
+                                margin: const EdgeInsets.only(bottom: 8),
+                                color: notif.isRead ? Colors.white : const Color(0xFFEFF6FF),
                                 child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundColor: const Color(0xFF1B4F9B).withValues(alpha: 0.1),
-                                    child: const Icon(Icons.storefront_rounded, color: Color(0xFF1B4F9B)),
+                                  leading: Icon(
+                                    notif.targetRoute != null
+                                        ? Icons.lock_open_rounded
+                                        : Icons.campaign_rounded,
+                                    color: const Color(0xFF1B4F9B),
                                   ),
                                   title: Text(
                                     notif.title,
@@ -278,9 +390,9 @@ class PushNotificationService {
                                     style: const TextStyle(fontSize: 11),
                                   ),
                                   trailing: const Icon(Icons.chevron_right_rounded, size: 18),
-                                  onTap: () {
+                                  onTap: () async {
                                     Navigator.pop(ctx);
-                                    openNotificationTarget(notif);
+                                    await openNotificationTarget(notif);
                                   },
                                 ),
                               );

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 
 class DiscountEventPage extends StatefulWidget {
@@ -15,9 +16,12 @@ class DiscountEventPage extends StatefulWidget {
 class _DiscountEventPageState extends State<DiscountEventPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
   final Color _orangeSale = const Color(0xFFFD761A);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
 
   bool _isLoading = true;
   Map<String, dynamic>? _event;
@@ -40,6 +44,7 @@ class _DiscountEventPageState extends State<DiscountEventPage> {
   @override
   void initState() {
     super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
     _fetchEventData();
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (!mounted) return;
@@ -53,9 +58,14 @@ class _DiscountEventPageState extends State<DiscountEventPage> {
 
   @override
   void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
     _countdownTimer.cancel();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   String _formatDuration(Duration d) {
@@ -318,17 +328,18 @@ class _DiscountEventPageState extends State<DiscountEventPage> {
                           // Search Input
                           Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: _cardColor,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade200),
+                              border: Border.all(color: _borderColor),
                             ),
                             child: TextField(
                               controller: _searchController,
+                              style: TextStyle(color: _textDark, fontSize: 13),
                               onChanged: (_) => setState(() {}),
                               decoration: InputDecoration(
                                 hintText: "Cari produk diskon...",
-                                hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                                prefixIcon: Icon(Icons.search_rounded, color: Colors.grey.shade400, size: 20),
+                                hintStyle: TextStyle(color: _textGray.withValues(alpha: 0.7), fontSize: 13),
+                                prefixIcon: Icon(Icons.search_rounded, color: _textGray, size: 20),
                                 border: InputBorder.none,
                                 contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                               ),
@@ -350,10 +361,10 @@ class _DiscountEventPageState extends State<DiscountEventPage> {
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: isSelected ? _orangeSale : Colors.white,
+                                      color: isSelected ? _orangeSale : _cardColor,
                                       borderRadius: BorderRadius.circular(18),
                                       border: Border.all(
-                                        color: isSelected ? _orangeSale : Colors.grey.shade300,
+                                        color: isSelected ? _orangeSale : _borderColor,
                                       ),
                                     ),
                                     child: Center(
@@ -384,7 +395,7 @@ class _DiscountEventPageState extends State<DiscountEventPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey.shade300),
+                            Icon(Icons.inventory_2_outlined, size: 64, color: _textGray.withValues(alpha: 0.5)),
                             const SizedBox(height: 12),
                             Text(
                               "Tidak ada produk diskon untuk kategori ini",
@@ -434,24 +445,24 @@ class _DiscountEventPageState extends State<DiscountEventPage> {
       imgWidget = Image.network(
         imgPath,
         fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => Container(color: Colors.grey.shade100, child: const Icon(Icons.broken_image, color: Colors.grey)),
+        errorBuilder: (_, _, _) => Container(color: _isDark ? Colors.grey.shade900 : Colors.grey.shade100, child: Icon(Icons.broken_image, color: _textGray)),
       );
     } else {
       imgWidget = Image.asset(
         imgPath.isNotEmpty ? imgPath : 'assets/images/product_1.png',
         fit: BoxFit.cover,
-        errorBuilder: (_, _, _) => Container(color: Colors.grey.shade100, child: const Icon(Icons.broken_image, color: Colors.grey)),
+        errorBuilder: (_, _, _) => Container(color: _isDark ? Colors.grey.shade900 : Colors.grey.shade100, child: Icon(Icons.broken_image, color: _textGray)),
       );
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: _borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: _isDark ? 0.25 : 0.03),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -509,7 +520,7 @@ class _DiscountEventPageState extends State<DiscountEventPage> {
                   children: [
                     Text(
                       sponsor.toString(),
-                      style: TextStyle(color: _primaryBlue, fontSize: 10, fontWeight: FontWeight.bold),
+                      style: TextStyle(color: _isDark ? Colors.blue.shade300 : _primaryBlue, fontSize: 10, fontWeight: FontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -523,11 +534,11 @@ class _DiscountEventPageState extends State<DiscountEventPage> {
                     const SizedBox(height: 6),
                     Text(
                       _formatRupiah(discPrice),
-                      style: const TextStyle(color: Color(0xFFE53935), fontSize: 13, fontWeight: FontWeight.w900),
+                      style: TextStyle(color: _isDark ? const Color(0xFFFF6B6B) : const Color(0xFFE53935), fontSize: 13, fontWeight: FontWeight.w900),
                     ),
                     Text(
                       _formatRupiah(origPrice),
-                      style: TextStyle(color: Colors.grey.shade400, fontSize: 10, decoration: TextDecoration.lineThrough),
+                      style: TextStyle(color: _textGray, fontSize: 10, decoration: TextDecoration.lineThrough),
                     ),
                   ],
                 ),

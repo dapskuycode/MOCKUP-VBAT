@@ -26,6 +26,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _isButtonEnabled = false;
   bool _isObscurePassword = true;
   bool _isObscureConfirmPassword = true;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -54,6 +55,41 @@ class _RegisterPageState extends State<RegisterPage> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleRegister() async {
+    if (!_isButtonEnabled || _isLoading) return;
+
+    setState(() => _isLoading = true);
+
+    final res = await SessionManager.registerWithApi(
+      name: _nameController.text.trim(),
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+      passwordConfirmation: _confirmPasswordController.text,
+    );
+
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (res['success'] == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Registrasi berhasil! Selamat datang, ${res['name']}"),
+          backgroundColor: const Color(0xFF10B981),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      context.go('/main');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(res['message'] ?? "Registrasi gagal"),
+          backgroundColor: Colors.red.shade700,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
@@ -152,6 +188,21 @@ class _RegisterPageState extends State<RegisterPage> {
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide(color: _vbatBlue, width: 1.5),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Text(
+                        "*Nama lengkap akan dicetak pada KTA Digital & Sertifikat resmi",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: _vbatBlue,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                   ),
@@ -288,8 +339,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     width: double.infinity,
                     height: 52,
                     child: ElevatedButton(
-                      onPressed: _isButtonEnabled
-                          ? () => context.push('/otp-verification')
+                      onPressed: (_isButtonEnabled && !_isLoading)
+                          ? _handleRegister
                           : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _isButtonEnabled
@@ -301,13 +352,22 @@ class _RegisterPageState extends State<RegisterPage> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: const Text(
-                        "Daftar",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : const Text(
+                              "Daftar",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                     ),
                   ),
                 ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 
 class CreateThreadPage extends StatefulWidget {
   // Flag ini menentukan apakah yang membuka halaman ini admin atau bukan
@@ -12,9 +13,12 @@ class CreateThreadPage extends StatefulWidget {
 
 class _CreateThreadPageState extends State<CreateThreadPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textDark = const Color(0xFF0D2B5E);
-  final Color _textGray = const Color(0xFF737782);
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF0D2B5E);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
 
   // States
   String _selectedCategory = "Pilih Kategori";
@@ -22,31 +26,50 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
   bool _sendNotification = false;
 
   @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _cardColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 1, // Sedikit shadow untuk pembatas
-        shadowColor: Colors.black.withValues(alpha: 0.2),
+        backgroundColor: _cardColor,
+        elevation: 0,
         leadingWidth: 100,
         leading: TextButton.icon(
           onPressed: () => Navigator.pop(context),
-          icon: Icon(Icons.close_rounded, color: _primaryBlue, size: 20),
+          icon: Icon(Icons.close_rounded, color: _isDark ? Colors.blue.shade300 : _primaryBlue, size: 20),
           label: Text(
             "Batal",
-            style: TextStyle(color: _primaryBlue, fontWeight: FontWeight.bold),
+            style: TextStyle(color: _isDark ? Colors.blue.shade300 : _primaryBlue, fontWeight: FontWeight.bold),
           ),
         ),
         title: Text(
           "Buat Thread",
           style: TextStyle(
-            color: _primaryBlue,
+            color: _textDark,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(color: _borderColor, height: 1),
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -55,7 +78,7 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
             child: Text(
               "Posting",
               style: TextStyle(
-                color: _primaryBlue,
+                color: _isDark ? Colors.blue.shade300 : _primaryBlue,
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -126,7 +149,7 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
                   Container(
                     decoration: BoxDecoration(
                       border: Border(
-                        bottom: BorderSide(color: Colors.grey.shade200),
+                        bottom: BorderSide(color: _borderColor),
                       ),
                     ),
                     padding: const EdgeInsets.only(bottom: 8),
@@ -177,14 +200,14 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
                       hintText: widget.isAdmin
                           ? "Tuliskan detail pengumuman di sini..."
                           : "Bagikan pertanyaan, tips, atau masalahmu di sini...",
-                      hintStyle: TextStyle(color: Colors.grey.shade400),
+                      hintStyle: TextStyle(color: _textGray.withValues(alpha: 0.7)),
                       border: InputBorder.none,
                     ),
                   ),
                 ],
               ),
             ),
-            Divider(height: 1, color: Colors.grey.shade200),
+            Divider(height: 1, color: _borderColor),
 
             // --- 3. Media Attachment ---
             Padding(
@@ -198,12 +221,12 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
                   height: 160,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: _bgLight,
+                    color: _isDark ? Colors.black26 : _bgLight,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: Colors.grey.shade300,
+                      color: _borderColor,
                       style: BorderStyle.solid,
-                    ), // Flutter tdk memiliki dashed border bawaan yg mudah, solid lebih aman
+                    ),
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -229,7 +252,7 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
                 ),
               ),
             ),
-            Divider(height: 1, color: Colors.grey.shade200),
+            Divider(height: 1, color: _borderColor),
 
             // --- 4. Kategori & Opsi ---
             Padding(
@@ -255,14 +278,14 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: _bgLight,
+                        color: _isDark ? Colors.black26 : _bgLight,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
                         children: [
                           Icon(
                             Icons.campaign_rounded,
-                            color: _primaryBlue,
+                            color: _isDark ? Colors.blue.shade300 : _primaryBlue,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
@@ -290,7 +313,8 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
+                          color: _cardColor,
+                          border: Border.all(color: _borderColor),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(
@@ -300,7 +324,7 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
                               _selectedCategory,
                               style: TextStyle(
                                 color: _selectedCategory == "Pilih Kategori"
-                                    ? Colors.grey.shade500
+                                    ? _textGray
                                     : _textDark,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -374,8 +398,8 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
                     child: OutlinedButton(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: _primaryBlue, width: 2),
-                        foregroundColor: _primaryBlue,
+                        side: BorderSide(color: _isDark ? Colors.blue.shade300 : _primaryBlue, width: 2),
+                        foregroundColor: _isDark ? Colors.blue.shade300 : _primaryBlue,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -445,6 +469,7 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
 
     showModalBottomSheet(
       context: context,
+      backgroundColor: _cardColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -468,7 +493,7 @@ class _CreateThreadPageState extends State<CreateThreadPage> {
                   title: Text(
                     cat,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
+                    style: TextStyle(fontWeight: FontWeight.w500, color: _textDark),
                   ),
                   onTap: () {
                     setState(() => _selectedCategory = cat);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 
 class SubscriptionPage extends StatefulWidget {
   const SubscriptionPage({super.key});
@@ -10,14 +11,28 @@ class SubscriptionPage extends StatefulWidget {
 
 class _SubscriptionPageState extends State<SubscriptionPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _bgLight = const Color(0xFFF5F7FA);
   final Color _orangeCTA = const Color(0xFFF78B00);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
-  final Color _greenBadge = const Color(0xFFE8F5E9);
-  final Color _greenText = const Color(0xFF2E7D32);
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardBg => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
+  Color get _greenBadge => _isDark ? const Color(0xFF132F20) : const Color(0xFFE8F5E9);
+  Color get _greenText => _isDark ? const Color(0xFF4ADE80) : const Color(0xFF2E7D32);
 
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
 
   void _scrollLeft() {
     _scrollController.animateTo(
@@ -37,6 +52,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
 
   @override
   void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
     _scrollController.dispose();
     super.dispose();
   }
@@ -46,7 +62,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
     return Scaffold(
       backgroundColor: _bgLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: _cardBg,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
@@ -165,18 +181,19 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             child: Center(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: _cardBg,
                   shape: BoxShape.circle,
+                  border: Border.all(color: _borderColor),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
+                      color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: IconButton(
-                  icon: Icon(Icons.chevron_left_rounded, color: _primaryBlue),
+                  icon: Icon(Icons.chevron_left_rounded, color: _isDark ? Colors.blue.shade300 : _primaryBlue),
                   onPressed: _scrollLeft,
                 ),
               ),
@@ -189,18 +206,19 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             child: Center(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: _cardBg,
                   shape: BoxShape.circle,
+                  border: Border.all(color: _borderColor),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
+                      color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.1),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: IconButton(
-                  icon: Icon(Icons.chevron_right_rounded, color: _primaryBlue),
+                  icon: Icon(Icons.chevron_right_rounded, color: _isDark ? Colors.blue.shade300 : _primaryBlue),
                   onPressed: _scrollRight,
                 ),
               ),
@@ -224,15 +242,15 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
       width: 320,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardBg,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isHighlight ? _orangeCTA : Colors.grey.shade200,
+          color: isHighlight ? _orangeCTA : _borderColor,
           width: isHighlight ? 2 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -244,15 +262,15 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: isHighlight
-                  ? _orangeCTA.withValues(alpha: 0.1)
-                  : _primaryBlue.withValues(alpha: 0.1),
+                  ? _orangeCTA.withValues(alpha: _isDark ? 0.2 : 0.1)
+                  : (_isDark ? Colors.blue.withValues(alpha: 0.2) : _primaryBlue.withValues(alpha: 0.1)),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: isHighlight ? _orangeCTA : _primaryBlue,
+                color: isHighlight ? _orangeCTA : (_isDark ? Colors.blue.shade300 : _primaryBlue),
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 0.5,
@@ -325,12 +343,14 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
                         margin: const EdgeInsets.only(top: 2),
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: _primaryBlue.withValues(alpha: 0.1),
+                          color: _isDark
+                              ? Colors.blue.withValues(alpha: 0.25)
+                              : _primaryBlue.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.check_rounded,
-                          color: _primaryBlue,
+                          color: _isDark ? Colors.blue.shade300 : _primaryBlue,
                           size: 12,
                         ),
                       ),

@@ -1,25 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 
-class LearningHistoryPage extends StatelessWidget {
+class LearningHistoryPage extends StatefulWidget {
   const LearningHistoryPage({super.key});
 
+  @override
+  State<LearningHistoryPage> createState() => _LearningHistoryPageState();
+}
+
+class _LearningHistoryPageState extends State<LearningHistoryPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
   final Color _orangeCTA = const Color(0xFFF78B00);
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardBg => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
+
+  @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bgLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: _cardBg,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: _primaryBlue),
+          icon: Icon(Icons.arrow_back_rounded, color: _isDark ? Colors.blue.shade300 : _primaryBlue),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -77,14 +103,20 @@ class LearningHistoryPage extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: _borderColor),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          // Dummy action
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Melanjutkan video materi...")),
           );
@@ -99,13 +131,20 @@ class LearningHistoryPage extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(imageUrl, fit: BoxFit.cover),
+                  Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: _isDark ? Colors.grey.shade800 : Colors.grey.shade300,
+                      child: Icon(Icons.broken_image_rounded, color: _textGray),
+                    ),
+                  ),
                   Container(
-                    color: Colors.black.withValues(alpha: 0.2),
+                    color: Colors.black.withValues(alpha: 0.3),
                     child: Center(
                       child: Icon(
                         Icons.play_circle_fill_rounded,
-                        color: Colors.white.withValues(alpha: 0.8),
+                        color: Colors.white.withValues(alpha: 0.85),
                         size: 32,
                       ),
                     ),
@@ -146,7 +185,9 @@ class LearningHistoryPage extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                             child: LinearProgressIndicator(
                               value: progress,
-                              backgroundColor: Colors.grey.shade200,
+                              backgroundColor: _isDark
+                                  ? Colors.white.withValues(alpha: 0.08)
+                                  : Colors.grey.shade200,
                               color: isCompleted
                                   ? const Color(0xFF10B981)
                                   : _orangeCTA,

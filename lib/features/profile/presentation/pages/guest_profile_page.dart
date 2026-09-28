@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
 class GuestProfilePage extends StatelessWidget {
@@ -13,8 +14,21 @@ class GuestProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (!SessionManager.isLoggedIn.value) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!SessionManager.isLoggedIn.value && context.mounted) {
+          context.push('/login');
+        }
+      });
+    }
+
+    final bool isDark = ThemeManager.isDark(context);
+    final Color cardColor = isDark ? ThemeManager.darkCard : Colors.white;
+    final Color textColor = isDark ? Colors.white : _textDark;
+    final Color textGrayColor = isDark ? ThemeManager.darkTextSecondary : _textGray;
+
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: isDark ? ThemeManager.darkBg : _bgLight,
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         // Padding bottom agar tidak tertutup BottomNavigationBar dari MainScaffold
@@ -151,14 +165,16 @@ class GuestProfilePage extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(16),
+                  border: isDark ? Border.all(color: ThemeManager.darkBorder) : null,
                   boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
+                    if (!isDark)
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
                   ],
                 ),
                 child: Column(
@@ -169,14 +185,14 @@ class GuestProfilePage extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
-                        color: _textDark,
+                        color: textColor,
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildBenefitItem("Akses video gratis tanpa batas"),
-                    _buildBenefitItem("Bergabung komunitas teknisi"),
-                    _buildBenefitItem("Sertifikat digital resmi"),
-                    _buildBenefitItem("Harga member spesial sparepart"),
+                    _buildBenefitItem("Akses video gratis tanpa batas", textGrayColor),
+                    _buildBenefitItem("Bergabung komunitas teknisi", textGrayColor),
+                    _buildBenefitItem("Sertifikat digital resmi", textGrayColor),
+                    _buildBenefitItem("Harga member spesial sparepart", textGrayColor),
                   ],
                 ),
               ),
@@ -189,7 +205,7 @@ class GuestProfilePage extends StatelessWidget {
                 children: [
                   Text(
                     "Atau jelajahi tanpa login:",
-                    style: TextStyle(fontSize: 14, color: _textGray),
+                    style: TextStyle(fontSize: 14, color: textGrayColor),
                   ),
                   const SizedBox(height: 16),
                   Wrap(
@@ -203,6 +219,7 @@ class GuestProfilePage extends StatelessWidget {
                         () {
                           SessionManager.currentTabIndex.value = 1;
                         },
+                        isDark,
                       ),
                       _buildBrowseChip(
                         "Cari Brand",
@@ -210,6 +227,7 @@ class GuestProfilePage extends StatelessWidget {
                         () {
                           SessionManager.currentTabIndex.value = 3;
                         },
+                        isDark,
                       ),
                       _buildBrowseChip(
                         "Lihat Kursus",
@@ -217,6 +235,7 @@ class GuestProfilePage extends StatelessWidget {
                         () {
                           SessionManager.currentTabIndex.value = 3;
                         },
+                        isDark,
                       ),
                     ],
                   ),
@@ -231,7 +250,7 @@ class GuestProfilePage extends StatelessWidget {
 
   // --- Helper Widgets ---
 
-  Widget _buildBenefitItem(String text) {
+  Widget _buildBenefitItem(String text, Color textColor) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -239,19 +258,19 @@ class GuestProfilePage extends StatelessWidget {
           Icon(Icons.check_circle_rounded, color: _greenSuccess, size: 20),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(text, style: TextStyle(fontSize: 14, color: _textGray)),
+            child: Text(text, style: TextStyle(fontSize: 14, color: textColor)),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildBrowseChip(String label, IconData icon, VoidCallback onTap) {
+  Widget _buildBrowseChip(String label, IconData icon, VoidCallback onTap, bool isDark) {
     return OutlinedButton.icon(
       onPressed: onTap,
       style: OutlinedButton.styleFrom(
-        foregroundColor: _vbatBlue,
-        side: BorderSide(color: _vbatBlue.withValues(alpha: 0.5)),
+        foregroundColor: isDark ? const Color(0xFF60A5FA) : _vbatBlue,
+        side: BorderSide(color: (isDark ? const Color(0xFF60A5FA) : _vbatBlue).withValues(alpha: 0.5)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       ),

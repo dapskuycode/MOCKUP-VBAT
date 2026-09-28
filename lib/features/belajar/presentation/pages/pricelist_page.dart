@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
+import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
 class PricelistPage extends StatefulWidget {
-  const PricelistPage({super.key});
+  final String? highlightPackage;
+
+  const PricelistPage({super.key, this.highlightPackage});
 
   @override
   State<PricelistPage> createState() => _PricelistPageState();
@@ -15,11 +19,18 @@ class _PricelistPageState extends State<PricelistPage>
 
   final Color _primaryBlue = const Color(0xFF1B4F9B);
   final Color _accentOrange = const Color(0xFFFD761A);
-  final Color _bgLight = const Color(0xFFF5F7FA);
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
 
   @override
   void initState() {
     super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
     _animController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
@@ -33,35 +44,226 @@ class _PricelistPageState extends State<PricelistPage>
 
   @override
   void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
     _animController.dispose();
     super.dispose();
   }
 
-  void _simulatePayment(String package) {
-    // Tampilkan loading sebentar
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
+  void _simulatePayment(String package, String price) {
+    final orderId = "VBAT-ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(5)}";
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: _cardColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: _isDark ? const Color(0xFF2D3748) : Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1B4F9B).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(
+                            Icons.payment_rounded,
+                            color: Color(0xFF1B4F9B),
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Midtrans Snap Checkout",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: _textDark,
+                              ),
+                            ),
+                            Text(
+                              "Simulasi Pembayaran Gateway",
+                              style: TextStyle(fontSize: 12, color: _textGray),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: _isDark
+                            ? Colors.amber.shade900.withValues(alpha: 0.3)
+                            : Colors.amber.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "SANDBOX",
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: _isDark ? Colors.amber.shade300 : Colors.amber.shade900,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: _borderColor),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("No. Referensi", style: TextStyle(color: _textGray, fontSize: 13)),
+                          Text(orderId, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _textDark)),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Paket Pembelajaran", style: TextStyle(color: _textGray, fontSize: 13)),
+                          Text(package, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _textDark)),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Total Tagihan", style: TextStyle(color: _textGray, fontSize: 13)),
+                          Text(
+                            price,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: _isDark ? const Color(0xFF60A5FA) : const Color(0xFF1B4F9B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  "Pilih Hasil Transaksi (Testing Sandbox):",
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _textGray),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _executeSuccessfulPayment(package);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF10B981),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.check_circle_rounded, size: 18),
+                        SizedBox(width: 8),
+                        Text("Bayar Sekarang (Konfirmasi Sukses)", style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Transaksi berstatus Pending / Batal. Akses kelas tetap terkunci."),
+                          backgroundColor: Colors.redAccent,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.redAccent,
+                      side: const BorderSide(color: Colors.redAccent),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text("Simulasi Pending / Batalkan"),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _executeSuccessfulPayment(String package) async {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) =>
-          const Center(child: CircularProgressIndicator(color: Colors.white)),
+      builder: (context) => const Center(child: CircularProgressIndicator(color: Colors.white)),
     );
 
-    Future.delayed(const Duration(seconds: 1), () {
-      if (!mounted) return;
-      Navigator.pop(context); // Tutup dialog loading
+    final pkg = package.toLowerCase();
+    // Sinkronisasi aktivasi membership KTA dan hak akses ke Laravel backend
+    await SessionManager.activateMembershipOnBackend(pkg);
 
-      // Simpan status bahwa user sudah bayar (gunakan state sementara via Router extra atau global state)
-      // Untuk mockup, kita cukup lempar parameter kembali ke learning page atau pushReplacement
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Berhasil Berlangganan: $package!"),
-          backgroundColor: Colors.green,
-        ),
-      );
+    if (!mounted) return;
+    Navigator.pop(context); // close loader
 
-      // Kembali ke halaman sebelumnya dengan parameter true (berhasil bayar)
-      context.pop(true);
-    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Pembayaran Berhasil! Hak akses $package dan KTA Digital telah aktif."),
+        backgroundColor: const Color(0xFF10B981),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+
+    context.pop(true);
   }
 
   @override
@@ -80,13 +282,13 @@ class _PricelistPageState extends State<PricelistPage>
                 elevation: 0,
                 pinned: true,
                 leading: IconButton(
-                  icon: const Icon(Icons.close_rounded, color: Colors.black87),
+                  icon: Icon(Icons.close_rounded, color: _textDark),
                   onPressed: () => context.pop(false),
                 ),
-                title: const Text(
+                title: Text(
                   "Pilih Paket Belajar",
                   style: TextStyle(
-                    color: Colors.black87,
+                    color: _textDark,
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),
@@ -109,27 +311,27 @@ class _PricelistPageState extends State<PricelistPage>
                         child: Icon(
                           Icons.rocket_launch_rounded,
                           size: 48,
-                          color: _primaryBlue,
+                          color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
                         ),
                       ),
                       const SizedBox(height: 24),
-                      const Text(
+                      Text(
                         "Investasi Terbaik Untuk Masa Depanmu!",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           height: 1.3,
-                          color: Color(0xFF001944),
+                          color: _textDark,
                         ),
                       ),
                       const SizedBox(height: 12),
-                      const Text(
+                      Text(
                         "Dapatkan akses eksklusif ke seluruh materi VBat Ponsel dan pelajari teknik servis profesional dari para ahli.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.black54,
+                          color: _textGray,
                           height: 1.5,
                         ),
                       ),
@@ -144,7 +346,7 @@ class _PricelistPageState extends State<PricelistPage>
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     _buildPricingCard(
-                      title: "Kelas Android",
+                       title: "Kelas Android",
                       subtitle: "Materi Android + Hardware Solution Android",
                       normalPrice: "Rp 1.500.000",
                       promoPrice: "Rp 800.000",
@@ -156,7 +358,7 @@ class _PricelistPageState extends State<PricelistPage>
                       ],
                       icon: Icons.android_rounded,
                       color: const Color(0xFF3DDC84), // Android Green
-                      onTap: () => _simulatePayment("Kelas Android"),
+                      onTap: () => _simulatePayment("Kelas Android", "Rp 800.000"),
                     ),
                     const SizedBox(height: 16),
                     _buildPricingCard(
@@ -171,8 +373,8 @@ class _PricelistPageState extends State<PricelistPage>
                         "Grup Diskusi iPhone",
                       ],
                       icon: Icons.apple_rounded,
-                      color: const Color(0xFF555555), // Apple Gray
-                      onTap: () => _simulatePayment("Kelas iPhone"),
+                      color: _isDark ? const Color(0xFF94A3B8) : const Color(0xFF555555), // Apple Gray
+                      onTap: () => _simulatePayment("Kelas iPhone", "Rp 2.000.000"),
                     ),
                     const SizedBox(height: 16),
                     _buildPricingCard(
@@ -189,7 +391,7 @@ class _PricelistPageState extends State<PricelistPage>
                       icon: Icons.workspace_premium_rounded,
                       color: _accentOrange,
                       isBestValue: true,
-                      onTap: () => _simulatePayment("Paket Bundling"),
+                      onTap: () => _simulatePayment("Paket Bundling", "Rp 2.500.000"),
                     ),
                     const SizedBox(height: 48),
                   ]),
@@ -213,17 +415,21 @@ class _PricelistPageState extends State<PricelistPage>
     required VoidCallback onTap,
     bool isBestValue = false,
   }) {
+    final bool isRequestedHighlight = widget.highlightPackage != null &&
+        title.toLowerCase().contains(widget.highlightPackage!.toLowerCase());
+    final bool effectiveHighlight = isBestValue || isRequestedHighlight;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: isBestValue ? color : Colors.grey.shade200,
-          width: isBestValue ? 2 : 1,
+          color: effectiveHighlight ? color : _borderColor,
+          width: effectiveHighlight ? 2.5 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.08),
+            color: color.withValues(alpha: effectiveHighlight ? 0.15 : 0.08),
             blurRadius: 24,
             offset: const Offset(0, 12),
           ),
@@ -254,18 +460,18 @@ class _PricelistPageState extends State<PricelistPage>
                         children: [
                           Text(
                             title,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF001944),
+                              color: _textDark,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             subtitle,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: Colors.black54,
+                              color: _textGray,
                             ),
                           ),
                         ],
@@ -279,9 +485,9 @@ class _PricelistPageState extends State<PricelistPage>
                   children: [
                     Text(
                       normalPrice,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey,
+                        color: _textGray,
                         decoration: TextDecoration.lineThrough,
                         fontWeight: FontWeight.w600,
                       ),
@@ -298,7 +504,7 @@ class _PricelistPageState extends State<PricelistPage>
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Divider(height: 1),
+                Divider(height: 1, color: _borderColor),
                 const SizedBox(height: 20),
                 ...features.map(
                   (feat) => Padding(
@@ -314,9 +520,9 @@ class _PricelistPageState extends State<PricelistPage>
                         Expanded(
                           child: Text(
                             feat,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
-                              color: Colors.black87,
+                              color: _textDark,
                             ),
                           ),
                         ),
@@ -351,7 +557,7 @@ class _PricelistPageState extends State<PricelistPage>
               ],
             ),
           ),
-          if (isBestValue)
+          if (effectiveHighlight)
             Positioned(
               top: -12,
               right: 24,
@@ -361,21 +567,24 @@ class _PricelistPageState extends State<PricelistPage>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFD761A), Color(0xFFF95316)],
+                  gradient: LinearGradient(
+                    colors: isBestValue
+                        ? const [Color(0xFFFD761A), Color(0xFFF95316)]
+                        : [color, color.withValues(alpha: 0.85)],
                   ),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFD761A).withValues(alpha: 0.4),
+                      color: (isBestValue ? const Color(0xFFFD761A) : color)
+                          .withValues(alpha: 0.4),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: const Text(
-                  "PALING HEMAT",
-                  style: TextStyle(
+                child: Text(
+                  isBestValue ? "PALING HEMAT" : "PAKET PILIHAN ANDA",
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 11,
                     fontWeight: FontWeight.w900,

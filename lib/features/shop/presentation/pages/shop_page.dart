@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/core/widgets/horizontal_sponsor_slider.dart';
 import 'package:vbat_ponsel/features/home/presentation/pages/home_header_sliver.dart';
+import 'package:vbat_ponsel/features/shop/data/repositories/feed_repository.dart';
 
 class ShopPage extends StatefulWidget {
   const ShopPage({super.key});
@@ -15,10 +17,14 @@ class ShopPage extends StatefulWidget {
 
 class _ShopPageState extends State<ShopPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
   final Color _orangeSale = const Color(0xFFFD761A);
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
 
   // Active Discount Event from Web Database (Synced dynamically with Laravel Web)
   Map<String, dynamic>? _activeEvent = {
@@ -28,6 +34,8 @@ class _ShopPageState extends State<ShopPage> {
   final ScrollController _scrollController = ScrollController();
   int _itemCount = 14;
   bool _isLoadingMore = false;
+  String? _nextShopCursor;
+  bool _hasMoreShopItems = true;
 
   String _formatRupiah(num value) {
     final str = value.toInt().toString();
@@ -158,6 +166,7 @@ class _ShopPageState extends State<ShopPage> {
   @override
   void initState() {
     super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
     _fetchActiveEvent();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
@@ -174,6 +183,10 @@ class _ShopPageState extends State<ShopPage> {
         }
       });
     });
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _fetchActiveEvent() async {
@@ -259,24 +272,70 @@ class _ShopPageState extends State<ShopPage> {
     } catch (_) {
       // Offline fallback
     }
+
+    // Initial Shop Feed from FeedRepository
+    try {
+      final initialFeed = await FeedRepository.getShopFeed(perPage: 12);
+      if (mounted && initialFeed.items.isNotEmpty) {
+        setState(() {
+          _nextShopCursor = initialFeed.nextCursor;
+          _hasMoreShopItems = initialFeed.hasMore;
+          
+          final existingNames = _catalogProducts.map((p) => p['name']).toSet();
+          for (final item in initialFeed.items) {
+            if (!existingNames.contains(item['name'])) {
+              _catalogProducts.add(item);
+              existingNames.add(item['name']);
+            }
+          }
+          if (_catalogProducts.length > _itemCount) {
+            _itemCount = _catalogProducts.length;
+          }
+        });
+      }
+    } catch (_) {}
   }
 
-  void _loadMore() {
-    if (_isLoadingMore) return;
+  void _loadMore() async {
+    if (_isLoadingMore || !_hasMoreShopItems) return;
     setState(() {
       _isLoadingMore = true;
     });
-    Future.delayed(const Duration(milliseconds: 800), () {
-      if (!mounted) return;
-      setState(() {
-        _itemCount += 6;
-        _isLoadingMore = false;
-      });
-    });
+
+    try {
+      final feedRes = await FeedRepository.getShopFeed(
+        cursor: _nextShopCursor,
+        perPage: 8,
+      );
+
+      if (mounted) {
+        setState(() {
+          _nextShopCursor = feedRes.nextCursor;
+          _hasMoreShopItems = feedRes.hasMore;
+
+          final existingNames = _catalogProducts.map((p) => p['name']).toSet();
+          for (final item in feedRes.items) {
+            if (!existingNames.contains(item['name'])) {
+              _catalogProducts.add(item);
+              existingNames.add(item['name']);
+            }
+          }
+          _itemCount = _catalogProducts.length;
+          _isLoadingMore = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoadingMore = false;
+        });
+      }
+    }
   }
 
   @override
   void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
     _scrollController.dispose();
     _flashSaleTimer.cancel();
     super.dispose();
@@ -497,7 +556,7 @@ class _ShopPageState extends State<ShopPage> {
           // --- 5. Flash Sale (Harmonisasi dengan Beranda) ---
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.white,
+              color: _cardColor,
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -813,9 +872,9 @@ class _ShopPageState extends State<ShopPage> {
       child: Container(
         width: 130,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _isDark ? const Color(0xFF243042) : Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: _borderColor),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -826,7 +885,7 @@ class _ShopPageState extends State<ShopPage> {
                   Container(
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
+                      color: _isDark ? const Color(0xFF1E2430) : Colors.grey.shade50,
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(12),
                       ),
@@ -947,10 +1006,12 @@ class _ShopPageState extends State<ShopPage> {
         width: 140,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: isActive ? _primaryBlue.withValues(alpha: 0.08) : Colors.white,
+          color: isActive 
+              ? _primaryBlue.withValues(alpha: 0.15) 
+              : (_isDark ? const Color(0xFF243042) : Colors.white),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isActive ? _primaryBlue : Colors.grey.shade200,
+            color: isActive ? _primaryBlue : _borderColor,
             width: isActive ? 2 : 1,
           ),
         ),
@@ -978,7 +1039,7 @@ class _ShopPageState extends State<ShopPage> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
-                          color: isActive ? _primaryBlue : _textDark,
+                          color: isActive ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue) : _textDark,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -1046,17 +1107,17 @@ class _ShopPageState extends State<ShopPage> {
               height: 54,
               decoration: BoxDecoration(
                 color: isActive
-                    ? _primaryBlue.withValues(alpha: 0.12)
-                    : Colors.white,
+                    ? _primaryBlue.withValues(alpha: 0.2)
+                    : (_isDark ? const Color(0xFF243042) : Colors.white),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isActive ? _primaryBlue : Colors.grey.shade200,
+                  color: isActive ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue) : _borderColor,
                   width: isActive ? 2.5 : 1,
                 ),
                 boxShadow: isActive
                     ? [
                         BoxShadow(
-                          color: _primaryBlue.withValues(alpha: 0.15),
+                          color: _primaryBlue.withValues(alpha: 0.2),
                           blurRadius: 8,
                           spreadRadius: 1,
                         ),
@@ -1068,7 +1129,13 @@ class _ShopPageState extends State<ShopPage> {
                         ),
                       ],
               ),
-              child: Icon(icon, color: _primaryBlue, size: 26),
+              child: Icon(
+                icon, 
+                color: isActive 
+                    ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue) 
+                    : (_isDark ? const Color(0xFF90CDF4) : _primaryBlue), 
+                size: 26,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
@@ -1077,7 +1144,7 @@ class _ShopPageState extends State<ShopPage> {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-                color: isActive ? _primaryBlue : _textDark,
+                color: isActive ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue) : _textDark,
                 height: 1.2,
               ),
             ),
@@ -1333,6 +1400,12 @@ class _BrandPartnerShowcase extends StatefulWidget {
 
 class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
   int _selectedBrandIndex = 0;
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : Colors.grey.shade600;
 
   // Data Brand & Partner Resmi diurutkan dari tingkat tertinggi (Platinum -> Gold -> Silver -> Partner)
   List<Map<String, dynamic>> _partners = [
@@ -1593,7 +1666,18 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
   @override
   void initState() {
     super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
     _fetchPartnersFromApi();
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _fetchPartnersFromApi() async {
@@ -1657,7 +1741,7 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
     final List products = (selected["products"] as List?) ?? [];
 
     return Container(
-      color: Colors.white,
+      color: _cardColor,
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Column(
@@ -1681,12 +1765,12 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                           size: 20,
                         ),
                         const SizedBox(width: 6),
-                        const Text(
+                        Text(
                           "Brand & Partner Resmi",
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF001944),
+                            color: _textDark,
                           ),
                         ),
                       ],
@@ -1694,7 +1778,7 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                     const SizedBox(height: 2),
                     Text(
                       "Urutan mitra sponsor dari tingkat tertinggi ke terendah",
-                      style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                      style: TextStyle(fontSize: 11, color: _textGray),
                     ),
                   ],
                 ),
@@ -1749,10 +1833,12 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                     margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
                     decoration: BoxDecoration(
-                      color: isSelected ? pColor.withValues(alpha: 0.08) : Colors.white,
+                      color: isSelected 
+                          ? pColor.withValues(alpha: 0.15) 
+                          : (_isDark ? const Color(0xFF243042) : Colors.white),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: isSelected ? pColor : Colors.grey.shade200,
+                        color: isSelected ? pColor : _borderColor,
                         width: isSelected ? 2 : 1,
                       ),
                       boxShadow: isSelected
@@ -1782,9 +1868,9 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                               height: 40,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white,
+                                color: _isDark ? const Color(0xFF1E2430) : Colors.white,
                                 border: Border.all(
-                                  color: isSelected ? pColor : Colors.grey.shade300,
+                                  color: isSelected ? pColor : (_isDark ? _borderColor : Colors.grey.shade300),
                                   width: 1.5,
                                 ),
                               ),
@@ -1826,7 +1912,9 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                            color: isSelected ? const Color(0xFF001944) : Colors.grey.shade800,
+                            color: isSelected 
+                                ? (_isDark ? Colors.white : const Color(0xFF001944)) 
+                                : (_isDark ? Colors.grey.shade300 : Colors.grey.shade800),
                           ),
                         ),
                         const SizedBox(height: 3),
@@ -1870,8 +1958,8 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      brandColor.withValues(alpha: 0.08),
-                      Colors.white,
+                      brandColor.withValues(alpha: 0.12),
+                      _isDark ? const Color(0xFF243042) : Colors.white,
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -1894,7 +1982,7 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                       height: 44,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white,
+                        color: _isDark ? const Color(0xFF1E2430) : Colors.white,
                         border: Border.all(color: brandColor.withValues(alpha: 0.5), width: 1.5),
                       ),
                       child: ClipOval(
@@ -1923,10 +2011,10 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                                   selected["name"] ?? '',
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF001944),
+                                    color: _textDark,
                                   ),
                                 ),
                               ),
@@ -1959,7 +2047,7 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                                 "• ${products.length} Produk Resmi",
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: Colors.grey.shade600,
+                                  color: _textGray,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -2039,14 +2127,19 @@ class _ShimmerProductCardState extends State<_ShimmerProductCard>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = ThemeManager.isDark(context);
+    final shimmerColors = isDark
+        ? [const Color(0xFF1E2430), const Color(0xFF2D3748), const Color(0xFF1E2430)]
+        : [Colors.grey.shade200, Colors.grey.shade100, Colors.grey.shade200];
+
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
         return Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? const Color(0xFF243042) : Colors.white,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade100),
+            border: Border.all(color: isDark ? ThemeManager.darkBorder : Colors.grey.shade100),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -2062,11 +2155,7 @@ class _ShimmerProductCardState extends State<_ShimmerProductCard>
                     gradient: LinearGradient(
                       begin: Alignment(-1.0 + 2.0 * _controller.value, 0),
                       end: Alignment(-1.0 + 2.0 * _controller.value + 1.0, 0),
-                      colors: [
-                        Colors.grey.shade200,
-                        Colors.grey.shade100,
-                        Colors.grey.shade200,
-                      ],
+                      colors: shimmerColors,
                     ),
                   ),
                 ),
@@ -2079,19 +2168,19 @@ class _ShimmerProductCardState extends State<_ShimmerProductCard>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Title line 1
-                      _buildShimmerBar(width: double.infinity, height: 10),
+                      _buildShimmerBar(width: double.infinity, height: 10, colors: shimmerColors),
                       const SizedBox(height: 6),
                       // Title line 2
-                      _buildShimmerBar(width: 100, height: 10),
+                      _buildShimmerBar(width: 100, height: 10, colors: shimmerColors),
                       const Spacer(),
                       // Rating line
-                      _buildShimmerBar(width: 80, height: 8),
+                      _buildShimmerBar(width: 80, height: 8, colors: shimmerColors),
                       const SizedBox(height: 6),
                       // Price line
-                      _buildShimmerBar(width: 90, height: 14),
+                      _buildShimmerBar(width: 90, height: 14, colors: shimmerColors),
                       const SizedBox(height: 4),
                       // Location line
-                      _buildShimmerBar(width: 70, height: 8),
+                      _buildShimmerBar(width: 70, height: 8, colors: shimmerColors),
                     ],
                   ),
                 ),
@@ -2103,7 +2192,11 @@ class _ShimmerProductCardState extends State<_ShimmerProductCard>
     );
   }
 
-  Widget _buildShimmerBar({required double width, required double height}) {
+  Widget _buildShimmerBar({
+    required double width, 
+    required double height, 
+    required List<Color> colors,
+  }) {
     return Container(
       width: width,
       height: height,
@@ -2112,11 +2205,7 @@ class _ShimmerProductCardState extends State<_ShimmerProductCard>
         gradient: LinearGradient(
           begin: Alignment(-1.0 + 2.0 * _controller.value, 0),
           end: Alignment(-1.0 + 2.0 * _controller.value + 1.0, 0),
-          colors: [
-            Colors.grey.shade200,
-            Colors.grey.shade100,
-            Colors.grey.shade200,
-          ],
+          colors: colors,
         ),
       ),
     );

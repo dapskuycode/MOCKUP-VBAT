@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
 class ForumPage extends StatefulWidget {
@@ -20,62 +21,129 @@ class _ForumPageState extends State<ForumPage> {
 
   String _selectedCategory = "Semua";
 
-  // Simulasi status premium pengguna sekarang menggunakan SessionManager
+  @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _pageBgColor => _isDark ? ThemeManager.darkBg : _bgLight;
+  Color get _textColor => _isDark ? Colors.white : const Color(0xFF001944);
+  Color get _subtextColor => _isDark ? ThemeManager.darkTextSecondary : Colors.grey.shade700;
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
 
   @override
   Widget build(BuildContext context) {
+    final double bottomNavPadding = 72.0 + MediaQuery.of(context).viewPadding.bottom;
+
     return Scaffold(
-      backgroundColor: _bgLight,
-      floatingActionButton: ValueListenableBuilder<bool>(
-        valueListenable: SessionManager.isPremium,
-        builder: (context, isPremium, child) {
-          return isPremium
-              ? FloatingActionButton.extended(
-                  onPressed: () async {
-                    final Uri waUri = Uri.parse('https://wa.me/62811268717');
-                    if (!await launchUrl(
-                      waUri,
-                      mode: LaunchMode.externalApplication,
-                    )) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Gagal membuka WhatsApp'),
-                          ),
-                        );
-                      }
+      backgroundColor: _pageBgColor,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(bottom: bottomNavPadding + 10.0),
+        child: ValueListenableBuilder<Set<String>>(
+          valueListenable: SessionManager.activeEntitlements,
+          builder: (context, entitlements, child) {
+            final bool isMember = SessionManager.hasPermanentMembership || SessionManager.isPremium.value;
+            return FloatingActionButton.extended(
+              onPressed: () async {
+                if (isMember) {
+                  final text = Uri.encodeComponent(
+                    "Halo Tim Support VBAT Official, saya member KTA ${SessionManager.membershipNumber} (${SessionManager.userName}) ingin berkonsultasi mengenai materi pembelajaran & teknis ponsel.",
+                  );
+                  final Uri waUri = Uri.parse('https://wa.me/6281234567890?text=$text');
+                  if (!await launchUrl(
+                    waUri,
+                    mode: LaunchMode.externalApplication,
+                  )) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Gagal membuka WhatsApp'),
+                        ),
+                      );
                     }
-                  },
-                  backgroundColor: _waGreen,
-                  foregroundColor: Colors.white,
-                  elevation: 4,
-                  icon: const Icon(Icons.chat_bubble_outline_rounded),
-                  label: const Text(
-                    "Bantuan (Premium)",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                )
-              : const SizedBox.shrink();
-        },
+                  }
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      title: const Row(
+                        children: [
+                          Icon(Icons.workspace_premium_rounded, color: Color(0xFFF97316)),
+                          SizedBox(width: 8),
+                          Text("Konsultasi WhatsApp VIP", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      content: const Text(
+                        "Layanan pendampingan WhatsApp VIP dan Ruang Konsultasi teknisi hanya tersedia bagi member yang membeli Kelas Android, iPhone, atau Bundling.",
+                        style: TextStyle(fontSize: 13, height: 1.4),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx),
+                          child: const Text("Nanti Saja"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            context.push('/pricelist');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1B4F9B),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: const Text("Lihat Paket Belajar"),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+              backgroundColor: isMember ? _waGreen : const Color(0xFFF97316),
+              foregroundColor: Colors.white,
+              elevation: 4,
+              icon: Icon(isMember ? Icons.chat_bubble_outline_rounded : Icons.lock_rounded),
+              label: Text(
+                isMember ? "Bantuan VIP (WhatsApp)" : "Buka Konsultasi VIP",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            );
+          },
+        ),
       ),
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
           // --- 1. Top App Bar ---
           SliverAppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: _cardColor,
             pinned: true,
             floating: true,
             elevation: 0,
             scrolledUnderElevation: 0,
             leading: IconButton(
-              icon: Icon(Icons.arrow_back_rounded, color: _primaryBlue),
+              icon: Icon(Icons.arrow_back_rounded, color: _isDark ? Colors.white : _primaryBlue),
               onPressed: () => context.pop(),
             ),
             title: Text(
               "Pusat Informasi",
               style: TextStyle(
-                color: _primaryBlue,
+                color: _isDark ? Colors.white : _primaryBlue,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -112,7 +180,7 @@ class _ForumPageState extends State<ForumPage> {
             ],
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(1),
-              child: Container(color: Colors.grey.shade200, height: 1),
+              child: Container(color: _borderColor, height: 1),
             ),
           ),
 
@@ -121,8 +189,8 @@ class _ForumPageState extends State<ForumPage> {
             child: Container(
               height: 56,
               decoration: BoxDecoration(
-                color: _bgLight,
-                border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                color: _pageBgColor,
+                border: Border(bottom: BorderSide(color: _borderColor)),
               ),
               child: ListView(
                 scrollDirection: Axis.horizontal,
@@ -154,14 +222,9 @@ class _ForumPageState extends State<ForumPage> {
             ),
           ),
 
-          // Spacer for FAB
+          // Spacer for FAB & Bottom Navigation Bar
           SliverToBoxAdapter(
-            child: ValueListenableBuilder<bool>(
-              valueListenable: SessionManager.isPremium,
-              builder: (context, isPremium, child) {
-                return SizedBox(height: isPremium ? 80 : 24);
-              },
-            ),
+            child: SizedBox(height: bottomNavPadding + 70.0),
           ),
         ],
       ),
@@ -181,17 +244,17 @@ class _ForumPageState extends State<ForumPage> {
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? _primaryBlue : Colors.white,
+          color: isSelected ? _primaryBlue : (_isDark ? const Color(0xFF1E2430) : Colors.white),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? _primaryBlue : Colors.grey.shade300,
+            color: isSelected ? _primaryBlue : _borderColor,
           ),
         ),
         child: Center(
           child: Text(
             title,
             style: TextStyle(
-              color: isSelected ? Colors.white : _textGray,
+              color: isSelected ? Colors.white : (_isDark ? Colors.grey.shade400 : _textGray),
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               fontSize: 13,
             ),
@@ -205,15 +268,16 @@ class _ForumPageState extends State<ForumPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: _cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: _borderColor),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
+          if (!_isDark)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
         ],
       ),
       child: Column(
@@ -230,6 +294,18 @@ class _ForumPageState extends State<ForumPage> {
                 height: 180,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  height: 140,
+                  width: double.infinity,
+                  color: _isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
+                  child: Center(
+                    child: Icon(
+                      Icons.article_rounded,
+                      size: 44,
+                      color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
               ),
             ),
 
@@ -245,13 +321,13 @@ class _ForumPageState extends State<ForumPage> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
+                    color: _primaryBlue.withValues(alpha: _isDark ? 0.25 : 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
                     data['category'],
                     style: TextStyle(
-                      color: _primaryBlue,
+                      color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
                     ),
@@ -262,10 +338,10 @@ class _ForumPageState extends State<ForumPage> {
                 // Judul
                 Text(
                   data['title'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF001944),
+                    color: _textColor,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -275,7 +351,7 @@ class _ForumPageState extends State<ForumPage> {
                   data['content'],
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey.shade700,
+                    color: _subtextColor,
                     height: 1.5,
                   ),
                   maxLines: 3,

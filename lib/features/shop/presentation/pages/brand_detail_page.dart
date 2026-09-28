@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 
 class BrandDetailPage extends StatefulWidget {
   final String brandName;
@@ -10,12 +11,31 @@ class BrandDetailPage extends StatefulWidget {
 
 class _BrandDetailPageState extends State<BrandDetailPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
   final Color _orangeSale = const Color(0xFFFD761A);
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
 
   String _selectedFilter = 'Semua';
+
+  @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,17 +46,17 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
         slivers: [
           // --- 1. Top App Bar ---
           SliverAppBar(
-            backgroundColor: _primaryBlue,
+            backgroundColor: _cardColor,
             pinned: true,
             elevation: 0,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+              icon: Icon(Icons.arrow_back_rounded, color: _textDark),
               onPressed: () => Navigator.pop(context),
             ),
             title: Text(
               widget.brandName,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: _textDark,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -102,7 +122,7 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
               minHeight: 60.0,
               maxHeight: 60.0,
               child: Container(
-                color: Colors.white,
+                color: _cardColor,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: ListView(
                   scrollDirection: Axis.horizontal,
@@ -173,22 +193,22 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.blue.shade50,
+                    color: _isDark ? _cardColor : Colors.blue.shade50,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.blue.shade100),
+                    border: Border.all(color: _borderColor),
                   ),
                   child: Row(
                     children: [
                       Container(
                         width: 40,
                         height: 40,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: _isDark ? Colors.black26 : Colors.white,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
                           Icons.storefront_rounded,
-                          color: _primaryBlue,
+                          color: _isDark ? Colors.blue.shade300 : _primaryBlue,
                           size: 20,
                         ),
                       ),
@@ -202,7 +222,7 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.bold,
-                                color: _primaryBlue,
+                                color: _isDark ? Colors.blue.shade300 : _primaryBlue,
                                 letterSpacing: 0.5,
                               ),
                             ),
@@ -217,7 +237,7 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
                           ],
                         ),
                       ),
-                      Icon(Icons.arrow_forward_rounded, color: _primaryBlue),
+                      Icon(Icons.arrow_forward_rounded, color: _isDark ? Colors.blue.shade300 : _primaryBlue),
                     ],
                   ),
                 ),
@@ -245,7 +265,7 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
       alignment: Alignment.center,
       children: [
         IconButton(
-          icon: Icon(icon, color: Colors.white),
+          icon: Icon(icon, color: _textDark),
           onPressed: () {},
         ),
         Positioned(
@@ -257,7 +277,7 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
             decoration: BoxDecoration(
               color: badgeColor,
               shape: BoxShape.circle,
-              border: Border.all(color: _primaryBlue, width: 1.5),
+              border: Border.all(color: _cardColor, width: 1.5),
             ),
           ),
         ),
@@ -275,10 +295,12 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: isSelected ? Colors.blue.shade50 : Colors.white,
+            color: isSelected
+                ? (_isDark ? _primaryBlue.withValues(alpha: 0.3) : Colors.blue.shade50)
+                : _cardColor,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isSelected ? Colors.transparent : Colors.grey.shade300,
+              color: isSelected ? Colors.transparent : _borderColor,
             ),
           ),
           child: Center(
@@ -287,7 +309,7 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? _primaryBlue : _textGray,
+                color: isSelected ? (_isDark ? Colors.blue.shade300 : _primaryBlue) : _textGray,
               ),
             ),
           ),
@@ -329,7 +351,7 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
     return InkWell(
       onTap: () {},
       child: Container(
-        color: Colors.white,
+        color: _cardColor,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
@@ -337,12 +359,13 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: _bgLight,
+                color: _isDark ? Colors.black26 : _bgLight,
                 borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: _borderColor),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.phone_android_rounded,
-                color: Colors.grey,
+                color: _textGray,
               ),
             ),
             const SizedBox(width: 12),
@@ -374,7 +397,7 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: _primaryBlue.withValues(alpha: 0.1),
+                        color: _primaryBlue.withValues(alpha: _isDark ? 0.25 : 0.1),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
@@ -382,7 +405,7 @@ class _BrandDetailPageState extends State<BrandDetailPage> {
                         style: TextStyle(
                           fontSize: 9,
                           fontWeight: FontWeight.bold,
-                          color: _primaryBlue,
+                          color: _isDark ? Colors.blue.shade300 : _primaryBlue,
                         ),
                       ),
                     ),

@@ -1,20 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 
-class ForumDetailPage extends StatelessWidget {
+class ForumDetailPage extends StatefulWidget {
   final Map<String, dynamic>? data;
 
   const ForumDetailPage({super.key, this.data});
 
   @override
-  Widget build(BuildContext context) {
-    final Color primaryBlue = const Color(0xFF1B4F9B);
-    final Color bgLight = const Color(0xFFF5F7FA);
-    final Color textDark = const Color(0xFF001944);
+  State<ForumDetailPage> createState() => _ForumDetailPageState();
+}
 
+class _ForumDetailPageState extends State<ForumDetailPage> {
+  final Color _primaryBlue = const Color(0xFF1B4F9B);
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textContent => _isDark ? ThemeManager.darkText : Colors.black87;
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
+
+  @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Fallback data jika null (terjadi jika state extra GoRouter hilang akibat Hot Reload)
     final infoData =
-        data ??
+        widget.data ??
         {
           "category": "Ruang Konsultasi",
           "title": "Jadwal Konsultasi Tanya Jawab Kasus Bersama Instruktur",
@@ -26,18 +53,18 @@ class ForumDetailPage extends StatelessWidget {
         };
 
     return Scaffold(
-      backgroundColor: bgLight,
+      backgroundColor: _bgLight,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: _cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_rounded, color: primaryBlue),
+          icon: Icon(Icons.arrow_back_rounded, color: _textDark),
           onPressed: () => context.pop(),
         ),
         title: Text(
           "Detail Informasi",
           style: TextStyle(
-            color: primaryBlue,
+            color: _textDark,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -45,7 +72,7 @@ class ForumDetailPage extends StatelessWidget {
         centerTitle: true,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: Colors.grey.shade200, height: 1),
+          child: Container(color: _borderColor, height: 1),
         ),
       ),
       body: SingleChildScrollView(
@@ -71,13 +98,13 @@ class ForumDetailPage extends StatelessWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
+                      color: _isDark ? _primaryBlue.withValues(alpha: 0.25) : Colors.blue.shade50,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       infoData['category'],
                       style: TextStyle(
-                        color: primaryBlue,
+                        color: _isDark ? Colors.blue.shade300 : _primaryBlue,
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
@@ -89,34 +116,34 @@ class ForumDetailPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: textDark,
+                      color: _textDark,
                       height: 1.3,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.calendar_today_rounded,
                         size: 14,
-                        color: Colors.grey,
+                        color: _textGray,
                       ),
                       const SizedBox(width: 6),
                       Text(
                         infoData['date'],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Colors.grey,
+                          color: _textGray,
                         ),
                       ),
                     ],
                   ),
-                  const Divider(height: 48, thickness: 1),
+                  Divider(height: 48, thickness: 1, color: _borderColor),
                   Text(
                     infoData['content'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
-                      color: Colors.black87,
+                      color: _textContent,
                       height: 1.6,
                     ),
                   ),

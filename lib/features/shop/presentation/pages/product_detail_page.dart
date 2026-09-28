@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
+import 'package:vbat_ponsel/core/utils/analytics_tracker.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/features/home/presentation/pages/home_page.dart';
 
@@ -17,9 +19,13 @@ class ProductDetailPage extends StatefulWidget {
 class _ProductDetailPageState extends State<ProductDetailPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
   final Color _orangeSale = const Color(0xFFFD761A);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
 
   int _currentImageIndex = 0;
   bool _isWishlisted = false;
@@ -154,11 +160,21 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   @override
   void initState() {
     super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
     // Check if this product is wishlisted
     _isWishlisted = WishlistHelper.items.any((x) => x["name"] == _productName);
 
     // Initial recommendations
     _generateRecommendations(count: 4);
+
+    // Track product click/interaction to backend
+    final productId = widget.productData?['id'] is int
+        ? widget.productData!['id'] as int
+        : null;
+    AnalyticsTracker.trackProductClick(
+      productId: productId,
+      productName: _productName,
+    );
 
     // Scroll listener for infinite scroll recommendations
     _scrollController.addListener(() {
@@ -169,8 +185,13 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     });
   }
 
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
     _scrollController.dispose();
     super.dispose();
   }
@@ -218,6 +239,27 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     final url = _productLink;
     final platform = _marketplaceName;
 
+    // Track analytics event to backend
+    final productId = widget.productData?['id'] is int
+        ? widget.productData!['id'] as int
+        : 1;
+    AnalyticsTracker.trackMarketplaceOutbound(
+      productId: productId,
+      productName: _productName,
+      url: url,
+      platform: platform,
+    );
+
+    if (url.isEmpty || !url.startsWith("http")) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Link marketplace belum dikonfigurasi untuk produk ini."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+      return;
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
@@ -252,7 +294,16 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       } else {
         await launchUrl(uri, mode: LaunchMode.platformDefault);
       }
-    } catch (_) {}
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Tidak dapat membuka tautan marketplace"),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildProductImage(
@@ -412,9 +463,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(color: _borderColor),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.02),
@@ -433,7 +484,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     width: double.infinity,
                     height: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
+                      color: _isDark ? ThemeManager.darkBg : Colors.grey.shade50,
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(16),
                       ),
@@ -534,7 +585,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           bottom: MediaQuery.of(context).padding.bottom + 12,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: _cardColor,
+          border: _isDark ? Border(top: BorderSide(color: _borderColor)) : null,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -554,35 +606,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 size: 26,
               ),
               onPressed: () {
-                setState(() {
-                  _isWishlisted = !_isWishlisted;
-                  if (_isWishlisted) {
-                    if (!WishlistHelper.items.any(
-                      (x) => x["name"] == _productName,
-                    )) {
-                      WishlistHelper.items.add({
-                        "name": _productName,
-                        "price": _productPrice,
-                        "image": _productImage,
-                        "link": _productLink,
-                      });
-                    }
-                  } else {
-                    WishlistHelper.items.removeWhere(
-                      (x) => x["name"] == _productName,
-                    );
-                  }
+                final isAdded = WishlistHelper.toggleWishlist(context, {
+                  "name": _productName,
+                  "price": _productPrice,
+                  "image": _productImage,
+                  "link": _productLink,
                 });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      _isWishlisted
-                          ? "Produk berhasil ditambahkan ke Wishlist!"
-                          : "Produk dihapus dari Wishlist.",
-                    ),
-                    duration: const Duration(seconds: 1),
-                  ),
-                );
+                setState(() {
+                  _isWishlisted = isAdded;
+                });
               },
             ),
             const SizedBox(width: 16),
@@ -619,7 +651,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         slivers: [
           // --- 1. Top App Bar ---
           SliverAppBar(
-            backgroundColor: _primaryBlue,
+            backgroundColor: _isDark ? ThemeManager.darkCard : _primaryBlue,
             pinned: true,
             elevation: 0,
             leading: IconButton(
@@ -647,35 +679,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                   color: _isWishlisted ? Colors.red : Colors.white,
                 ),
                 onPressed: () {
-                  setState(() {
-                    _isWishlisted = !_isWishlisted;
-                    if (_isWishlisted) {
-                      if (!WishlistHelper.items.any(
-                        (x) => x["name"] == _productName,
-                      )) {
-                        WishlistHelper.items.add({
-                          "name": _productName,
-                          "price": _productPrice,
-                          "image": _productImage,
-                          "link": _productLink,
-                        });
-                      }
-                    } else {
-                      WishlistHelper.items.removeWhere(
-                        (x) => x["name"] == _productName,
-                      );
-                    }
+                  final isAdded = WishlistHelper.toggleWishlist(context, {
+                    "name": _productName,
+                    "price": _productPrice,
+                    "image": _productImage,
+                    "link": _productLink,
                   });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        _isWishlisted
-                            ? "Produk berhasil ditambahkan ke Wishlist!"
-                            : "Produk dihapus dari Wishlist.",
-                      ),
-                      duration: const Duration(seconds: 1),
-                    ),
-                  );
+                  setState(() {
+                    _isWishlisted = isAdded;
+                  });
                 },
               ),
             ],
@@ -685,7 +697,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           SliverToBoxAdapter(
             child: Container(
               height: 300,
-              color: Colors.white,
+              color: _cardColor,
               child: Stack(
                 children: [
                   PageView.builder(
@@ -694,7 +706,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         setState(() => _currentImageIndex = index),
                     itemBuilder: (context, index) {
                       return Container(
-                        color: Colors.grey.shade100,
+                        color: _isDark ? ThemeManager.darkBg : Colors.grey.shade100,
                         padding: const EdgeInsets.all(24),
                         child: _buildProductImage(
                           _productImage,
@@ -718,8 +730,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           height: 8,
                           decoration: BoxDecoration(
                             color: _currentImageIndex == index
-                                ? _primaryBlue
-                                : Colors.grey.shade300,
+                                ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue)
+                                : (_isDark ? const Color(0xFF2D3748) : Colors.grey.shade300),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -734,7 +746,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           // --- 3. Info Produk Utama ---
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.white,
+              color: _cardColor,
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 8),
               child: Column(
@@ -766,13 +778,15 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.green.shade50,
+                          color: _isDark
+                              ? Colors.green.shade900.withValues(alpha: 0.3)
+                              : Colors.green.shade50,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           "STOK TERBATAS",
                           style: TextStyle(
-                            color: Colors.green.shade700,
+                            color: _isDark ? Colors.green.shade300 : Colors.green.shade700,
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
                           ),
@@ -810,15 +824,18 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           // --- 4. Info Toko / Seller ---
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.white,
+              color: _cardColor,
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 8),
               child: Row(
                 children: [
                   CircleAvatar(
                     radius: 24,
-                    backgroundColor: _bgLight,
-                    child: Icon(Icons.storefront_rounded, color: _primaryBlue),
+                    backgroundColor: _isDark ? ThemeManager.darkBg : _bgLight,
+                    child: Icon(
+                      Icons.storefront_rounded,
+                      color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -860,7 +877,9 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: _primaryBlue),
+                      side: BorderSide(
+                        color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -868,7 +887,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     child: Text(
                       "Ikuti",
                       style: TextStyle(
-                        color: _primaryBlue,
+                        color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -881,7 +900,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
           // --- 5. Deskripsi & Detail ---
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.white,
+              color: _cardColor,
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 8),
               child: Column(

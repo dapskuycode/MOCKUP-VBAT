@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 
 class SponsorDetailPage extends StatefulWidget {
@@ -21,20 +22,30 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
 
   final Color _primaryBlue = const Color(0xFF1B4F9B);
   final Color _orangeSale = const Color(0xFFFD761A);
-  final Color _bgLight = const Color(0xFFF8FAFC);
-  final Color _textDark = const Color(0xFF0F172A);
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF8FAFC);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF0F172A);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
 
   @override
   void initState() {
     super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
     _sponsor = widget.sponsorData ?? _getDefaultSponsor();
     _initProducts();
   }
 
   @override
   void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   Map<String, dynamic> _getDefaultSponsor() {
@@ -386,7 +397,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
           // 2. Info & Metrics Card
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.white,
+              color: _cardColor,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -401,7 +412,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                         Icons.inventory_2_outlined,
                         "${_allProducts.length}",
                         "Produk Resmi",
-                        brandColor,
+                        _isDark ? Colors.blue.shade300 : brandColor,
                       ),
                       _buildDivider(),
                       _buildMetricItem(
@@ -444,8 +455,8 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                           style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: brandColor.withValues(alpha: 0.1),
-                          foregroundColor: brandColor,
+                          backgroundColor: brandColor.withValues(alpha: _isDark ? 0.25 : 0.1),
+                          foregroundColor: _isDark ? Colors.white : brandColor,
                           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -466,21 +477,21 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
           // 3. Tentang Sponsor (Detail Lengkap)
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.white,
+              color: _cardColor,
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.info_outline_rounded, size: 18, color: brandColor),
+                      Icon(Icons.info_outline_rounded, size: 18, color: _isDark ? Colors.blue.shade300 : brandColor),
                       const SizedBox(width: 8),
-                      const Text(
+                      Text(
                         "Tentang Mitra Resmi",
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF0F172A),
+                          color: _textDark,
                         ),
                       ),
                     ],
@@ -493,7 +504,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                     style: TextStyle(
                       fontSize: 13,
                       height: 1.5,
-                      color: Colors.grey.shade700,
+                      color: _textGray,
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -501,9 +512,9 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: _bgLight,
+                      color: _isDark ? ThemeManager.darkBg : _bgLight,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.shade200),
+                      border: Border.all(color: _borderColor),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -524,7 +535,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
           // 4. Header Katalog Produk + Search & Filter
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.white,
+              color: _cardColor,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -534,14 +545,14 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.storefront_rounded, size: 18, color: brandColor),
+                          Icon(Icons.storefront_rounded, size: 18, color: _isDark ? Colors.blue.shade300 : brandColor),
                           const SizedBox(width: 8),
                           Text(
                             "Produk ${_sponsor['short_name'] ?? sponsorName}",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF0F172A),
+                              color: _textDark,
                             ),
                           ),
                         ],
@@ -549,7 +560,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: brandColor.withValues(alpha: 0.1),
+                          color: brandColor.withValues(alpha: _isDark ? 0.25 : 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -557,7 +568,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: brandColor,
+                            color: _isDark ? Colors.blue.shade300 : brandColor,
                           ),
                         ),
                       ),
@@ -567,14 +578,15 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                   // Search Field
                   TextField(
                     controller: _searchController,
+                    style: TextStyle(color: _textDark, fontSize: 13),
                     onChanged: (val) => _applyFilter(val, _selectedCategory),
                     decoration: InputDecoration(
                       hintText: "Cari produk di toko ini...",
-                      hintStyle: TextStyle(fontSize: 13, color: Colors.grey.shade400),
-                      prefixIcon: const Icon(Icons.search, size: 20, color: Colors.grey),
+                      hintStyle: TextStyle(fontSize: 13, color: _textGray.withValues(alpha: 0.7)),
+                      prefixIcon: Icon(Icons.search, size: 20, color: _textGray),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                              icon: Icon(Icons.clear, size: 18, color: _textGray),
                               onPressed: () {
                                 _searchController.clear();
                                 _applyFilter("", _selectedCategory);
@@ -582,15 +594,15 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                             )
                           : null,
                       filled: true,
-                      fillColor: _bgLight,
+                      fillColor: _isDark ? ThemeManager.darkBg : _bgLight,
                       contentPadding: const EdgeInsets.symmetric(vertical: 10),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade200),
+                        borderSide: BorderSide(color: _borderColor),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey.shade200),
+                        borderSide: BorderSide(color: _borderColor),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -613,17 +625,17 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                               labelStyle: TextStyle(
                                 fontSize: 11,
                                 fontWeight: isSel ? FontWeight.bold : FontWeight.w500,
-                                color: isSel ? Colors.white : Colors.grey.shade700,
+                                color: isSel ? Colors.white : _textDark,
                               ),
                               selected: isSel,
                               selectedColor: brandColor,
-                              backgroundColor: _bgLight,
+                              backgroundColor: _isDark ? ThemeManager.darkBg : _bgLight,
                               checkmarkColor: Colors.white,
                               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20),
                                 side: BorderSide(
-                                  color: isSel ? brandColor : Colors.grey.shade300,
+                                  color: isSel ? brandColor : _borderColor,
                                 ),
                               ),
                               onSelected: (_) {
@@ -647,25 +659,25 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
           _filteredProducts.isEmpty
               ? SliverToBoxAdapter(
                   child: Container(
-                    color: Colors.white,
+                    color: _cardColor,
                     padding: const EdgeInsets.all(40),
                     alignment: Alignment.center,
                     child: Column(
                       children: [
-                        Icon(Icons.search_off_rounded, size: 54, color: Colors.grey.shade300),
+                        Icon(Icons.search_off_rounded, size: 54, color: _textGray.withValues(alpha: 0.5)),
                         const SizedBox(height: 12),
                         Text(
                           "Produk tidak ditemukan",
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey.shade600,
+                            color: _textDark,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           "Coba gunakan kata kunci pencarian yang lain.",
-                          style: TextStyle(fontSize: 12, color: Colors.grey.shade400),
+                          style: TextStyle(fontSize: 12, color: _textGray),
                         ),
                       ],
                     ),
@@ -695,12 +707,12 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
 
                         return Container(
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: _cardColor,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: Colors.grey.shade200),
+                            border: Border.all(color: _borderColor),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.03),
+                                color: Colors.black.withValues(alpha: _isDark ? 0.25 : 0.03),
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),
                               ),
@@ -731,7 +743,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                                       height: 125,
                                       width: double.infinity,
                                       decoration: BoxDecoration(
-                                        color: Colors.grey.shade50,
+                                        color: _isDark ? Colors.black26 : Colors.grey.shade50,
                                         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                                       ),
                                       padding: const EdgeInsets.all(10),
@@ -774,7 +786,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                                         child: Container(
                                           padding: const EdgeInsets.all(6),
                                           decoration: BoxDecoration(
-                                            color: Colors.white.withValues(alpha: 0.9),
+                                            color: _cardColor,
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
@@ -785,7 +797,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                                           ),
                                           child: Icon(
                                             isFav ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                                            color: isFav ? Colors.red : Colors.grey.shade600,
+                                            color: isFav ? Colors.red : _textGray,
                                             size: 16,
                                           ),
                                         ),
@@ -827,12 +839,12 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                                           const SizedBox(width: 3),
                                           Text(
                                             pRating,
-                                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                                            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: _textDark),
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
                                             "• $pSold",
-                                            style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+                                            style: TextStyle(fontSize: 10, color: _textGray),
                                           ),
                                         ],
                                       ),
@@ -890,10 +902,10 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
             const SizedBox(width: 4),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF0F172A),
+                color: _textDark,
               ),
             ),
           ],
@@ -901,7 +913,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
         const SizedBox(height: 2),
         Text(
           label,
-          style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+          style: TextStyle(fontSize: 10, color: _textGray),
         ),
       ],
     );
@@ -911,7 +923,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
     return Container(
       width: 1,
       height: 24,
-      color: Colors.grey.shade200,
+      color: _borderColor,
     );
   }
 
@@ -919,14 +931,14 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: _primaryBlue),
+        Icon(icon, size: 14, color: _isDark ? Colors.blue.shade300 : _primaryBlue),
         const SizedBox(width: 4),
         Text(
           label,
           style: TextStyle(
             fontSize: 10,
             fontWeight: FontWeight.w600,
-            color: Colors.grey.shade800,
+            color: _textDark,
           ),
         ),
       ],

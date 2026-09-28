@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
+import 'package:vbat_ponsel/features/profile/presentation/widgets/kta_digital_card.dart';
+import 'package:vbat_ponsel/features/profile/presentation/widgets/gamification_badges_section.dart';
+import 'package:vbat_ponsel/core/widgets/profile_bubble_chat.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -20,9 +24,32 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isNotificationEnabled = true;
 
   @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _pageBgColor => _isDark ? ThemeManager.darkBg : _bgLight;
+  Color get _itemTextColor => _isDark ? Colors.white : _textDark;
+  Color get _itemSubtextColor => _isDark ? ThemeManager.darkTextSecondary : _textGray;
+  Color get _itemBorderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade100;
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _bgLight,
+      backgroundColor: _pageBgColor,
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.only(
@@ -37,7 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 bottom: 40, // Ruang ekstra untuk overlap kartu statistik
               ),
               decoration: BoxDecoration(
-                color: _primaryBlue,
+                color: _isDark ? const Color(0xFF101C2E) : _primaryBlue,
                 borderRadius: const BorderRadius.vertical(
                   bottom: Radius.circular(32),
                 ),
@@ -53,23 +80,63 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(width: 40), // Spacer
                         Row(
                           children: [
-                            _buildTopIconButton(
-                              Icons.edit_rounded,
-                              onPressed: () async {
-                                final updated = await context.push<bool>('/edit-profile');
-                                if (!context.mounted) return;
-                                setState(() {});
-                                if (updated == true) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text("Perubahan berhasil disimpan! (Nama: ${SessionManager.userName})"),
-                                      backgroundColor: const Color(0xFF1B4F9B),
-                                      behavior: SnackBarBehavior.floating,
-                                      duration: const Duration(seconds: 3),
-                                    ),
-                                  );
-                                }
-                              },
+                            Stack(
+                              clipBehavior: Clip.none,
+                              alignment: Alignment.centerRight,
+                              children: [
+                                _buildTopIconButton(
+                                  Icons.edit_rounded,
+                                  onPressed: () async {
+                                    final updated = await context.push<bool>('/edit-profile');
+                                    if (!context.mounted) return;
+                                    setState(() {});
+                                    if (updated == true) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text("Perubahan berhasil disimpan! (Nama: ${SessionManager.userName})"),
+                                          backgroundColor: const Color(0xFF1B4F9B),
+                                          behavior: SnackBarBehavior.floating,
+                                          duration: const Duration(seconds: 3),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                                // Bubble chat "lengkapi profile anda" mengarah ke tombol pensil
+                                ValueListenableBuilder<bool>(
+                                  valueListenable: SessionManager.isProfileCompleteNotifier,
+                                  builder: (context, isComplete, _) {
+                                    return ValueListenableBuilder<bool>(
+                                      valueListenable: SessionManager.isLoggedIn,
+                                      builder: (context, isLoggedIn, _) {
+                                        if (isLoggedIn && !isComplete) {
+                                          return Positioned(
+                                            right: 44,
+                                            child: ProfileBubbleChat(
+                                              onTap: () async {
+                                                final updated = await context.push<bool>('/edit-profile');
+                                                if (!context.mounted) return;
+                                                setState(() {});
+                                                if (updated == true) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(
+                                                      content: Text("Perubahan berhasil disimpan! (Nama: ${SessionManager.userName})"),
+                                                      backgroundColor: const Color(0xFF1B4F9B),
+                                                      behavior: SnackBarBehavior.floating,
+                                                      duration: const Duration(seconds: 3),
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                            ),
+                                          );
+                                        }
+                                        return const SizedBox.shrink();
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                             const SizedBox(width: 8),
                             _buildTopIconButton(
@@ -130,28 +197,51 @@ class _ProfilePageState extends State<ProfilePage> {
                       );
                     },
                   ),
-                  Text(
-                    "budi@vbatponsel.com",
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 13,
-                    ),
+                  ValueListenableBuilder<String>(
+                    valueListenable: SessionManager.userEmailNotifier,
+                    builder: (context, email, _) {
+                      return Text(
+                        email,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.85),
+                          fontSize: 13,
+                        ),
+                      );
+                    },
                   ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      "${SessionManager.city ?? 'Bandung'} • Usia: ${SessionManager.userAge ?? 28} Thn",
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                  const SizedBox(height: 6),
+                  ValueListenableBuilder<bool>(
+                    valueListenable: SessionManager.isProfileCompleteNotifier,
+                    builder: (context, isComplete, _) {
+                      final city = SessionManager.city;
+                      final age = SessionManager.userAge;
+                      final label = isComplete
+                          ? "$city • Usia: $age Thn"
+                          : (city != null && age != null
+                              ? "$city • Usia: $age Thn (Belum Lengkap)"
+                              : "⚠️ Profil Belum Lengkap");
+
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isComplete
+                              ? Colors.white.withValues(alpha: 0.15)
+                              : Colors.amber.withValues(alpha: 0.25),
+                          borderRadius: BorderRadius.circular(12),
+                          border: isComplete
+                              ? null
+                              : Border.all(color: Colors.amber.shade300, width: 1),
+                        ),
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            color: isComplete ? Colors.white : Colors.amber.shade100,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -171,14 +261,16 @@ class _ProfilePageState extends State<ProfilePage> {
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: _cardColor,
                         borderRadius: BorderRadius.circular(20),
+                        border: _isDark ? Border.all(color: _itemBorderColor) : null,
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
+                          if (!_isDark)
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
                         ],
                       ),
                       child: Row(
@@ -192,7 +284,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           Container(
                             width: 1,
                             height: 40,
-                            color: Colors.grey.shade200,
+                            color: _itemBorderColor,
                           ),
                           _buildStatItem(
                             Icons.workspace_premium_rounded,
@@ -202,7 +294,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           Container(
                             width: 1,
                             height: 40,
-                            color: Colors.grey.shade200,
+                            color: _itemBorderColor,
                           ),
                           _buildStatItem(
                             Icons.trending_up_rounded,
@@ -212,6 +304,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 20),
+
+                    // --- KTA DIGITAL VBAT PERMANENT CARD ---
+                    KtaDigitalCard(isDark: _isDark),
+
+                    // --- GAMIFICATION: STREAK & BADGES ---
+                    GamificationBadgesSection(isDark: _isDark),
 
                     // Menu: PEMBELAJARAN
                     _buildMenuSection("PEMBELAJARAN", [
@@ -233,9 +332,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       _buildMenuItem(
                         Icons.favorite_border_rounded,
-                        "Wishlist",
-                        showBorder: false,
+                        "Wishlist Toko",
                         onTap: () => context.push('/wishlist'),
+                      ),
+                      _buildMenuItem(
+                        Icons.menu_book_rounded,
+                        "E-Book & Modul Panduan",
+                        showBorder: false,
+                        onTap: () => context.push('/ebooks'),
                       ),
                     ]),
 
@@ -287,7 +391,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       _buildMenuItem(
                         Icons.palette_outlined,
                         "Tema",
-                        trailing: _buildThemeToggleMock(),
+                        trailing: _buildThemeToggle(),
                         onTap: () => context.push('/theme-settings'),
                       ),
                       _buildMenuItem(
@@ -394,6 +498,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         },
                       ),
                       _buildMenuItem(
+                        Icons.explore_outlined,
+                        "Tour Aplikasi (Onboarding)",
+                        onTap: () => context.push('/onboarding'),
+                      ),
+                      _buildMenuItem(
                         Icons.info_outline_rounded,
                         "Tentang VBat Ponsel",
                         showBorder: false,
@@ -404,8 +513,16 @@ class _ProfilePageState extends State<ProfilePage> {
                     // Logout Button
                     const SizedBox(height: 16),
                     TextButton.icon(
-                      onPressed: () {
-                        SessionManager.logout();
+                      onPressed: () async {
+                        await SessionManager.logout();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Berhasil keluar dari akun."),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
                       },
                       style: TextButton.styleFrom(
                         backgroundColor: Colors.red.shade50,
@@ -459,10 +576,14 @@ class _ProfilePageState extends State<ProfilePage> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: _primaryBlue.withValues(alpha: 0.1),
+            color: _primaryBlue.withValues(alpha: _isDark ? 0.25 : 0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(icon, color: _primaryBlue, size: 20),
+          child: Icon(
+            icon,
+            color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
+            size: 20,
+          ),
         ),
         const SizedBox(height: 8),
         Text(
@@ -470,14 +591,14 @@ class _ProfilePageState extends State<ProfilePage> {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: _primaryBlue,
+            color: _isDark ? const Color(0xFF60A5FA) : _primaryBlue,
           ),
         ),
         Text(
           label,
           style: TextStyle(
             fontSize: 10,
-            color: _textGray,
+            color: _itemSubtextColor,
             fontWeight: FontWeight.w600,
             letterSpacing: 1,
           ),
@@ -499,20 +620,22 @@ class _ProfilePageState extends State<ProfilePage> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: _textGray,
+                color: _itemSubtextColor,
                 letterSpacing: 1,
               ),
             ),
           ),
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: _cardColor,
               borderRadius: BorderRadius.circular(20),
+              border: _isDark ? Border.all(color: _itemBorderColor) : null,
               boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
-                  blurRadius: 8,
-                ),
+                if (!_isDark)
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.02),
+                    blurRadius: 8,
+                  ),
               ],
             ),
             child: Column(children: items),
@@ -535,73 +658,105 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         decoration: BoxDecoration(
           border: showBorder
-              ? Border(bottom: BorderSide(color: Colors.grey.shade100))
+              ? Border(bottom: BorderSide(color: _itemBorderColor))
               : null,
         ),
         child: Row(
           children: [
-            Icon(icon, color: _textGray, size: 22),
+            Icon(
+              icon,
+              color: _isDark ? Colors.grey.shade400 : _textGray,
+              size: 22,
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
                 style: TextStyle(
                   fontSize: 15,
-                  color: _textDark,
+                  color: _itemTextColor,
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
             trailing ??
-                Icon(Icons.chevron_right_rounded, color: Colors.grey.shade400),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: _isDark ? Colors.grey.shade600 : Colors.grey.shade400,
+                ),
           ],
         ),
       ),
     );
   }
 
-  // Segmented control tiruan untuk sakelar Tema (Light/Dark/System)
-  Widget _buildThemeToggleMock() {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: _bgLight,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(6),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 2,
-                ),
-              ],
-            ),
-            child: Icon(
-              Icons.light_mode_rounded,
-              color: _primaryBlue,
-              size: 16,
-            ),
+  // Sakelar Interaktif Tema (Light / Dark / System)
+  Widget _buildThemeToggle() {
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeManager.themeModeNotifier,
+      builder: (context, currentMode, _) {
+        return Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: _isDark ? const Color(0xFF151B26) : _bgLight,
+            borderRadius: BorderRadius.circular(8),
+            border: _isDark ? Border.all(color: _itemBorderColor) : null,
           ),
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Icon(Icons.dark_mode_outlined, color: _textGray, size: 16),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildThemeBtn(
+                icon: Icons.light_mode_rounded,
+                isSelected: currentMode == ThemeMode.light,
+                onTap: () => ThemeManager.setTheme(ThemeMode.light),
+              ),
+              _buildThemeBtn(
+                icon: Icons.dark_mode_rounded,
+                isSelected: currentMode == ThemeMode.dark,
+                onTap: () => ThemeManager.setTheme(ThemeMode.dark),
+              ),
+              _buildThemeBtn(
+                icon: Icons.settings_suggest_rounded,
+                isSelected: currentMode == ThemeMode.system,
+                onTap: () => ThemeManager.setTheme(ThemeMode.system),
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Icon(
-              Icons.settings_suggest_outlined,
-              color: _textGray,
-              size: 16,
-            ),
-          ),
-        ],
+        );
+      },
+    );
+  }
+
+  Widget _buildThemeBtn({
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? (_isDark ? const Color(0xFF243042) : Colors.white)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+          boxShadow: isSelected && !_isDark
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.08),
+                    blurRadius: 3,
+                  ),
+                ]
+              : null,
+        ),
+        child: Icon(
+          icon,
+          color: isSelected
+              ? (_isDark ? const Color(0xFF60A5FA) : _primaryBlue)
+              : (_isDark ? Colors.grey.shade500 : _textGray),
+          size: 16,
+        ),
       ),
     );
   }

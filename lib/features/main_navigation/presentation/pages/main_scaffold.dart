@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/features/home/presentation/pages/home_page.dart';
 import 'package:vbat_ponsel/features/shop/presentation/pages/shop_page.dart';
 import 'package:vbat_ponsel/features/forum/presentation/pages/forum_page.dart';
@@ -7,6 +8,7 @@ import 'package:vbat_ponsel/features/belajar/presentation/pages/learning_page.da
 import 'package:vbat_ponsel/features/profile/presentation/pages/profile_page.dart';
 import 'package:vbat_ponsel/features/profile/presentation/pages/guest_profile_page.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
+import 'package:vbat_ponsel/core/widgets/pulsing_signal_dot.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
@@ -24,18 +26,29 @@ class _MainScaffoldState extends State<MainScaffold> {
     super.initState();
     _currentIndex = SessionManager.currentTabIndex.value;
     SessionManager.currentTabIndex.addListener(_onTabChangedExternally);
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
   }
 
   @override
   void dispose() {
     SessionManager.currentTabIndex.removeListener(_onTabChangedExternally);
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
     super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   void _onTabChangedExternally() {
     if (mounted) {
+      final target = SessionManager.currentTabIndex.value;
+      if (target == 4 && !SessionManager.isLoggedIn.value) {
+        context.push('/login');
+        return;
+      }
       setState(() {
-        _currentIndex = SessionManager.currentTabIndex.value;
+        _currentIndex = target;
       });
     }
   }
@@ -49,7 +62,15 @@ class _MainScaffoldState extends State<MainScaffold> {
     ValueListenableBuilder<bool>(
       valueListenable: SessionManager.isLoggedIn,
       builder: (context, isLoggedIn, child) {
-        return isLoggedIn ? const ProfilePage() : const GuestProfilePage();
+        if (!isLoggedIn) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!SessionManager.isLoggedIn.value && mounted) {
+              context.push('/login');
+            }
+          });
+          return const GuestProfilePage();
+        }
+        return const ProfilePage();
       },
     ),
   ];
@@ -59,36 +80,47 @@ class _MainScaffoldState extends State<MainScaffold> {
     final double screenWidth = MediaQuery.of(context).size.width;
     // Ambil safe area bawah (home indicator iPhone) secara eksplisit
     final double bottomPadding = MediaQuery.of(context).viewPadding.bottom;
-    // Tinggi konten navbar (background putih + notch)
+    // Tinggi konten navbar (background + notch)
     const double navContentHeight = 72.0;
     final double totalNavHeight = navContentHeight + bottomPadding;
 
-    return Scaffold(
-      extendBody: true,
-      body: _pages[_currentIndex],
-      bottomNavigationBar: SizedBox(
-        height: totalNavHeight,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // Background dengan lekukan kustom (hanya area putih, tidak termasuk safe area)
-            Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              child: CustomPaint(
-                size: Size(screenWidth, navContentHeight),
-                painter: BNBCustomPainter(primaryColor: _primaryBlue),
-              ),
-            ),
-            // Area safe (bawah) — warna putih untuk menutup home indicator
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: bottomPadding,
-              child: const ColoredBox(color: Colors.white),
-            ),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: ThemeManager.themeModeNotifier,
+      builder: (context, currentMode, _) {
+        final bool isDark = ThemeManager.isDark(context);
+        final Color navBgColor = isDark ? const Color(0xFF161F2E) : Colors.white;
+
+        return Scaffold(
+          backgroundColor: isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA),
+          extendBody: true,
+          resizeToAvoidBottomInset: false,
+          body: _pages[_currentIndex],
+          bottomNavigationBar: SizedBox(
+            height: totalNavHeight,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Background dengan lekukan kustom (hanya area navbar, tidak termasuk safe area)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  child: CustomPaint(
+                    size: Size(screenWidth, navContentHeight),
+                    painter: BNBCustomPainter(
+                      primaryColor: _primaryBlue,
+                      backgroundColor: navBgColor,
+                    ),
+                  ),
+                ),
+                // Area safe (bawah) — menutup home indicator
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: bottomPadding,
+                  child: ColoredBox(color: navBgColor),
+                ),
             // Tombol Ikon Navigasi (kiri & kanan)
             Positioned(
               left: 12,
@@ -109,12 +141,14 @@ class _MainScaffoldState extends State<MainScaffold> {
                           Icons.home_filled,
                           Icons.home_outlined,
                           "Beranda",
+                          isDark,
                         ),
                         _buildNavItem(
                           1,
                           Icons.storefront_rounded,
                           Icons.storefront_outlined,
                           "Shop",
+                          isDark,
                         ),
                       ],
                     ),
@@ -132,12 +166,14 @@ class _MainScaffoldState extends State<MainScaffold> {
                           Icons.info_rounded,
                           Icons.info_outline_rounded,
                           "Informasi",
+                          isDark,
                         ),
                         _buildNavItem(
                           4,
                           Icons.person_rounded,
                           Icons.person_outline_rounded,
                           "Akun",
+                          isDark,
                         ),
                       ],
                     ),
@@ -148,12 +184,12 @@ class _MainScaffoldState extends State<MainScaffold> {
             // Tombol Belajar tengah yang melayang (di atas notch)
             Positioned(
               top: -28,
-              left: screenWidth / 2 - 32,
-              child: _buildCenterBelajarItem(),
+              left: screenWidth / 2 - 30,
+              child: _buildCenterBelajarItem(isDark),
             ),
             // Label Belajar di bawah tombol floating
             Positioned(
-              top: navContentHeight - 22,
+              top: navContentHeight - 18,
               left: 0,
               right: 0,
               child: GestureDetector(
@@ -175,8 +211,8 @@ class _MainScaffoldState extends State<MainScaffold> {
                           ? FontWeight.w700
                           : FontWeight.w500,
                       color: _currentIndex == 2
-                          ? _primaryBlue
-                          : Colors.grey.shade500,
+                          ? (isDark ? const Color(0xFF60A5FA) : _primaryBlue)
+                          : (isDark ? Colors.grey.shade400 : Colors.grey.shade500),
                     ),
                   ),
                 ),
@@ -186,9 +222,11 @@ class _MainScaffoldState extends State<MainScaffold> {
         ),
       ),
     );
+      },
+    );
   }
 
-  Widget _buildCenterBelajarItem() {
+  Widget _buildCenterBelajarItem(bool isDark) {
     bool isSelected = _currentIndex == 2;
     return GestureDetector(
       onTap: () {
@@ -199,13 +237,15 @@ class _MainScaffoldState extends State<MainScaffold> {
         }
       },
       child: Container(
-        width: 64,
-        height: 64,
+        width: 60,
+        height: 60,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: isSelected
                 ? [const Color(0xFF1B4F9B), const Color(0xFF3B7ED9)]
-                : [const Color(0xFFEFF6FF), Colors.white],
+                : (isDark
+                    ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
+                    : [const Color(0xFFEFF6FF), Colors.white]),
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -218,13 +258,17 @@ class _MainScaffoldState extends State<MainScaffold> {
             ),
           ],
           border: Border.all(
-            color: isSelected ? Colors.white : Colors.grey.shade300,
+            color: isSelected
+                ? (isDark ? const Color(0xFF60A5FA) : Colors.white)
+                : (isDark ? const Color(0xFF334155) : Colors.grey.shade300),
             width: 3.5,
           ),
         ),
         child: Icon(
           Icons.school_rounded,
-          color: isSelected ? Colors.white : _primaryBlue,
+          color: isSelected
+              ? Colors.white
+              : (isDark ? const Color(0xFF60A5FA) : _primaryBlue),
           size: 28,
         ),
       ),
@@ -236,12 +280,16 @@ class _MainScaffoldState extends State<MainScaffold> {
     IconData activeIcon,
     IconData inactiveIcon,
     String label,
+    bool isDark,
   ) {
     bool isSelected = _currentIndex == index;
+    final Color activeColor = isDark ? const Color(0xFF60A5FA) : _primaryBlue;
+    final Color inactiveColor = isDark ? Colors.grey.shade400 : Colors.grey.shade500;
+
     return GestureDetector(
       onTap: () {
-        if ((index == 3) && !SessionManager.isLoggedIn.value) {
-          // Forum memerlukan login
+        if ((index == 4 || index == 3) && !SessionManager.isLoggedIn.value) {
+          // Tab Akun (4) dan Forum (3) berkaitan dengan identitas/anggota -> langsung ke /login
           context.push('/login');
         } else {
           SessionManager.currentTabIndex.value = index;
@@ -254,17 +302,43 @@ class _MainScaffoldState extends State<MainScaffold> {
         padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
           color: isSelected
-              ? _primaryBlue.withValues(alpha: 0.08)
+              ? activeColor.withValues(alpha: isDark ? 0.2 : 0.08)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              isSelected ? activeIcon : inactiveIcon,
-              color: isSelected ? _primaryBlue : Colors.grey.shade500,
-              size: 24,
+            Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  isSelected ? activeIcon : inactiveIcon,
+                  color: isSelected ? activeColor : inactiveColor,
+                  size: 24,
+                ),
+                // Notif titik kuning memancar seperti sinyal jika data profile bertanda * belum lengkap
+                if (index == 4)
+                  ValueListenableBuilder<bool>(
+                    valueListenable: SessionManager.isProfileCompleteNotifier,
+                    builder: (context, isComplete, _) {
+                      return ValueListenableBuilder<bool>(
+                        valueListenable: SessionManager.isLoggedIn,
+                        builder: (context, isLoggedIn, _) {
+                          if (isLoggedIn && !isComplete) {
+                            return const Positioned(
+                              top: -4,
+                              right: -4,
+                              child: PulsingSignalDot(size: 8.0),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      );
+                    },
+                  ),
+              ],
             ),
             const SizedBox(height: 4),
             Text(
@@ -273,7 +347,7 @@ class _MainScaffoldState extends State<MainScaffold> {
                 fontFamily: 'Inter',
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? _primaryBlue : Colors.grey.shade500,
+                color: isSelected ? activeColor : inactiveColor,
               ),
             ),
           ],
@@ -285,17 +359,21 @@ class _MainScaffoldState extends State<MainScaffold> {
 
 class BNBCustomPainter extends CustomPainter {
   final Color primaryColor;
+  final Color backgroundColor;
 
-  BNBCustomPainter({required this.primaryColor});
+  BNBCustomPainter({
+    required this.primaryColor,
+    this.backgroundColor = Colors.white,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-      ..color = Colors.white
+      ..color = backgroundColor
       ..style = PaintingStyle.fill;
 
     Paint shadowPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.06)
+      ..color = Colors.black.withValues(alpha: 0.08)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 10);
 
     Path path = Path();
@@ -329,5 +407,5 @@ class BNBCustomPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant BNBCustomPainter oldDelegate) => true;
 }

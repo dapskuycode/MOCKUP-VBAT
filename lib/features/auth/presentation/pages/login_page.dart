@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:dio/dio.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
 class LoginPage extends StatefulWidget {
@@ -23,6 +24,128 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isObscure = true;
   bool _isButtonEnabled = false;
+  bool _isLoading = false;
+
+  void _applyDemographicPresets(String email) {
+    if (email == 'andi@teknisi.id') {
+      SessionManager.userName = 'Andi Teknisi';
+      SessionManager.birthDate = DateTime(2004, 3, 15);
+      SessionManager.gender = 'Laki-laki';
+      SessionManager.city = 'Jakarta Pusat';
+      SessionManager.province = 'DKI Jakarta';
+    } else if (email == 'rian@repair.id') {
+      SessionManager.userName = 'Rian Repair';
+      SessionManager.birthDate = DateTime(2000, 7, 22);
+      SessionManager.gender = 'Laki-laki';
+      SessionManager.city = 'Bandung';
+      SessionManager.province = 'Jawa Barat';
+    } else if (email == 'siti@service.id') {
+      SessionManager.userName = 'Siti Solder';
+      SessionManager.birthDate = DateTime(1998, 11, 5);
+      SessionManager.gender = 'Perempuan';
+      SessionManager.city = 'Surabaya';
+      SessionManager.province = 'Jawa Timur';
+    } else if (email == 'budi@vbatponsel.com') {
+      SessionManager.userName = 'Budi Hardware';
+      SessionManager.birthDate = DateTime(1993, 1, 30);
+      SessionManager.gender = 'Laki-laki';
+      SessionManager.city = 'Jakarta Selatan';
+      SessionManager.province = 'DKI Jakarta';
+    } else if (email == 'dewi@flash.id') {
+      SessionManager.userName = 'Dewi Flasher';
+      SessionManager.birthDate = DateTime(1988, 9, 18);
+      SessionManager.gender = 'Perempuan';
+      SessionManager.city = 'Bandung';
+      SessionManager.province = 'Jawa Barat';
+    } else if (email == 'hendra@master.id') {
+      SessionManager.userName = 'Hendra Master';
+      SessionManager.birthDate = DateTime(1982, 12, 10);
+      SessionManager.gender = 'Laki-laki';
+      SessionManager.city = 'Aceh Selatan';
+      SessionManager.province = 'Aceh';
+    } else if (_emailController.text.trim().isNotEmpty) {
+      final rawName = _emailController.text.split('@').first;
+      SessionManager.userName = rawName[0].toUpperCase() + rawName.substring(1);
+    }
+  }
+
+  Future<void> _handleLogin() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    // 1. Panggil REST API Laravel backend (POST /api/v1/auth/login)
+    final result = await SessionManager.loginWithApi(email, password);
+
+    if (!mounted) return;
+
+    if (result['success'] == true) {
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Selamat datang kembali, ${result['name']}!"),
+          backgroundColor: const Color(0xFF1B4F9B),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      context.go('/main');
+    } else {
+      // 2. Fallback offline untuk akun sampel jika server tidak terjangkau
+      final lowerEmail = email.toLowerCase();
+      final bool isDemoAccount = [
+        'andi@teknisi.id',
+        'rian@repair.id',
+        'siti@service.id',
+        'budi@vbatponsel.com',
+        'dewi@flash.id',
+        'hendra@master.id'
+      ].contains(lowerEmail);
+
+      if (isDemoAccount && (password == 'password' || password == '123456')) {
+        _applyDemographicPresets(lowerEmail);
+        await SessionManager.saveSession(
+          token: 'demo_token_${DateTime.now().millisecondsSinceEpoch}',
+          name: SessionManager.userName,
+          email: lowerEmail,
+        );
+
+        if (!mounted) return;
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Berhasil masuk (Offline Mode), ${SessionManager.userName}!"),
+            backgroundColor: const Color(0xFF1B4F9B),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+
+        context.go('/main');
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message'] ?? "Email atau kata sandi tidak valid!"),
+            backgroundColor: Colors.red.shade700,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -279,54 +402,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: double.infinity,
                     height: 52,
                     child: ElevatedButton(
-                      onPressed: _isButtonEnabled
-                          ? () {
-                              final email = _emailController.text.trim().toLowerCase();
-                              if (email == 'andi@teknisi.id') {
-                                SessionManager.userName = 'Andi Teknisi';
-                                SessionManager.birthDate = DateTime(2004, 3, 15);
-                                SessionManager.gender = 'Laki-laki';
-                                SessionManager.city = 'Jakarta Pusat';
-                                SessionManager.province = 'DKI Jakarta';
-                              } else if (email == 'rian@repair.id') {
-                                SessionManager.userName = 'Rian Repair';
-                                SessionManager.birthDate = DateTime(2000, 7, 22);
-                                SessionManager.gender = 'Laki-laki';
-                                SessionManager.city = 'Bandung';
-                                SessionManager.province = 'Jawa Barat';
-                              } else if (email == 'siti@service.id') {
-                                SessionManager.userName = 'Siti Solder';
-                                SessionManager.birthDate = DateTime(1998, 11, 5);
-                                SessionManager.gender = 'Perempuan';
-                                SessionManager.city = 'Surabaya';
-                                SessionManager.province = 'Jawa Timur';
-                              } else if (email == 'budi@vbatponsel.com') {
-                                SessionManager.userName = 'Budi Hardware';
-                                SessionManager.birthDate = DateTime(1993, 1, 30);
-                                SessionManager.gender = 'Laki-laki';
-                                SessionManager.city = 'Jakarta Selatan';
-                                SessionManager.province = 'DKI Jakarta';
-                              } else if (email == 'dewi@flash.id') {
-                                SessionManager.userName = 'Dewi Flasher';
-                                SessionManager.birthDate = DateTime(1988, 9, 18);
-                                SessionManager.gender = 'Perempuan';
-                                SessionManager.city = 'Bandung';
-                                SessionManager.province = 'Jawa Barat';
-                              } else if (email == 'hendra@master.id') {
-                                SessionManager.userName = 'Hendra Master';
-                                SessionManager.birthDate = DateTime(1982, 12, 10);
-                                SessionManager.gender = 'Laki-laki';
-                                SessionManager.city = 'Aceh Selatan';
-                                SessionManager.province = 'Aceh';
-                              } else if (_emailController.text.trim().isNotEmpty) {
-                                final rawName = _emailController.text.split('@').first;
-                                SessionManager.userName = rawName[0].toUpperCase() + rawName.substring(1);
-                              }
-
-                              SessionManager.login();
-                              context.go('/main');
-                            }
-                          : null,
+                      onPressed: (_isButtonEnabled && !_isLoading) ? _handleLogin : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _isButtonEnabled
                             ? _vbatBlue
@@ -337,13 +413,22 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                       ),
-                      child: const Text(
-                        "Masuk",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : const Text(
+                              "Masuk",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -379,6 +464,7 @@ class _LoginPageState extends State<LoginPage> {
               Icons.g_mobiledata_rounded,
               Colors.red,
               imagePath: 'assets/images/google_logo.png',
+              onPressed: () => _handleSSOLogin("Google"),
             ),
             const SizedBox(height: 12),
             _buildSSOButton(
@@ -386,13 +472,7 @@ class _LoginPageState extends State<LoginPage> {
               Icons.facebook_rounded,
               Colors.blue,
               imagePath: 'assets/images/facebook_logo.png',
-            ),
-            const SizedBox(height: 12),
-            _buildSSOButton(
-              "Lanjutkan dengan WhatsApp",
-              Icons.chat_rounded,
-              Colors.green,
-              imagePath: 'assets/images/whatsapp_logo.png',
+              onPressed: () => _handleSSOLogin("Facebook"),
             ),
             const SizedBox(height: 12),
             _buildSSOButton(
@@ -400,6 +480,7 @@ class _LoginPageState extends State<LoginPage> {
               Icons.apple_rounded,
               Colors.black,
               imagePath: 'assets/images/apple_logo.png',
+              onPressed: () => _handleSSOLogin("Apple"),
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -454,17 +535,233 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  void _handleSSOLogin(String provider) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetCtx) {
+        final provLower = provider.toLowerCase();
+        final domain = provLower == 'google' ? 'gmail.com' : (provLower == 'apple' ? 'icloud.com' : 'teknisi.id');
+
+        final accounts = [
+          {
+            'name': 'Andi Pratama',
+            'email': 'andi.pratama@$domain',
+            'avatar': 'A',
+            'color': const Color(0xFF1B4F9B),
+          },
+          {
+            'name': 'Budi Teknisi',
+            'email': 'budi.santoso@$domain',
+            'avatar': 'B',
+            'color': const Color(0xFF10B981),
+          },
+          {
+            'name': 'Rian Hardware',
+            'email': 'rian.hardware@$domain',
+            'avatar': 'R',
+            'color': const Color(0xFFF97316),
+          },
+        ];
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Icon(
+                      provLower == 'google'
+                          ? Icons.g_mobiledata_rounded
+                          : (provLower == 'apple'
+                              ? Icons.apple_rounded
+                              : (provLower == 'whatsapp'
+                                  ? Icons.chat_rounded
+                                  : Icons.facebook_rounded)),
+                      color: provLower == 'google'
+                          ? Colors.red
+                          : (provLower == 'apple'
+                              ? Colors.black
+                              : (provLower == 'whatsapp' ? Colors.green : Colors.blue)),
+                      size: 28,
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Pilih Akun $provider",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          "untuk login ke VBat Ponsel",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Divider(height: 1),
+                const SizedBox(height: 8),
+                ...accounts.map((acc) {
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                    leading: CircleAvatar(
+                      backgroundColor: acc['color'] as Color,
+                      foregroundColor: Colors.white,
+                      child: Text(acc['avatar'] as String, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                    title: Text(acc['name'] as String, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                    subtitle: Text(acc['email'] as String, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                    onTap: () {
+                      Navigator.pop(sheetCtx);
+                      _executeOAuthLogin(provider, acc['name'] as String, acc['email'] as String);
+                    },
+                  );
+                }),
+                const Divider(height: 1),
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.grey.shade200,
+                    child: const Icon(Icons.person_add_alt_1_rounded, color: Colors.grey),
+                  ),
+                  title: const Text("Gunakan akun lain", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  subtitle: const Text("Masuk dengan kredensial baru", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  onTap: () {
+                    Navigator.pop(sheetCtx);
+                    _executeOAuthLogin(provider, "Teknisi Baru", "teknisi.baru@$domain");
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _executeOAuthLogin(String provider, String name, String email) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: SessionManager.apiBaseUrl,
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 4),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      final res = await dio.post('/auth/oauth/callback', data: {
+        'provider': provider.toLowerCase(),
+        'provider_user': {
+          'id': 'oauth_${provider.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch}',
+          'name': name,
+          'email': email,
+        },
+      });
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // dismiss loading
+
+      String ssoToken = 'sso_token_${provider.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch}';
+      if (res.data != null && res.data['success'] == true) {
+        final userData = res.data['data']['user'];
+        SessionManager.userName = userData['name'] ?? name;
+        ssoToken = res.data['data']['token'] ?? ssoToken;
+      } else {
+        SessionManager.userName = name;
+      }
+
+      await SessionManager.saveSession(
+        token: ssoToken,
+        name: SessionManager.userName,
+        email: email,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Berhasil masuk melalui $provider! Selamat datang, ${SessionManager.userName}"),
+          backgroundColor: const Color(0xFF1B4F9B),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      context.go('/main');
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // dismiss loading
+
+      // Fallback offline / local login
+      SessionManager.userName = name;
+      await SessionManager.saveSession(
+        token: 'sso_token_${provider.toLowerCase()}_${DateTime.now().millisecondsSinceEpoch}',
+        name: name,
+        email: email,
+      );
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Masuk dengan $provider berhasil. Selamat datang, $name!"),
+          backgroundColor: const Color(0xFF1B4F9B),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      context.go('/main');
+    }
+  }
+
   Widget _buildSSOButton(
     String label,
     IconData icon,
     Color iconColor, {
     String? imagePath,
+    VoidCallback? onPressed,
   }) {
     return SizedBox(
       width: double.infinity,
       height: 52,
       child: OutlinedButton(
-        onPressed: () {},
+        onPressed: onPressed ?? () {},
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.white,
           side: BorderSide(color: Colors.grey.shade300),

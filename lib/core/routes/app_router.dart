@@ -17,6 +17,7 @@ import 'package:vbat_ponsel/features/belajar/presentation/pages/hardware_solutio
 import 'package:vbat_ponsel/features/belajar/presentation/pages/video_player_page.dart';
 import 'package:vbat_ponsel/features/belajar/presentation/pages/learning_dashboard_page.dart';
 import 'package:vbat_ponsel/features/belajar/presentation/pages/certificate_page.dart';
+import 'package:vbat_ponsel/features/belajar/presentation/pages/ebook_page.dart';
 import 'package:vbat_ponsel/features/belajar/presentation/pages/quiz_page.dart';
 import 'package:vbat_ponsel/features/forum/presentation/pages/forum_page.dart';
 import 'package:vbat_ponsel/features/forum/presentation/pages/forum_detail_page.dart';
@@ -38,10 +39,39 @@ import 'package:vbat_ponsel/features/forum/presentation/pages/forum_search_page.
 import 'package:vbat_ponsel/features/shop/presentation/pages/sponsor_detail_page.dart';
 import 'package:vbat_ponsel/features/shop/presentation/pages/discount_event_page.dart';
 import 'package:vbat_ponsel/features/shop/presentation/pages/best_deals_page.dart';
+import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
     initialLocation: '/',
+    refreshListenable: SessionManager.isLoggedIn,
+    redirect: (context, state) {
+      final bool isLoggedIn = SessionManager.isLoggedIn.value;
+      final String path = state.matchedLocation;
+
+      // Halaman yang berkaitan dengan identitas pengguna
+      final List<String> identityRoutes = [
+        '/edit-profile',
+        '/settings',
+        '/subscription',
+        '/certificate',
+        '/transaction-history',
+        '/learning-history',
+        '/learning-dashboard',
+        '/wishlist',
+      ];
+
+      final bool isIdentityRoute = identityRoutes.any(
+        (route) => path == route || path.startsWith('$route/'),
+      );
+
+      // Jika mencoba membuka halaman identitas dan belum login -> langsung arahkan ke /login
+      if (isIdentityRoute && !isLoggedIn) {
+        return '/login';
+      }
+
+      return null;
+    },
     routes: [
       GoRoute(path: '/', builder: (context, state) => const SplashPage()),
       GoRoute(
@@ -72,7 +102,12 @@ class AppRouter {
       ),
       GoRoute(
         path: '/pricelist',
-        builder: (context, state) => const PricelistPage(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return PricelistPage(
+            highlightPackage: extra?['highlightPackage'] ?? extra?['highlight'],
+          );
+        },
       ),
       GoRoute(
         path: '/course-syllabus',
@@ -92,6 +127,8 @@ class AppRouter {
           return CourseDetailPage(
             module: extra?['module'] ?? 'Modul',
             category: extra?['category'] ?? 'Category',
+            lessonId: extra?['lessonId'] as int?,
+            courseId: extra?['courseId'] as int?,
           );
         },
       ),
@@ -107,11 +144,17 @@ class AppRouter {
               extra?['playlist'] as List<Map<String, dynamic>>? ?? const [];
           final currentIndex = extra?['currentIndex'] as int? ?? 0;
           final isPreview = extra?['isPreview'] as bool? ?? false;
+          final isFreeClass = extra?['isFreeClass'] as bool? ?? false;
+          final materialId = extra?['materialId'] as int?;
+          final videoUrl = extra?['videoUrl'] as String?;
           return VideoPlayerPage(
             title: title.toString(),
             playlist: playlist,
             currentIndex: currentIndex,
             isPreview: isPreview,
+            isFreeClass: isFreeClass,
+            materialId: materialId,
+            videoUrl: videoUrl,
           );
         },
       ),
@@ -124,6 +167,7 @@ class AppRouter {
         builder: (context, state) => const CertificatePage(),
       ),
       GoRoute(path: '/quiz', builder: (context, state) => const QuizPage()),
+      GoRoute(path: '/ebooks', builder: (context, state) => const EbookPage()),
       GoRoute(path: '/forum', builder: (context, state) => const ForumPage()),
       GoRoute(
         path: '/forum-detail',

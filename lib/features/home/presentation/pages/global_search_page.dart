@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 
 class GlobalSearchPage extends StatefulWidget {
@@ -12,11 +13,14 @@ class GlobalSearchPage extends StatefulWidget {
 
 class _GlobalSearchPageState extends State<GlobalSearchPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
-  final Color _bgLight = const Color(0xFFF8FAFC);
-  final Color _textDark = const Color(0xFF0F172A);
-  final Color _textGray = const Color(0xFF64748B);
   final Color _orangeSale = const Color(0xFFFD761A);
-  final Color _surfaceWhite = Colors.white;
+
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF8FAFC);
+  Color get _surfaceWhite => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF0F172A);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF64748B);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
@@ -313,11 +317,17 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
   @override
   void initState() {
     super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
     _fetchDynamicData();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
   void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
     _searchController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
@@ -475,13 +485,15 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [_primaryBlue, const Color(0xFF0F3670)],
+                colors: _isDark
+                    ? [const Color(0xFF0F172A), const Color(0xFF1E293B)]
+                    : [_primaryBlue, const Color(0xFF0F3670)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.12),
+                  color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.12),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),
@@ -510,8 +522,9 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                         child: Container(
                           height: 42,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: _isDark ? const Color(0xFF1E2430) : Colors.white,
                             borderRadius: BorderRadius.circular(12),
+                            border: _isDark ? Border.all(color: const Color(0xFF2D3748)) : null,
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.black.withValues(alpha: 0.08),
@@ -525,7 +538,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                             children: [
                               Icon(
                                 Icons.search_rounded,
-                                color: _primaryBlue,
+                                color: _isDark ? Colors.blue.shade300 : _primaryBlue,
                                 size: 22,
                               ),
                               const SizedBox(width: 8),
@@ -544,7 +557,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                                   decoration: InputDecoration(
                                     hintText: "Cari sparepart, kursus, alat servis...",
                                     hintStyle: TextStyle(
-                                      color: Colors.grey.shade400,
+                                      color: _textGray,
                                       fontSize: 13,
                                     ),
                                     border: InputBorder.none,
@@ -564,12 +577,12 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                                   child: Container(
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
-                                      color: Colors.grey.shade200,
+                                      color: _isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade200,
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
                                       Icons.close_rounded,
-                                      color: Colors.grey.shade600,
+                                      color: _isDark ? Colors.white70 : Colors.grey.shade600,
                                       size: 14,
                                     ),
                                   ),
@@ -728,7 +741,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
             decoration: BoxDecoration(
               color: _surfaceWhite,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.grey.shade200),
+              border: Border.all(color: _borderColor),
             ),
             child: Column(
               children: List.generate(_recentSearches.length, (index) {
@@ -742,7 +755,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
                     child: Row(
                       children: [
-                        Icon(Icons.schedule_rounded, color: Colors.grey.shade400, size: 18),
+                        Icon(Icons.schedule_rounded, color: _textGray, size: 18),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -760,7 +773,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                               _recentSearches.removeAt(index);
                             });
                           },
-                          child: Icon(Icons.close_rounded, color: Colors.grey.shade400, size: 18),
+                          child: Icon(Icons.close_rounded, color: _textGray, size: 18),
                         ),
                       ],
                     ),
@@ -803,10 +816,10 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                 decoration: BoxDecoration(
                   color: _surfaceWhite,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(color: _borderColor),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
+                      color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.03),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -815,7 +828,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.trending_up_rounded, color: _primaryBlue, size: 15),
+                    Icon(Icons.trending_up_rounded, color: _isDark ? Colors.blue.shade300 : _primaryBlue, size: 15),
                     const SizedBox(width: 6),
                     Text(
                       chip,
@@ -849,7 +862,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
             Text(
               "Lihat Semua",
               style: TextStyle(
-                color: _primaryBlue,
+                color: _isDark ? Colors.blue.shade300 : _primaryBlue,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
               ),
@@ -1011,10 +1024,10 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
       decoration: BoxDecoration(
         color: _surfaceWhite,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: _borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1213,10 +1226,10 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
       decoration: BoxDecoration(
         color: _surfaceWhite,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: _borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1393,10 +1406,10 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
       decoration: BoxDecoration(
         color: _surfaceWhite,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: _borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1417,7 +1430,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                 height: 54,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.grey.shade200, width: 1.5),
+                  border: Border.all(color: _borderColor, width: 1.5),
                 ),
                 child: ClipOval(
                   child: Image.asset(
@@ -1514,10 +1527,10 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
       decoration: BoxDecoration(
         color: _surfaceWhite,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: _borderColor),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
+            color: Colors.black.withValues(alpha: _isDark ? 0.3 : 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1545,13 +1558,13 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                     decoration: BoxDecoration(
-                      color: _primaryBlue.withValues(alpha: 0.08),
+                      color: (_isDark ? Colors.blue.shade300 : _primaryBlue).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       tag.toUpperCase(),
                       style: TextStyle(
-                        color: _primaryBlue,
+                        color: _isDark ? Colors.blue.shade300 : _primaryBlue,
                         fontWeight: FontWeight.bold,
                         fontSize: 9.5,
                         letterSpacing: 0.5,
@@ -1560,7 +1573,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                   ),
                   Text(
                     time,
-                    style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+                    style: TextStyle(color: _textGray, fontSize: 11),
                   ),
                 ],
               ),
@@ -1829,7 +1842,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.inventory_2_outlined, color: Colors.grey.shade400, size: 40),
+            Icon(Icons.inventory_2_outlined, color: _textGray, size: 40),
             const SizedBox(height: 12),
             Text(
               "Tidak ada $tabName untuk \"$_currentQuery\"",
@@ -1852,9 +1865,9 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
 
   Widget _buildPlaceholder() {
     return Container(
-      color: Colors.grey.shade100,
+      color: _isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
       child: Center(
-        child: Icon(Icons.image_rounded, color: Colors.grey.shade400, size: 32),
+        child: Icon(Icons.image_rounded, color: _textGray, size: 32),
       ),
     );
   }

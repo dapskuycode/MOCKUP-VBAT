@@ -2,12 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/core/widgets/video_preview_widget.dart';
+import 'package:vbat_ponsel/core/widgets/skeleton_loading.dart';
 
 class HorizontalSponsorSlider extends StatefulWidget {
   final List<Map<String, dynamic>> banners;
   final EdgeInsetsGeometry margin;
   final double aspectRatio;
   final double borderRadius;
+  final bool isLoading;
 
   const HorizontalSponsorSlider({
     super.key,
@@ -15,6 +17,7 @@ class HorizontalSponsorSlider extends StatefulWidget {
     this.margin = const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
     this.aspectRatio = 2.7, // Standar rasio horizontal slider beranda (ala Tokopedia)
     this.borderRadius = 12.0,
+    this.isLoading = false,
   });
 
   @override
@@ -69,6 +72,12 @@ class _HorizontalSponsorSliderState extends State<HorizontalSponsorSlider> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isLoading && widget.banners.isEmpty) {
+      return HorizontalBannerSkeleton(
+        aspectRatio: widget.aspectRatio,
+        margin: widget.margin,
+      );
+    }
     if (widget.banners.isEmpty) return const SizedBox.shrink();
     final items = widget.banners;
 

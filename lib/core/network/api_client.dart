@@ -1,19 +1,22 @@
 import 'package:dio/dio.dart';
+import 'package:vbat_ponsel/core/config/app_config.dart';
+import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
 class ApiClient {
   final Dio dio;
 
   ApiClient({required this.dio}) {
-    dio.options.baseUrl = 'https://api.vbat.id/v1'; // Dummy Base URL
+    dio.options.baseUrl = AppConfig.apiBaseUrl;
     dio.options.connectTimeout = const Duration(seconds: 10);
     dio.options.receiveTimeout = const Duration(seconds: 10);
 
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
-          // Tambahkan Auth Token jika ada
-          // final token = await get_token();
-          // options.headers['Authorization'] = 'Bearer $token';
+          final token = SessionManager.currentToken;
+          if (token != null && token.isNotEmpty) {
+            options.headers['Authorization'] = 'Bearer $token';
+          }
           return handler.next(options);
         },
         onResponse: (response, handler) {

@@ -1,24 +1,107 @@
+import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:vbat_ponsel/core/utils/analytics_tracker.dart';
+import 'package:vbat_ponsel/core/utils/session_manager.dart';
 
 class WishlistHelper {
-  // Simpan data wishlist sementara di memory
-  static final List<Map<String, String>> items = [
-    {
-      "name": "Baterai Infinix Hot 9/10/11 Play BL-58BX Original",
-      "price": "Rp145.000",
-      "image": "assets/images/product_battery.png",
-      "link":
-          "https://shopee.co.id/Braderparts-Baterai-Battery-Batre-BL-58BX-for-Infinix-Hot-9-Play-Hot-10-Play-Hot-10S-Hot-11-Play-Hot-12-Play-i.57356590.22913463095?extraParams=%7B%22display_model_id%22%3A350188294975%2C%22model_selection_logic%22%3A3%7D&sp_atk=f8d0ca69-2d93-4324-b982-5cd7d983550e&xptdk=f8d0ca69-2d93-4324-b982-5cd7d983550e",
-    },
-    {
-      "name": "LCD iPhone 11 Pro Max OLED Original Quality",
-      "price": "Rp1.250.000",
-      "image": "assets/images/product_lcd.png",
-      "link":
-          "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095",
-    },
-  ];
+  // Simpan data wishlist - mulai KOSONG agar terisolasi per pengguna
+  static final List<Map<String, String>> items = [];
+  static final ValueNotifier<int> itemsCountNotifier = ValueNotifier<int>(0);
+
+  static String get _storageKey {
+    final email = SessionManager.userEmail.trim().toLowerCase();
+    if (email.isNotEmpty) {
+      return 'user_wishlist_$email';
+    }
+    final uid = SessionManager.userId;
+    if (uid != null) {
+      return 'user_wishlist_$uid';
+    }
+    return 'user_wishlist_guest';
+  }
+
+
+  static Future<void> init() async {
+    await loadForCurrentUser();
+  }
+
+  static void clear() {
+    items.clear();
+    itemsCountNotifier.value = 0;
+  }
+
+  static Future<void> loadForCurrentUser() async {
+    try {
+      items.clear();
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_storageKey);
+      if (raw != null && raw.isNotEmpty) {
+        final List decoded = jsonDecode(raw);
+        for (final elem in decoded) {
+          items.add(Map<String, String>.from(elem));
+        }
+      }
+
+      // Sinkronisasi data wishlist dengan backend jika pengguna login
+      if (SessionManager.userEmail.isNotEmpty || SessionManager.userId != null) {
+        final dio = Dio(
+          BaseOptions(
+            baseUrl: SessionManager.apiBaseUrl,
+            connectTimeout: const Duration(seconds: 4),
+            receiveTimeout: const Duration(seconds: 4),
+            headers: {
+              'Accept': 'application/json',
+              if (SessionManager.currentToken != null)
+                'Authorization': 'Bearer ${SessionManager.currentToken}',
+            },
+          ),
+        );
+
+        final queryParams = <String, dynamic>{};
+        if (SessionManager.userEmail.isNotEmpty) {
+          queryParams['email'] = SessionManager.userEmail;
+        }
+        if (SessionManager.userId != null) {
+          queryParams['user_id'] = SessionManager.userId;
+        }
+
+        final res = await dio.get('/wishlist/user', queryParameters: queryParams);
+        if (res.statusCode == 200 && res.data['status'] == 'success') {
+          final List backendData = res.data['data'] ?? [];
+          if (backendData.isNotEmpty) {
+            items.clear();
+            for (final item in backendData) {
+              items.add({
+                'name': item['name']?.toString() ?? '',
+                'price': item['price']?.toString() ?? '',
+                'image': item['image']?.toString() ?? 'assets/images/product_battery.png',
+                'link': item['link']?.toString() ?? '',
+              });
+            }
+            await prefs.setString(_storageKey, jsonEncode(items));
+          }
+        }
+      }
+      itemsCountNotifier.value = items.length;
+    } catch (e) {
+      debugPrint('[WishlistHelper] Error loadForCurrentUser: $e');
+      itemsCountNotifier.value = items.length;
+    }
+  }
+
+  static Future<void> _save() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_storageKey, jsonEncode(items));
+      itemsCountNotifier.value = items.length;
+    } catch (e) {
+      debugPrint('[WishlistHelper] Error save: $e');
+    }
+  }
 
   static Widget buildThumbnail(String? image, String name, {double size = 60}) {
     final raw = (image ?? "").trim();
@@ -98,10 +181,17 @@ class WishlistHelper {
   }
 
   static bool toggleWishlist(BuildContext context, Map<String, String> item) {
+    if (!SessionManager.isLoggedIn.value) {
+      context.push('/login');
+      return false;
+    }
+
     final index = items.indexWhere((element) => element["name"] == item["name"]);
     final isAdded = index == -1;
     if (isAdded) {
       items.add(item);
+      _save();
+      AnalyticsTracker.trackWishlist(productName: item["name"], isAdded: true);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("${item["name"]} ditambahkan ke Wishlist ❤️"),
@@ -112,6 +202,8 @@ class WishlistHelper {
       );
     } else {
       items.removeAt(index);
+      _save();
+      AnalyticsTracker.trackWishlist(productName: item["name"], isAdded: false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("${item["name"]} dihapus dari Wishlist"),
@@ -124,7 +216,21 @@ class WishlistHelper {
     return isAdded;
   }
 
+  static void removeItem(int index) {
+    if (index >= 0 && index < items.length) {
+      final item = items[index];
+      items.removeAt(index);
+      _save();
+      AnalyticsTracker.trackWishlist(productName: item["name"], isAdded: false);
+    }
+  }
+
   static void show(BuildContext context) {
+    if (!SessionManager.isLoggedIn.value) {
+      context.push('/login');
+      return;
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -322,8 +428,17 @@ class WishlistHelper {
   static Future<void> showMarketplaceSheet(
     BuildContext context,
     String productName,
-    String link,
-  ) async {
+    String link, {
+    int? productId,
+  }) async {
+    // Catat click produk ke backend tracker agar click_count bertambah di web admin
+    AnalyticsTracker.trackProductClick(
+      productId: productId,
+      productName: productName,
+      url: link,
+      platform: link.toLowerCase().contains("tokopedia") ? "Tokopedia" : "Shopee",
+    );
+
     final bool isTokopedia = link.toLowerCase().contains("tokopedia");
     final String platform = isTokopedia ? "Tokopedia" : "Shopee";
     final Color color = isTokopedia ? const Color(0xFF03AC0E) : const Color(0xFFEE4D2D);
@@ -370,7 +485,13 @@ class WishlistHelper {
     required String productName,
     String? shopeeUrl,
     String? tokopediaUrl,
+    int? productId,
   }) {
+    AnalyticsTracker.trackProductClick(
+      productId: productId,
+      productName: productName,
+      platform: "marketplace_picker",
+    );
     final hasShopee = shopeeUrl != null && shopeeUrl.trim().isNotEmpty;
     final hasTokopedia = tokopediaUrl != null && tokopediaUrl.trim().isNotEmpty;
 

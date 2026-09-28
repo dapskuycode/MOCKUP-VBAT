@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 
 class WishlistPage extends StatefulWidget {
@@ -12,9 +13,28 @@ class WishlistPage extends StatefulWidget {
 class _WishlistPageState extends State<WishlistPage> {
   final Color _primaryBlue = const Color(0xFF1B4F9B);
   final Color _orangeSale = const Color(0xFFFD761A);
-  final Color _bgLight = const Color(0xFFF5F7FA);
-  final Color _textDark = const Color(0xFF001944);
-  final Color _textGray = const Color(0xFF737782);
+  bool get _isDark => ThemeManager.isDark(context);
+  Color get _bgLight => _isDark ? ThemeManager.darkBg : const Color(0xFFF5F7FA);
+  Color get _cardColor => _isDark ? ThemeManager.darkCard : Colors.white;
+  Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
+  Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
+  Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
+
+  @override
+  void initState() {
+    super.initState();
+    ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+  }
+
+  @override
+  void dispose() {
+    ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    super.dispose();
+  }
+
+  void _onThemeChanged() {
+    if (mounted) setState(() {});
+  }
 
   void _showMarketplaceSheet(
     BuildContext context,
@@ -31,16 +51,16 @@ class _WishlistPageState extends State<WishlistPage> {
     return Scaffold(
       backgroundColor: _bgLight,
       appBar: AppBar(
-        backgroundColor: _primaryBlue,
+        backgroundColor: _cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+          icon: Icon(Icons.arrow_back_rounded, color: _textDark),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           "Wishlist Saya",
           style: TextStyle(
-            color: Colors.white,
+            color: _textDark,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -55,7 +75,7 @@ class _WishlistPageState extends State<WishlistPage> {
                   Icon(
                     Icons.favorite_border_rounded,
                     size: 72,
-                    color: Colors.grey.shade300,
+                    color: _textGray.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -76,11 +96,12 @@ class _WishlistPageState extends State<WishlistPage> {
               itemBuilder: (context, index) {
                 final item = items[index];
                 return Card(
+                  color: _cardColor,
                   margin: const EdgeInsets.only(bottom: 12),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
-                    side: BorderSide(color: Colors.grey.shade200),
+                    side: BorderSide(color: _borderColor),
                   ),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16),
@@ -95,7 +116,7 @@ class _WishlistPageState extends State<WishlistPage> {
                             width: 70,
                             height: 70,
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
+                              color: _isDark ? Colors.black26 : Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             padding: const EdgeInsets.all(4),
@@ -147,7 +168,7 @@ class _WishlistPageState extends State<WishlistPage> {
                                 ),
                                 onPressed: () {
                                   setState(() {
-                                    WishlistHelper.items.removeAt(index);
+                                    WishlistHelper.removeItem(index);
                                   });
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
