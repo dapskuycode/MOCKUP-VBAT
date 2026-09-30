@@ -9,7 +9,7 @@ class AppConfig {
   static const int buildNumber = 4;
   static const String buildEnvironment = kReleaseMode ? 'production' : 'staging/local';
 
-  static const String _defaultApiUrl = 'http://127.0.0.1:8000/api/v1';
+  static const String _defaultApiUrl = 'http://157.173.97.6:8088/api/v1';
   static const String _prefKeyApiBaseUrl = 'custom_api_base_url';
 
   // Base URL yang dapat di-override melalui compile-time flag:

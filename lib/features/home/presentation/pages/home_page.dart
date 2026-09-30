@@ -374,7 +374,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final dio = Dio(
         BaseOptions(
-          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          baseUrl: SessionManager.apiBaseUrl,
           connectTimeout: const Duration(seconds: 4),
           receiveTimeout: const Duration(seconds: 4),
         ),
@@ -413,7 +413,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final dio = Dio(
         BaseOptions(
-          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          baseUrl: SessionManager.apiBaseUrl,
           connectTimeout: const Duration(seconds: 4),
           receiveTimeout: const Duration(seconds: 4),
         ),
@@ -452,7 +452,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final dio = Dio(
         BaseOptions(
-          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          baseUrl: SessionManager.apiBaseUrl,
           connectTimeout: const Duration(seconds: 4),
           receiveTimeout: const Duration(seconds: 4),
         ),
@@ -488,7 +488,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final dio = Dio(
         BaseOptions(
-          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          baseUrl: SessionManager.apiBaseUrl,
           connectTimeout: const Duration(seconds: 4),
           receiveTimeout: const Duration(seconds: 4),
         ),
@@ -510,7 +510,7 @@ class _HomePageState extends State<HomePage> {
     try {
       final dio = Dio(
         BaseOptions(
-          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          baseUrl: SessionManager.apiBaseUrl,
           connectTimeout: const Duration(seconds: 4),
           receiveTimeout: const Duration(seconds: 4),
         ),
@@ -778,7 +778,7 @@ class _HomePageState extends State<HomePage> {
                                   Navigator.of(ctx).pop();
                                   if (targetUrl.isNotEmpty) {
                                     try {
-                                      Dio(BaseOptions(baseUrl: 'http://127.0.0.1:8000/api/v1')).post(
+                                      Dio(BaseOptions(baseUrl: SessionManager.apiBaseUrl)).post(
                                         '/track',
                                         data: {'campaign_id': currentItem['id'], 'event_type': 'click'},
                                       );

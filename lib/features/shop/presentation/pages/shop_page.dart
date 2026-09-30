@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vbat_ponsel/core/theme/theme_manager.dart';
+import 'package:vbat_ponsel/core/utils/session_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/core/widgets/horizontal_sponsor_slider.dart';
 import 'package:vbat_ponsel/features/home/presentation/pages/home_header_sliver.dart';
@@ -193,7 +194,7 @@ class _ShopPageState extends State<ShopPage> {
     try {
       final dio = Dio(
         BaseOptions(
-          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          baseUrl: SessionManager.apiBaseUrl,
           connectTimeout: const Duration(seconds: 4),
           receiveTimeout: const Duration(seconds: 4),
         ),
@@ -1684,7 +1685,7 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
     try {
       final dio = Dio(
         BaseOptions(
-          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          baseUrl: SessionManager.apiBaseUrl,
           connectTimeout: const Duration(seconds: 3),
           receiveTimeout: const Duration(seconds: 3),
         ),

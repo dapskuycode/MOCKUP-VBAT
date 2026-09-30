@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vbat_ponsel/core/theme/theme_manager.dart';
+import 'package:vbat_ponsel/core/utils/session_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 
 class GlobalSearchPage extends StatefulWidget {
@@ -337,7 +338,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
     try {
       final dio = Dio(
         BaseOptions(
-          baseUrl: 'http://127.0.0.1:8000/api/v1',
+          baseUrl: SessionManager.apiBaseUrl,
           connectTimeout: const Duration(seconds: 4),
           receiveTimeout: const Duration(seconds: 4),
         ),
