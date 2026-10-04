@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -33,10 +34,12 @@ class _ShopPageState extends State<ShopPage> {
   };
 
   final ScrollController _scrollController = ScrollController();
-  int _itemCount = 14;
   bool _isLoadingMore = false;
   String? _nextShopCursor;
   bool _hasMoreShopItems = true;
+
+  // Products currently displayed in the randomized infinite scroll grid
+  final List<Map<String, String>> _displayedProducts = [];
 
   String _formatRupiah(num value) {
     final str = value.toInt().toString();
@@ -138,7 +141,7 @@ class _ShopPageState extends State<ShopPage> {
     "Aksesoris": "Aksesoris",
   };
 
-  List<Map<String, String>> get _filteredProducts {
+  List<Map<String, String>> get _availableFilteredProducts {
     final sourceList = _catalogProducts.isNotEmpty ? _catalogProducts : _bestDeals;
     final list = sourceList.map((p) {
       final origPrice = _formatRupiah(p['price'] ?? 0);
@@ -164,14 +167,40 @@ class _ShopPageState extends State<ShopPage> {
         .toList();
   }
 
+  // Acak & tambahkan sejumlah produk ke grid yang sedang tampil
+  void _appendRandomBatch(int count) {
+    final candidates = _availableFilteredProducts;
+    if (candidates.isEmpty) return;
+    final random = Random();
+    // Shuffled pool untuk variasi acak natural tanpa duplikasi beruntun
+    final pool = List<Map<String, String>>.from(candidates)..shuffle(random);
+    for (int i = 0; i < count; i++) {
+      _displayedProducts.add(Map<String, String>.from(pool[i % pool.length]));
+    }
+  }
+
+  // Reset dan muat ulang produk acak awal (misal saat buka halaman atau ganti kategori)
+  void _resetAndPopulateDisplayedProducts() {
+    _displayedProducts.clear();
+    _appendRandomBatch(14);
+  }
+
+  void _selectCategory(String cat) {
+    setState(() {
+      _selectedCategory = cat;
+      _resetAndPopulateDisplayedProducts();
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+    _resetAndPopulateDisplayedProducts();
     _fetchActiveEvent();
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent - 200) {
+          _scrollController.position.maxScrollExtent - 400) {
         _loadMore();
       }
     });
@@ -238,9 +267,7 @@ class _ShopPageState extends State<ShopPage> {
           if (list.isNotEmpty && mounted) {
             setState(() {
               _catalogProducts = list.map((item) => Map<String, dynamic>.from(item)).toList();
-              if (_catalogProducts.length > _itemCount) {
-                _itemCount = _catalogProducts.length;
-              }
+              _resetAndPopulateDisplayedProducts();
             });
           }
         }
@@ -289,28 +316,27 @@ class _ShopPageState extends State<ShopPage> {
               existingNames.add(item['name']);
             }
           }
-          if (_catalogProducts.length > _itemCount) {
-            _itemCount = _catalogProducts.length;
-          }
+          _resetAndPopulateDisplayedProducts();
         });
       }
     } catch (_) {}
   }
 
   void _loadMore() async {
-    if (_isLoadingMore || !_hasMoreShopItems) return;
+    if (_isLoadingMore) return;
     setState(() {
       _isLoadingMore = true;
     });
 
-    try {
-      final feedRes = await FeedRepository.getShopFeed(
-        cursor: _nextShopCursor,
-        perPage: 8,
-      );
+    // Cek feed berikutnya dari backend jika cursor masih tersedia
+    if (_hasMoreShopItems && _nextShopCursor != null) {
+      try {
+        final feedRes = await FeedRepository.getShopFeed(
+          cursor: _nextShopCursor,
+          perPage: 8,
+        );
 
-      if (mounted) {
-        setState(() {
+        if (mounted) {
           _nextShopCursor = feedRes.nextCursor;
           _hasMoreShopItems = feedRes.hasMore;
 
@@ -321,17 +347,17 @@ class _ShopPageState extends State<ShopPage> {
               existingNames.add(item['name']);
             }
           }
-          _itemCount = _catalogProducts.length;
-          _isLoadingMore = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _isLoadingMore = false;
-        });
-      }
+        }
+      } catch (_) {}
     }
+
+    // Delay shimmer loading halus 600ms, lalu suntikkan 8 produk acak baru (Infinity Scroll)
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
+    setState(() {
+      _appendRandomBatch(8);
+      _isLoadingMore = false;
+    });
   }
 
   @override
@@ -352,8 +378,9 @@ class _ShopPageState extends State<ShopPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredProducts = _filteredProducts;
-    final effectiveItemCount = filteredProducts.isEmpty ? 0 : _itemCount;
+    if (_displayedProducts.isEmpty && _availableFilteredProducts.isNotEmpty) {
+      _resetAndPopulateDisplayedProducts();
+    }
 
     return Scaffold(
       backgroundColor: _bgLight,
@@ -484,9 +511,7 @@ class _ShopPageState extends State<ShopPage> {
                     "200+ produk",
                     isActive: _selectedCategory == "Semua",
                     onTap: () {
-                      setState(() {
-                        _selectedCategory = "Semua";
-                      });
+                      _selectCategory("Semua");
                       _scrollController.animateTo(
                         400,
                         duration: const Duration(milliseconds: 500),
@@ -724,8 +749,7 @@ class _ShopPageState extends State<ShopPage> {
                           ),
                           const SizedBox(width: 4),
                           GestureDetector(
-                            onTap: () =>
-                                setState(() => _selectedCategory = "Semua"),
+                            onTap: () => _selectCategory("Semua"),
                             child: Icon(
                               Icons.close_rounded,
                               size: 14,
@@ -741,8 +765,28 @@ class _ShopPageState extends State<ShopPage> {
             ),
           ),
 
-          // --- 7. Grid Rekomendasi with sponsor banners ---
-          ..._buildRecommendationSlivers(filteredProducts, effectiveItemCount),
+          // --- 7. Grid Rekomendasi with sponsor banners (Acak & Infinity Scroll) ---
+          ..._buildRecommendationSlivers(_displayedProducts),
+
+          // Empty state jika kategori terpilih belum memiliki produk
+          if (_displayedProducts.isEmpty && !_isLoadingMore)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.inventory_2_outlined, size: 48, color: _textGray.withValues(alpha: 0.5)),
+                      const SizedBox(height: 12),
+                      Text(
+                        "Belum ada produk untuk kategori ini",
+                        style: TextStyle(color: _textGray, fontSize: 13, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
 
           // Skeleton loading placeholder (2 kolom, 4 card shimmer)
           if (_isLoadingMore)
@@ -771,16 +815,17 @@ class _ShopPageState extends State<ShopPage> {
   // --- Build Recommendation Slivers with sparse sponsor banners ---
   List<Widget> _buildRecommendationSlivers(
     List<Map<String, String>> products,
-    int totalCount,
   ) {
     List<Widget> slivers = [];
     int groupSize = 6;
     int groupIndex = 0;
     int i = 0;
+    int totalCount = products.length;
 
     while (i < totalCount) {
-      int end = (i + groupSize < totalCount) ? i + groupSize : totalCount;
-      int count = end - i;
+      final int startIndex = i;
+      final int end = (startIndex + groupSize < totalCount) ? startIndex + groupSize : totalCount;
+      final int count = end - startIndex;
 
       slivers.add(
         SliverPadding(
@@ -793,7 +838,7 @@ class _ShopPageState extends State<ShopPage> {
               childAspectRatio: 0.68,
             ),
             delegate: SliverChildBuilderDelegate((context, index) {
-              final productIndex = (i + index) % products.length;
+              final productIndex = (startIndex + index) % products.length;
               final product = products[productIndex];
               final int? promoDiscount = (_activeEvent != null && _activeEvent!['has_active'] == true)
                   ? (_activeEvent!['value'] as num?)?.toInt()
@@ -1090,13 +1135,11 @@ class _ShopPageState extends State<ShopPage> {
 
     return GestureDetector(
       onTap: () {
-        setState(() {
-          if (_selectedCategory == mappedKey) {
-            _selectedCategory = "Semua"; // Toggle off
-          } else {
-            _selectedCategory = mappedKey;
-          }
-        });
+        if (_selectedCategory == mappedKey) {
+          _selectCategory("Semua"); // Toggle off
+        } else {
+          _selectCategory(mappedKey);
+        }
       },
       child: SizedBox(
         width: 60,
