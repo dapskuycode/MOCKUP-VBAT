@@ -113,20 +113,35 @@ class _VideoPreviewWidgetState extends State<VideoPreviewWidget> {
         fit: StackFit.expand,
         children: [
           // Background placeholder while loading or error
-          Image.asset(
-            widget.fallbackImage,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => Container(
-              color: Colors.black87,
-              child: const Center(
-                child: Icon(
-                  Icons.videocam_rounded,
-                  color: Colors.white54,
-                  size: 40,
+          widget.fallbackImage.startsWith('http')
+              ? Image.network(
+                  widget.fallbackImage,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.black87,
+                    child: const Center(
+                      child: Icon(
+                        Icons.videocam_rounded,
+                        color: Colors.white54,
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                )
+              : Image.asset(
+                  widget.fallbackImage.isNotEmpty ? widget.fallbackImage : 'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    color: Colors.black87,
+                    child: const Center(
+                      child: Icon(
+                        Icons.videocam_rounded,
+                        color: Colors.white54,
+                        size: 40,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ),
 
           // Video Player
           if (_isInitialized && _controller != null)

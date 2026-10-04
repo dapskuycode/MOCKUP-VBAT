@@ -661,11 +661,26 @@ class _HomePageState extends State<HomePage> {
                           },
                           itemBuilder: (context, index) {
                             final item = popupList[index];
-                            final img = (item['media_path'] ?? '').toString();
+                            final mediaType = (item['media_type'] ?? 'image').toString().toLowerCase();
+                            final mediaPath = (item['media_path'] ?? '').toString();
+                            final thumbUrl = (item['thumbnail_url'] ?? item['thumbnail_path'] ?? '').toString();
+                            final fallback = thumbUrl.isNotEmpty
+                                ? thumbUrl
+                                : 'assets/images/PHOTO-2026-07-22-20-21-55.jpg';
+
+                            if (mediaType == 'video' && mediaPath.isNotEmpty) {
+                              return ClipRRect(
+                                child: VideoPreviewWidget(
+                                  videoUrl: mediaPath,
+                                  fallbackImage: fallback,
+                                ),
+                              );
+                            }
+
                             return ClipRRect(
-                              child: img.startsWith('http')
+                              child: mediaPath.startsWith('http')
                                   ? Image.network(
-                                      img,
+                                      mediaPath,
                                       width: double.infinity,
                                       fit: BoxFit.cover,
                                       errorBuilder: (ctx, err, stack) => Image.asset(
@@ -674,7 +689,7 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     )
                                   : Image.asset(
-                                      img.isNotEmpty ? img : 'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
+                                      mediaPath.isNotEmpty ? mediaPath : 'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
                                       width: double.infinity,
                                       fit: BoxFit.cover,
                                       errorBuilder: (ctx, err, stack) => Image.asset(
