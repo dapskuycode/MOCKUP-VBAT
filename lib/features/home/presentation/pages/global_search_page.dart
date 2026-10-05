@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
+import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
 
 class GlobalSearchPage extends StatefulWidget {
   const GlobalSearchPage({super.key});
@@ -1684,20 +1685,11 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
               Positioned(
                 top: 8,
                 left: 10,
-                child: Container(
+                child: SponsorTierBadge(
+                  rawTier: tier,
+                  isSolid: true,
+                  fontSize: 8.5,
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6C5CE7),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    "SPONSOR • $tier",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 8.5,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
                 ),
               ),
               Positioned(

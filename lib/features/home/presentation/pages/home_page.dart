@@ -13,6 +13,7 @@ import 'home_header_sliver.dart';
 import 'package:vbat_ponsel/core/widgets/video_preview_widget.dart';
 import 'package:vbat_ponsel/core/widgets/horizontal_sponsor_slider.dart';
 import 'package:vbat_ponsel/core/widgets/event_promo_carousel.dart';
+import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -1203,44 +1204,49 @@ class _HomePageState extends State<HomePage> {
             children: [
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [_orangeSale, const Color(0xFFFF9800)],
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
+                  GestureDetector(
+                    onTap: () {
+                      context.push('/best-deals');
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
                       ),
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _orangeSale.withValues(alpha: 0.3),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [_orangeSale, const Color(0xFFFF9800)],
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
                         ),
-                      ],
-                    ),
-                    child: Row(
-                      children: const [
-                        Icon(
-                          Icons.workspace_premium_rounded,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          "BEST DEAL",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 12,
-                            letterSpacing: 0.5,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: _orangeSale.withValues(alpha: 0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      child: Row(
+                        children: const [
+                          Icon(
+                            Icons.workspace_premium_rounded,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                          SizedBox(width: 4),
+                          Text(
+                            "BEST DEAL",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 12,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -1277,9 +1283,10 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   const Spacer(),
+                  // APP-01: Navigasi tombol Best Deal di Beranda langsung ke Best Deals Page
                   GestureDetector(
                     onTap: () {
-                      SessionManager.currentTabIndex.value = 1;
+                      context.push('/best-deals');
                     },
                     child: Row(
                       children: [
@@ -1889,11 +1896,6 @@ class _HomePageState extends State<HomePage> {
     final String targetUrl = promo["target_url"] ?? "https://shopee.co.id";
     final String image = promo["image"] ?? "";
 
-    Color tierColor = const Color(0xFF1B4F9B);
-    if (tier == "PLATINUM") tierColor = const Color(0xFF6C5CE7);
-    if (tier == "GOLD") tierColor = const Color(0xFFFD761A);
-    if (tier == "SILVER") tierColor = const Color(0xFF718096);
-
     showDialog(
       context: context,
       builder: (ctx) => Dialog(
@@ -1907,29 +1909,12 @@ class _HomePageState extends State<HomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
+                  // APP-02: Standardisasi tampilan nama & ikon tier
+                  SponsorTierBadge(
+                    rawTier: tier,
+                    fontSize: 11,
+                    iconSize: 14,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: tierColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: tierColor.withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.verified_rounded, size: 14, color: tierColor),
-                        const SizedBox(width: 4),
-                        Text(
-                          "$tier SPONSOR",
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: tierColor,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
@@ -2696,7 +2681,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // POIN 6 & 8: Best Deal Card (menggantikan Flash Sale Card) - dengan badge mitra
+  // POIN 6 & 8 & APP-01: Best Deal Card navigasi langsung ke Best Deals Page
   Widget _buildBestDealCard(
     String name,
     String price,
@@ -2707,11 +2692,7 @@ class _HomePageState extends State<HomePage> {
   }) {
     return GestureDetector(
       onTap: () {
-        WishlistHelper.showMarketplaceSheet(
-          context,
-          name,
-          "https://shopee.co.id/brader_parts?categoryId=100013&entryPoint=ShopByPDP&itemId=22913463095",
-        );
+        context.push('/best-deals');
       },
       child: Container(
         width: 130,

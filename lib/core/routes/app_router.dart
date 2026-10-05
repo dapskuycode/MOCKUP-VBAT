@@ -221,6 +221,10 @@ class AppRouter {
         builder: (context, state) => const BestDealsPage(),
       ),
       GoRoute(
+        path: '/shop/best-deals',
+        builder: (context, state) => const BestDealsPage(),
+      ),
+      GoRoute(
         path: '/settings',
         builder: (context, state) => const SettingsPage(),
       ),

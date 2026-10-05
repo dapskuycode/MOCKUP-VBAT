@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/core/widgets/video_preview_widget.dart';
 import 'package:vbat_ponsel/core/widgets/skeleton_loading.dart';
+import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
 
 class HorizontalSponsorSlider extends StatefulWidget {
   final List<Map<String, dynamic>> banners;
@@ -113,10 +114,6 @@ class _HorizontalSponsorSliderState extends State<HorizontalSponsorSlider> {
                   itemBuilder: (context, sIndex) {
                     final banner = items[sIndex];
                     final String tier = (banner['tier'] ?? 'PARTNER').toString().toUpperCase();
-                    Color tierColor = const Color(0xFF1B4F9B);
-                    if (tier == "PLATINUM") tierColor = const Color(0xFF6C5CE7);
-                    if (tier == "GOLD") tierColor = const Color(0xFFFD761A);
-                    if (tier == "SILVER") tierColor = const Color(0xFF718096);
 
                     final String imgPath = (banner['image'] ?? banner['media_path'] ?? '').toString();
                     final String mediaType = (banner['media_type'] ?? 'image').toString();
@@ -197,31 +194,15 @@ class _HorizontalSponsorSliderState extends State<HorizontalSponsorSlider> {
                             ),
                           ),
 
-                          // Tier Badge at Top Left
+                          // Tier Badge at Top Left (APP-02)
                           Positioned(
                             top: 10,
                             left: 12,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: tierColor,
-                                borderRadius: BorderRadius.circular(5),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.25),
-                                    blurRadius: 4,
-                                  ),
-                                ],
-                              ),
-                              child: Text(
-                                "SPONSOR • $tier",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
+                            child: SponsorTierBadge(
+                              rawTier: tier,
+                              isSolid: true,
+                              fontSize: 10,
+                              iconSize: 12,
                             ),
                           ),
 

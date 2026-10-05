@@ -8,6 +8,7 @@ import 'package:vbat_ponsel/core/utils/session_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/core/widgets/horizontal_sponsor_slider.dart';
 import 'package:vbat_ponsel/core/widgets/event_promo_carousel.dart';
+import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
 import 'package:vbat_ponsel/features/home/presentation/pages/home_header_sliver.dart';
 import 'package:vbat_ponsel/features/shop/data/repositories/feed_repository.dart';
 
@@ -1881,22 +1882,12 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                           ),
                         ),
                         const SizedBox(height: 3),
-                        // Badge Tingkat/Tier
-                        Container(
+                        // Badge Tingkat/Tier Ringkas & Ber-ikon (APP-02)
+                        SponsorTierBadge(
+                          rawTier: pTier,
+                          fontSize: 8,
+                          iconSize: 10,
                           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
-                          decoration: BoxDecoration(
-                            color: pColor.withValues(alpha: isSelected ? 0.9 : 0.15),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            pTier,
-                            style: TextStyle(
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                              color: isSelected ? Colors.white : pColor,
-                              letterSpacing: 0.3,
-                            ),
-                          ),
                         ),
                       ],
                     ),

@@ -1,3 +1,5 @@
+
+
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
+import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
 
 class BestDealsPage extends StatefulWidget {
   const BestDealsPage({super.key});
@@ -723,23 +726,29 @@ class _BestDealsPageState extends State<BestDealsPage> {
                         ),
                       ),
                     ),
-                    if (tier == 'PLATINUM' || tier == 'GOLD')
-                      Positioned(
-                        top: 8,
-                        right: 8,
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.verified_rounded,
-                            size: 14,
-                            color: tier == 'PLATINUM' ? const Color(0xFF7B1FA2) : const Color(0xFFFFA000),
-                          ),
+                    // APP-02: Icon Penanda Visual Tier Resmi
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.92),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          SponsorTierBadge.getTierIcon(tier),
+                          size: 13,
+                          color: SponsorTierBadge.getTierColor(tier),
                         ),
                       ),
+                    ),
                   ],
                 ),
               ),
@@ -750,7 +759,7 @@ class _BestDealsPageState extends State<BestDealsPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Sponsor Name
+                    // Sponsor Name & APP-02 Ringkas Badge
                     Row(
                       children: [
                         Expanded(
@@ -764,6 +773,13 @@ class _BestDealsPageState extends State<BestDealsPage> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
+                        ),
+                        const SizedBox(width: 4),
+                        SponsorTierBadge(
+                          rawTier: tier,
+                          fontSize: 7.5,
+                          iconSize: 9,
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                         ),
                       ],
                     ),
