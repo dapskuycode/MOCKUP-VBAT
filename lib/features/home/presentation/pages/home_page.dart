@@ -471,6 +471,9 @@ class _HomePageState extends State<HomePage> {
                   "title": item['title'] ?? '',
                   "description": item['description'] ?? '',
                   "image": item['media_path'] ?? '',
+                  "media_path": item['media_path'] ?? '',
+                  "media_type": (item['media_type'] ?? 'image').toString().toLowerCase(),
+                  "thumbnail_url": item['thumbnail_url'] ?? item['thumbnail_path'] ?? '',
                   "sponsor": item['sponsor_name'] ?? item['sponsor']?['name'] ?? 'Sponsor Vbat',
                   "tier": (item['tier'] ?? item['sponsor']?['tier'] ?? 'PARTNER').toString().toUpperCase(),
                   "target_url": item['target_url'] ?? 'https://shopee.co.id',
@@ -3800,13 +3803,25 @@ class _SponsorSliderCardState extends State<SponsorSliderCard> {
         onPageChanged: (idx) => setState(() => _currentIndex = idx),
         itemBuilder: (context, index) {
           final banner = widget.banners[index];
-          final String imgPath = (banner['image'] ?? '').toString();
+          final String imgPath = (banner['image'] ?? banner['media_path'] ?? '').toString();
+          final String mediaType = (banner['media_type'] ?? 'image').toString().toLowerCase();
+          final String thumbUrl = (banner['thumbnail_url'] ?? banner['thumbnail'] ?? '').toString();
+          final String fallback = thumbUrl.isNotEmpty ? thumbUrl : 'assets/images/banner_sponsor_1.jpg';
           final String sponsorName = (banner['sponsor'] ?? 'Sponsor Vbat').toString();
           final String targetUrl = (banner['target_url'] ?? banner['link'] ?? 'https://shopee.co.id').toString();
+          final bool isVideo = mediaType == 'video' ||
+              imgPath.endsWith('.mp4') ||
+              imgPath.endsWith('.webm') ||
+              imgPath.endsWith('.mov');
 
-          Widget imageWidget;
-          if (imgPath.startsWith('http')) {
-            imageWidget = Image.network(
+          Widget mediaWidget;
+          if (isVideo && imgPath.isNotEmpty) {
+            mediaWidget = VideoPreviewWidget(
+              videoUrl: imgPath,
+              fallbackImage: fallback,
+            );
+          } else if (imgPath.startsWith('http')) {
+            mediaWidget = Image.network(
               imgPath,
               fit: BoxFit.cover,
               errorBuilder: (_, _, _) => Container(
@@ -3817,7 +3832,7 @@ class _SponsorSliderCardState extends State<SponsorSliderCard> {
               ),
             );
           } else {
-            imageWidget = Image.asset(
+            mediaWidget = Image.asset(
               imgPath.isNotEmpty ? imgPath : 'assets/images/banner_sponsor_1.jpg',
               fit: BoxFit.cover,
               errorBuilder: (_, _, _) => Container(
@@ -3840,7 +3855,7 @@ class _SponsorSliderCardState extends State<SponsorSliderCard> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                imageWidget,
+                mediaWidget,
                 Positioned(
                   top: 7,
                   left: 7,
