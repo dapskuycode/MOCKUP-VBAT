@@ -7,6 +7,7 @@ import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/core/widgets/horizontal_sponsor_slider.dart';
+import 'package:vbat_ponsel/core/widgets/event_promo_carousel.dart';
 import 'package:vbat_ponsel/features/home/presentation/pages/home_header_sliver.dart';
 import 'package:vbat_ponsel/features/shop/data/repositories/feed_repository.dart';
 
@@ -32,6 +33,7 @@ class _ShopPageState extends State<ShopPage> {
   Map<String, dynamic>? _activeEvent = {
     "has_active": false,
   };
+  List<Map<String, dynamic>> _activeEvents = [];
 
   final ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;
@@ -230,19 +232,26 @@ class _ShopPageState extends State<ShopPage> {
       );
       final res = await dio.get('/shop/events/active');
       if (res.data != null && res.data['has_active_event'] == true) {
+        final List rawEvents = res.data['events'] ?? (res.data['data'] != null ? [res.data['data']] : []);
+        final parsedEvents = rawEvents.map((e) => Map<String, dynamic>.from(e)).toList();
         if (mounted) {
           setState(() {
-            _activeEvent = {
-              "name": res.data['data']['name'],
-              "value": res.data['data']['value'],
-              "banner_text": res.data['data']['banner_text'],
-              "has_active": true,
-            };
+            _activeEvents = parsedEvents;
+            if (parsedEvents.isNotEmpty) {
+              _activeEvent = {
+                "id": parsedEvents.first['id'],
+                "name": parsedEvents.first['name'],
+                "value": parsedEvents.first['value'],
+                "banner_text": parsedEvents.first['banner_text'],
+                "has_active": true,
+              };
+            }
           });
         }
       } else if (res.data != null && res.data['has_active_event'] == false) {
         if (mounted) {
           setState(() {
+            _activeEvents = [];
             _activeEvent = {"has_active": false};
           });
         }
@@ -394,102 +403,12 @@ class _ShopPageState extends State<ShopPage> {
           // --- 1. Header ---
           const HomeHeaderSliver(),
 
-          // --- 1.1 Promo Event Ticker (Disinkronkan langsung dari DB Web Event) ---
-          if (_activeEvent != null && _activeEvent!['has_active'] == true)
+          // --- 1.1 Promo Event Ticker & Carousel (Disinkronkan langsung dari DB Web Event - EVENT-02) ---
+          if (_activeEvents.isNotEmpty)
             SliverToBoxAdapter(
-              child: GestureDetector(
-                onTap: () {
-                  context.push('/discount-event', extra: _activeEvent);
-                },
-                child: Container(
-                  margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFD761A), Color(0xFFE05300)],
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFFD761A).withValues(alpha: 0.25),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.campaign_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  _activeEvent!['name'] ?? "Flash Event Akhir Pekan",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 12,
-                                    letterSpacing: 0.3,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 1,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Text(
-                                    "HEMAT ${_activeEvent!['value']}%",
-                                    style: const TextStyle(
-                                      color: Color(0xFFFD761A),
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 9,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              _activeEvent!['banner_text'] ??
-                                  "FLASH EVENT - HEMAT 15% SEMUA PART RESMI",
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.95),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: Colors.white70,
-                        size: 14,
-                      ),
-                    ],
-                  ),
-                ),
+              child: EventPromoCarousel(
+                events: _activeEvents,
+                margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               ),
             ),
 

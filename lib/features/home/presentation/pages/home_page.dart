@@ -12,6 +12,7 @@ import 'package:vbat_ponsel/features/shop/data/repositories/feed_repository.dart
 import 'home_header_sliver.dart';
 import 'package:vbat_ponsel/core/widgets/video_preview_widget.dart';
 import 'package:vbat_ponsel/core/widgets/horizontal_sponsor_slider.dart';
+import 'package:vbat_ponsel/core/widgets/event_promo_carousel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,6 +31,7 @@ class _HomePageState extends State<HomePage> {
   Color get _textDark => _isDark ? Colors.white : const Color(0xFF001944);
   Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : const Color(0xFF737782);
   Color get _borderColor => _isDark ? ThemeManager.darkBorder : Colors.grey.shade200;
+  List<Map<String, dynamic>> _activeDiscountEvents = [];
 
   String _formatRupiah(num value) {
     final str = value.toInt().toString();
@@ -344,6 +346,7 @@ class _HomePageState extends State<HomePage> {
     ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
     _fetchBestDeals();
     _fetchHeroSliders();
+    _fetchActiveDiscountEvents();
     _fetchShopHorizontalBanners();
     _fetchCardSliders();
     _fetchHomeFeed();
@@ -368,6 +371,34 @@ class _HomePageState extends State<HomePage> {
         _showAdDialog();
       }
     });
+  }
+
+  Future<void> _fetchActiveDiscountEvents() async {
+    try {
+      final dio = Dio(
+        BaseOptions(
+          baseUrl: SessionManager.apiBaseUrl,
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 4),
+        ),
+      );
+      final res = await dio.get('/shop/events/active');
+      if (res.data != null && res.data['has_active_event'] == true) {
+        final List rawEvents = res.data['events'] ?? (res.data['data'] != null ? [res.data['data']] : []);
+        final parsed = rawEvents.map((e) => Map<String, dynamic>.from(e)).toList();
+        if (mounted) {
+          setState(() {
+            _activeDiscountEvents = parsed;
+          });
+        }
+      } else if (res.data != null && res.data['has_active_event'] == false) {
+        if (mounted) {
+          setState(() {
+            _activeDiscountEvents = [];
+          });
+        }
+      }
+    } catch (_) {}
   }
 
   Future<void> _fetchHeroSliders() async {
@@ -1148,6 +1179,12 @@ class _HomePageState extends State<HomePage> {
               ),
               // Banner Promo Ala Tokopedia (menggantikan Kategori)
               _buildPromoBannerSlider(),
+              // Event Promo Carousel (EVENT-02)
+              if (_activeDiscountEvents.isNotEmpty)
+                EventPromoCarousel(
+                  events: _activeDiscountEvents,
+                  margin: const EdgeInsets.only(top: 8, bottom: 4),
+                ),
             ],
           ),
         ),
