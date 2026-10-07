@@ -1649,8 +1649,8 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
       final dio = Dio(
         BaseOptions(
           baseUrl: SessionManager.apiBaseUrl,
-          connectTimeout: const Duration(seconds: 3),
-          receiveTimeout: const Duration(seconds: 3),
+          connectTimeout: const Duration(seconds: 4),
+          receiveTimeout: const Duration(seconds: 4),
         ),
       );
       final res = await dio.get('/sponsors/partners');
@@ -1661,23 +1661,35 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
             _partners = list.map((item) {
               final tier = (item['tier'] ?? 'PARTNER').toString().toUpperCase();
               Color color = const Color(0xFF3182CE);
+              if (tier == 'DIAMOND') color = const Color(0xFF00B4D8);
               if (tier == 'PLATINUM') color = const Color(0xFF6C5CE7);
               if (tier == 'GOLD') color = const Color(0xFFFD761A);
               if (tier == 'SILVER') color = const Color(0xFF718096);
+              if (tier == 'BRONZE') color = const Color(0xFFA0522D);
+              if (tier == 'KONTRIBUSI') color = const Color(0xFF4A5568);
+
+              if (item['color'] != null && item['color'].toString().startsWith('#')) {
+                try {
+                  color = Color(int.parse(item['color'].toString().replaceFirst('#', '0xFF')));
+                } catch (_) {}
+              }
 
               final List prods = (item['products'] as List?) ?? [];
               return {
+                "id": item['id'],
                 "name": item['name'] ?? '',
-                "short_name": (item['name'] ?? '').toString().split(' ').first,
+                "short_name": item['short_name'] ?? (item['name'] ?? '').toString().split(' ').first,
                 "tier": tier,
                 "tier_label": item['tier_label'] ?? '$tier SPONSOR',
                 "color": color,
-                "verified": true,
+                "verified": item['verified'] ?? true,
                 "logo": item['logo'] ?? 'assets/images/logo_braderparts.png',
                 "description": item['description'] ?? '',
                 "website_url": item['website_url'] ?? 'https://shopee.co.id',
+                "whatsapp": item['whatsapp'],
                 "products": prods.map((p) {
                   return {
+                    "id": p['id'],
                     "name": p['name'] ?? '',
                     "price": p['price'] ?? 0,
                     "category": p['category'] ?? 'Sparepart',
