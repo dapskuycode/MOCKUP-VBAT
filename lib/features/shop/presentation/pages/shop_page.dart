@@ -1371,272 +1371,54 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
   Color get _textDark => _isDark ? ThemeManager.darkText : const Color(0xFF001944);
   Color get _textGray => _isDark ? ThemeManager.darkTextSecondary : Colors.grey.shade600;
 
-  // Data Brand & Partner Resmi diurutkan dari tingkat tertinggi (Platinum -> Gold -> Silver -> Partner)
-  List<Map<String, dynamic>> _partners = [
-    {
-      "name": "BraderParts Indonesia",
-      "short_name": "BraderParts",
-      "tier": "PLATINUM",
-      "tier_label": "PLATINUM SPONSOR",
-      "tier_rank": 1,
-      "color": const Color(0xFF6C5CE7), // Luxury Platinum Royal Indigo
-      "verified": true,
-      "logo": "assets/images/logo_braderparts.png",
-      "description":
-          "Official Distributor suku cadang LCD OLED/Incell, fleksibel, baterai, dan komponen smartphone original bergaransi resmi se-Indonesia. Kualitas teruji untuk teknisi profesional.",
-      "website_url": "https://shopee.co.id/brader_parts",
-      "products": [
-        {
-          "name": "LCD Samsung Galaxy A51 Super AMOLED Frame Ori",
-          "price": 750000,
-          "category": "LCD & Layar",
-          "image": "assets/images/product_lcd.png",
-          "rating": "4.9",
-          "sold": "320+",
-          "link": "https://shopee.co.id/brader_parts",
-        },
-        {
-          "name": "Baterai Infinix Hot 9/10/11 Play BL-58BX Original",
-          "price": 145000,
-          "category": "Baterai",
-          "image": "assets/images/product_battery.png",
-          "rating": "4.9",
-          "sold": "580+",
-          "link": "https://shopee.co.id/brader_parts",
-        },
-        {
-          "name": "LCD iPhone 11 Pro Max Original Quality",
-          "price": 1250000,
-          "category": "LCD & Layar",
-          "image": "assets/images/product_lcd.png",
-          "rating": "5.0",
-          "sold": "190+",
-          "link": "https://shopee.co.id/brader_parts",
-        },
-        {
-          "name": "Travel Charger Fast Charging 20W Type-C 10 Pcs",
-          "price": 35000,
-          "category": "Aksesoris",
-          "image": "assets/images/product_1.png",
-          "rating": "4.8",
-          "sold": "410+",
-          "link": "https://shopee.co.id/brader_parts",
-        },
-      ],
-    },
-    {
-      "name": "TITAN Tools Official",
-      "short_name": "TITAN Tools",
-      "tier": "GOLD",
-      "tier_label": "GOLD SPONSOR",
-      "tier_rank": 2,
-      "color": const Color(0xFFFD761A), // Vibrant Gold/Amber
-      "verified": true,
-      "logo": "assets/images/logo_titan.png",
-      "description":
-          "Spesialis peralatan teknisi handphone presisi tinggi: solder digital cerdas T12, blower hot air gun Quick, mikroskop optik stereo RF4, dan perkakas standar industri servis modern.",
-      "website_url": "https://shopee.co.id/titan_tools",
-      "products": [
-        {
-          "name": "Solder Listrik T12 Digital Auto Sleep",
-          "price": 389000,
-          "category": "Tools & Alat",
-          "image": "assets/images/product_1.png",
-          "rating": "4.9",
-          "sold": "270+",
-          "link": "https://shopee.co.id/titan_tools",
-        },
-        {
-          "name": "Blower Quick 857D Hot Air Gun Digital",
-          "price": 850000,
-          "category": "Tools & Alat",
-          "image": "assets/images/product_1.png",
-          "rating": "4.9",
-          "sold": "180+",
-          "link": "https://shopee.co.id/titan_tools",
-        },
-        {
-          "name": "Obeng Set Magnetik 24 in 1 Presisi S2 Steel",
-          "price": 45000,
-          "category": "Tools & Alat",
-          "image": "assets/images/product_1.png",
-          "rating": "4.8",
-          "sold": "850+",
-          "link": "https://shopee.co.id/titan_tools",
-        },
-        {
-          "name": "Flux Amtech NC-559-ASM Original 10cc",
-          "price": 85000,
-          "category": "Tools & Alat",
-          "image": "assets/images/product_1.png",
-          "rating": "4.9",
-          "sold": "620+",
-          "link": "https://shopee.co.id/titan_tools",
-        },
-        {
-          "name": "Mikroskop Stereo Trinokuler RF4 7-50X HD",
-          "price": 2850000,
-          "category": "Tools & Alat",
-          "image": "assets/images/product_1.png",
-          "rating": "5.0",
-          "sold": "95+",
-          "link": "https://shopee.co.id/titan_tools",
-        },
-        {
-          "name": "Lem LCD Touchscreen T-7000 Hitam 50ml",
-          "price": 25000,
-          "category": "Tools & Alat",
-          "image": "assets/images/product_1.png",
-          "rating": "4.9",
-          "sold": "1200+",
-          "link": "https://shopee.co.id/titan_tools",
-        },
-      ],
-    },
-    {
-      "name": "BT-ACC Battery Super",
-      "short_name": "BT-ACC Battery",
-      "tier": "GOLD",
-      "tier_label": "GOLD SPONSOR",
-      "tier_rank": 2,
-      "color": const Color(0xFF03AC0E), // Emerald Gold
-      "verified": true,
-      "logo": "assets/images/logo_btacc.png",
-      "description":
-          "Pusat baterai smartphone original double IC protection dengan kapasitas murni, tidak cepat kembung, awet seharian, dan bergaransi retur langsung tanpa ribet.",
-      "website_url": "https://shopee.co.id",
-      "products": [
-        {
-          "name": "Baterai Samsung S20 Ultra Original IC Pure",
-          "price": 249000,
-          "category": "Baterai",
-          "image": "assets/images/product_battery.png",
-          "rating": "4.9",
-          "sold": "310+",
-          "link": "https://shopee.co.id",
-        },
-        {
-          "name": "Baterai iPhone 11 High Capacity 3500mAh",
-          "price": 210000,
-          "category": "Baterai",
-          "image": "assets/images/product_battery.png",
-          "rating": "4.8",
-          "sold": "240+",
-          "link": "https://shopee.co.id",
-        },
-        {
-          "name": "Baterai Xiaomi Redmi Note 10 Pro BN53 Ori",
-          "price": 185000,
-          "category": "Baterai",
-          "image": "assets/images/product_battery.png",
-          "rating": "4.9",
-          "sold": "190+",
-          "link": "https://shopee.co.id",
-        },
-      ],
-    },
-    {
-      "name": "Sunshine Tools",
-      "short_name": "Sunshine",
-      "tier": "SILVER",
-      "tier_label": "SILVER SPONSOR",
-      "tier_rank": 3,
-      "color": const Color(0xFF718096), // Silver Slate
-      "verified": true,
-      "logo": "assets/images/logo_sunshine.png",
-      "description":
-          "Brand global terpercaya untuk mesin pemisah LCD rotari 360, power supply cerdas, lampu UV lem jumper cepat, dan perlengkapan servis ponsel berkualitas tinggi.",
-      "website_url": "https://shopee.co.id",
-      "products": [
-        {
-          "name": "Mesin Pemisah LCD Separator Sunshine S-918F Plus",
-          "price": 890000,
-          "category": "Tools & Alat",
-          "image": "assets/images/product_1.png",
-          "rating": "4.9",
-          "sold": "140+",
-          "link": "https://shopee.co.id",
-        },
-        {
-          "name": "Sunshine Mini Intelligent UV Curing Lamp SS-014",
-          "price": 95000,
-          "category": "Tools & Alat",
-          "image": "assets/images/product_1.png",
-          "rating": "4.8",
-          "sold": "380+",
-          "link": "https://shopee.co.id",
-        },
-      ],
-    },
-    {
-      "name": "Borneo Schematics",
-      "short_name": "Borneo Schematics",
-      "tier": "SILVER",
-      "tier_label": "SILVER SPONSOR",
-      "tier_rank": 3,
-      "color": const Color(0xFF4A5568), // Silver Blue
-      "verified": true,
-      "logo": "assets/images/logo_borneo.png",
-      "description":
-          "Platform skematik hardware, panduan jalur PCB smartphone, bitmap layout, dan pengukuran tegangan paling lengkap di dunia untuk teknisi pemula hingga mahir.",
-      "website_url": "https://borneoschematics.com",
-      "products": [
-        {
-          "name": "Aktivasi Borneo Schematics 1 Tahun (Single User)",
-          "price": 650000,
-          "category": "Software Tools",
-          "image": "assets/images/logo_borneo.png",
-          "rating": "5.0",
-          "sold": "720+",
-          "link": "https://borneoschematics.com",
-        },
-        {
-          "name": "Aktivasi Borneo Schematics 6 Bulan",
-          "price": 390000,
-          "category": "Software Tools",
-          "image": "assets/images/logo_borneo.png",
-          "rating": "4.9",
-          "sold": "450+",
-          "link": "https://borneoschematics.com",
-        },
-      ],
-    },
-    {
-      "name": "Pragmafix Software",
-      "short_name": "Pragmafix",
-      "tier": "PARTNER",
-      "tier_label": "OFFICIAL PARTNER",
-      "tier_rank": 4,
-      "color": const Color(0xFF3182CE), // Partner Blue
-      "verified": true,
-      "logo": "assets/images/logo_pragmafix.png",
-      "description":
-          "Solusi software diagnosa, skematik multi-fungsi, dan analisa kerusakan hardware smartphone dengan cepat, praktis, dan petunjuk visual langkah demi langkah.",
-      "website_url": "https://pragmafix.com",
-      "products": [
-        {
-          "name": "Aktivasi Lisensi Pragmafix 1 Tahun (2 PC Login)",
-          "price": 550000,
-          "category": "Software Tools",
-          "image": "assets/images/logo_pragmafix.png",
-          "rating": "4.8",
-          "sold": "310+",
-          "link": "https://pragmafix.com",
-        },
-      ],
-    },
-  ];
+  /// Daftar mitra. Selalu diisi dari API /sponsors/partners.
+  ///
+  /// CW-09: tidak ada lagi daftar mitra, produk, harga, atau tautan contoh
+  /// yang dipatok di kode. Bila API tidak mengembalikan data, bagian ini tidak
+  /// ditampilkan sama sekali sehingga aplikasi tidak pernah menayangkan mitra
+  /// yang tidak ada.
+  List<Map<String, dynamic>> _partners = [];
+
+  final ScrollController _partnerScrollController = ScrollController();
+  Timer? _partnerAutoSlideTimer;
+
+  /// UI-02: menggeser daftar mitra otomatis agar tidak terkesan statis.
+  /// Berhenti saat pengguna sedang menggeser, lalu lanjut lagi setelahnya.
+  void _startPartnerAutoSlide() {
+    _partnerAutoSlideTimer?.cancel();
+    if (_partners.length < 2) return;
+    _partnerAutoSlideTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!mounted || !_partnerScrollController.hasClients) return;
+      final max = _partnerScrollController.position.maxScrollExtent;
+      if (max <= 0) return;
+      final current = _partnerScrollController.offset;
+      final next = current + 108;
+      _partnerScrollController.animateTo(
+        next > max ? 0 : next,
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeOut,
+      );
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
+    // Berhenti otomatis saat pengguna menggeser, lalu lanjut lagi.
+    _partnerScrollController.addListener(() {
+      if (_partnerAutoSlideTimer != null) {
+        _startPartnerAutoSlide();
+      }
+    });
     _fetchPartnersFromApi();
   }
 
   @override
   void dispose() {
     ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
+    _partnerAutoSlideTimer?.cancel();
+    _partnerScrollController.dispose();
     super.dispose();
   }
 
@@ -1661,16 +1443,17 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
             _partners = list.map((item) {
               final tier = (item['tier'] ?? 'PARTNER').toString().toUpperCase();
               Color color = const Color(0xFF3182CE);
-              if (tier == 'DIAMOND') color = const Color(0xFF00B4D8);
-              if (tier == 'PLATINUM') color = const Color(0xFF6C5CE7);
-              if (tier == 'GOLD') color = const Color(0xFFFD761A);
-              if (tier == 'SILVER') color = const Color(0xFF718096);
-              if (tier == 'BRONZE') color = const Color(0xFFA0522D);
-              if (tier == 'KONTRIBUSI') color = const Color(0xFF4A5568);
-
-              if (item['color'] != null && item['color'].toString().startsWith('#')) {
+              // Warna tier dibaca dari server bila dikirim; kalau tidak,
+              // memakai warna cadangan aplikasi (WR-01: warna hanya untuk
+              // badge/label, bukan latar halaman).
+              if (item['tier_color'] != null &&
+                  item['tier_color'].toString().startsWith('#')) {
                 try {
-                  color = Color(int.parse(item['color'].toString().replaceFirst('#', '0xFF')));
+                  color = Color(
+                    int.parse(
+                      item['tier_color'].toString().replaceFirst('#', '0xFF'),
+                    ),
+                  );
                 } catch (_) {}
               }
 
@@ -1678,14 +1461,20 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
               return {
                 "id": item['id'],
                 "name": item['name'] ?? '',
-                "short_name": item['short_name'] ?? (item['name'] ?? '').toString().split(' ').first,
+                "short_name": item['short_name'] ??
+                    (item['name'] ?? '').toString().split(' ').first,
                 "tier": tier,
-                "tier_label": item['tier_label'] ?? '$tier SPONSOR',
+                "tier_label": item['tier_label'] ?? tier,
                 "color": color,
                 "verified": item['verified'] ?? true,
-                "logo": item['logo'] ?? 'assets/images/logo_braderparts.png',
+                // CW-09: tidak ada jalur logo contoh. Bila kosong, UI
+                // menampilkan ikon toko sebagai gantinya.
+                "logo": item['logo'] ?? '',
                 "description": item['description'] ?? '',
-                "website_url": item['website_url'] ?? 'https://shopee.co.id',
+                // WM-01: website & marketplace dipisah, masing-masing boleh
+                // kosong dan tidak akan ditampilkan bila kosong.
+                "website_url": item['website_url'] ?? '',
+                "marketplace_url": item['marketplace_url'] ?? '',
                 "whatsapp": item['whatsapp'],
                 "products": prods.map((p) {
                   return {
@@ -1693,18 +1482,26 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                     "name": p['name'] ?? '',
                     "price": p['price'] ?? 0,
                     "category": p['category'] ?? 'Sparepart',
-                    "image": p['image'] ?? 'assets/images/product_1.png',
-                    "rating": (p['rating'] ?? '4.9').toString(),
-                    "sold": (p['sold'] ?? '150+').toString(),
-                    "link": p['link'] ?? 'https://shopee.co.id',
+                    "image": p['image'] ?? '',
+                    "rating": (p['rating'] ?? '').toString(),
+                    "sold": (p['sold'] ?? '').toString(),
+                    "link": p['link'] ?? '',
                   };
                 }).toList(),
               };
             }).toList();
           });
+          // Mulai geser otomatis setelah data tersedia.
+          _startPartnerAutoSlide();
         }
       }
-    } catch (_) {}
+    } catch (_) {
+      // CW-09: gagal memuat berarti bagian mitra tidak ditampilkan,
+      // bukan menampilkan data contoh.
+      if (mounted && _partners.isEmpty) {
+        setState(() {});
+      }
+    }
   }
 
   @override
@@ -1723,38 +1520,30 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Header Judul & Status Urutan Tingkat Tertinggi
+          // 1. Header Judul
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.verified_rounded,
-                          color: const Color(0xFF1B4F9B),
-                          size: 20,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          "Brand & Partner Resmi",
-                          style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: _textDark,
-                          ),
-                        ),
-                      ],
+                    Icon(
+                      Icons.verified_rounded,
+                      color: const Color(0xFF1B4F9B),
+                      size: 20,
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(width: 6),
                     Text(
-                      "Urutan mitra sponsor dari tingkat tertinggi ke terendah",
-                      style: TextStyle(fontSize: 11, color: _textGray),
+                      // CW-01: judul baru, tanpa teks penjelas internal.
+                      "BRAND PILIHAN UNTUKMU",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: _textDark,
+                        letterSpacing: 0.3,
+                      ),
                     ),
                   ],
                 ),
@@ -1780,10 +1569,11 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
 
           const SizedBox(height: 14),
 
-          // 2. Horizontal Selector Cards (Urutan Tingkat Tertinggi: Platinum -> Gold -> Silver -> Partner)
+          // 2. Horizontal Selector Cards — UI-02: bergeser otomatis.
           SizedBox(
             height: 110,
             child: ListView.builder(
+              controller: _partnerScrollController,
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               physics: const BouncingScrollPhysics(),

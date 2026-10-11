@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
 
+/// Badge tier sponsor.
+///
+/// Warna dan ikon di sini adalah nilai CADANGAN yang dipakai saat server tidak
+/// mengirim data tier. Sumber utama tetap server: field `badge_color` dan
+/// `icon_url` pada endpoint /api/v1/sponsors/tiers.
+///
+/// Untuk memakai warna/ikon dari server, kirim `tierColor` dan `tierIconCode`
+/// ke konstruktor. Bila kosong, nilai cadangan di bawah yang dipakai.
 class SponsorTierBadge extends StatelessWidget {
   final String rawTier;
   final double fontSize;
   final double iconSize;
   final EdgeInsetsGeometry padding;
   final bool isSolid;
+
+  /// Warna dari server (field `badge_color`). Null berarti pakai cadangan.
+  final Color? tierColor;
+
+  /// Nama tier dari server. Dipakai saat `rawTier` berisi label mentah.
+  final String? tierLabelOverride;
 
   const SponsorTierBadge({
     super.key,
@@ -14,6 +28,8 @@ class SponsorTierBadge extends StatelessWidget {
     this.iconSize = 11.0,
     this.padding = const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
     this.isSolid = false,
+    this.tierColor,
+    this.tierLabelOverride,
   });
 
   /// Standardisasi nama tier ringkas (APP-02):
@@ -33,10 +49,12 @@ class SponsorTierBadge extends StatelessWidget {
     if (lower == 'silver') return 'Silver';
     if (lower == 'bronze') return 'Bronze';
     if (lower == 'kontribusi') return 'Kontribusi';
+    if (lower == 'free') return 'Free';
     return clean[0].toUpperCase() + clean.substring(1).toLowerCase();
   }
 
-  static Color getTierColor(String tierName) {
+  /// Warna cadangan bila server tidak mengirim `badge_color`.
+  static Color getFallbackColor(String tierName) {
     final lower = tierName.toLowerCase();
     switch (lower) {
       case 'diamond':
@@ -51,12 +69,20 @@ class SponsorTierBadge extends StatelessWidget {
         return const Color(0xFF8D6E63);
       case 'kontribusi':
         return const Color(0xFF0284C7);
+      case 'free':
+        return const Color(0xFF64748B);
       default:
         return const Color(0xFF1B4F9B);
     }
   }
 
-  static IconData getTierIcon(String tierName) {
+  /// Warna yang dipakai: server bila ada, cadangan bila tidak.
+  static Color getTierColor(String tierName, {Color? fromServer}) {
+    return fromServer ?? getFallbackColor(tierName);
+  }
+
+  /// Ikon cadangan bila server tidak mengirim ikon.
+  static IconData getFallbackIcon(String tierName) {
     final lower = tierName.toLowerCase();
     switch (lower) {
       case 'diamond':
@@ -71,6 +97,8 @@ class SponsorTierBadge extends StatelessWidget {
         return Icons.verified_rounded;
       case 'kontribusi':
         return Icons.handshake_rounded;
+      case 'free':
+        return Icons.person_outline_rounded;
       default:
         return Icons.stars_rounded;
     }
@@ -78,9 +106,10 @@ class SponsorTierBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String tierName = cleanTierName(rawTier);
-    final Color color = getTierColor(tierName);
-    final IconData icon = getTierIcon(tierName);
+    final String tierName =
+        tierLabelOverride ?? cleanTierName(rawTier);
+    final Color color = getTierColor(tierName, fromServer: tierColor);
+    final IconData icon = getFallbackIcon(tierName);
 
     if (isSolid) {
       return Container(

@@ -47,131 +47,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Dynamic products for Best Deal (Synced with Web Backend)
-  List<Map<String, dynamic>> _bestDeals = [
-    {
-      "name": "LCD iPhone 11 Pro Max Original Quality",
-      "price": 1250000,
-      "discount_price": 1250000,
-      "discount_percentage": 0,
-      "image": "assets/images/product_lcd.png",
-      "partner": "BraderParts",
-      "link": "https://shopee.co.id/brader_parts",
-    },
-    {
-      "name": "Baterai Infinix Hot 9/10/11 Play BL-58BX",
-      "price": 145000,
-      "discount_price": 145000,
-      "discount_percentage": 0,
-      "image": "assets/images/product_battery.png",
-      "partner": "BraderParts",
-      "link": "https://shopee.co.id/brader_parts",
-    },
-    {
-      "name": "Obeng Set Magnetik 24 in 1 Presisi S2",
-      "price": 45000,
-      "discount_price": 45000,
-      "discount_percentage": 0,
-      "image": "assets/images/product_1.png",
-      "partner": "TITAN Tools",
-      "link": "https://shopee.co.id/titan_tools",
-    },
-    {
-      "name": "Flux Amtech NC-559-ASM 10cc",
-      "price": 85000,
-      "discount_price": 85000,
-      "discount_percentage": 0,
-      "image": "assets/images/product_1.png",
-      "partner": "TITAN Tools",
-      "link": "https://shopee.co.id/titan_tools",
-    },
-    {
-      "name": "Solder Listrik T12 Digital Auto Sleep",
-      "price": 389000,
-      "discount_price": 389000,
-      "discount_percentage": 0,
-      "image": "assets/images/product_1.png",
-      "partner": "TITAN Tools",
-      "link": "https://shopee.co.id/titan_tools",
-    },
-    {
-      "name": "Blower Quick 857D Hot Air Gun Digital",
-      "price": 850000,
-      "discount_price": 850000,
-      "discount_percentage": 0,
-      "image": "assets/images/product_1.png",
-      "partner": "TITAN Tools",
-      "link": "https://shopee.co.id/titan_tools",
-    },
-    {
-      "name": "Baterai Samsung S20 Ultra Original IC",
-      "price": 249000,
-      "discount_price": 249000,
-      "discount_percentage": 0,
-      "image": "assets/images/product_battery.png",
-      "partner": "BT-ACC",
-      "link": "https://shopee.co.id",
-    },
-  ];
+  // CW-09: daftar Best Deal hanya diisi dari API. Tidak ada produk, harga,
+  // mitra, maupun tautan contoh di kode.
+  List<Map<String, dynamic>> _bestDeals = [];
 
   final ScrollController _scrollController = ScrollController();
 
-  List<Map<String, dynamic>> _promoBanners = [
-    {
-      "id": 1,
-      "title": "Diskon Akbar Suku Cadang BraderParts",
-      "description":
-          "Potongan harga spesial sparepart LCD dan IC original hingga 30% khusus anggota resmi VbatPonsel.",
-      "image": "assets/images/banner_braderparts.png",
-      "sponsor": "BraderParts Indonesia",
-      "tier": "PLATINUM",
-      "logo": "assets/images/logo_braderparts.png",
-      "target_url": "https://shopee.co.id/brader_parts",
-    },
-    {
-      "id": 2,
-      "title": "Toolkit Lengkap Teknisi TITAN Tools",
-      "description":
-          "Paket toolkit solder, timah presisi, dan mikroskop siap kerja bergaransi resmi 1 tahun.",
-      "image": "assets/images/banner_promo_diskon.png",
-      "sponsor": "TITAN Tools Official",
-      "tier": "GOLD",
-      "logo": "assets/images/logo_titan.png",
-      "target_url": "https://tokopedia.com",
-    },
-    {
-      "id": 3,
-      "title": "Baterai Kapasitas Murni BT-ACC",
-      "description":
-          "Baterai IC protection kualitas premium untuk iPhone & Android garansi ganti baru.",
-      "image": "assets/images/PHOTO-2026-07-22-20-21-55.jpg",
-      "sponsor": "BT-ACC Battery Super",
-      "tier": "SILVER",
-      "logo": "assets/images/logo_btacc.png",
-      "target_url": "https://shopee.co.id",
-    },
-  ];
+  // CW-09: banner promo hanya diisi dari API /banners/hero. Tidak ada banner,
+  // sponsor, atau tautan contoh di kode.
+  List<Map<String, dynamic>> _promoBanners = [];
 
-  // Horizontal Sponsor Banners (Sama persis dengan yang di Shop)
-  List<Map<String, dynamic>> _horizontalSponsorBanners = [
-    {
-      "id": 18,
-      "title": "TESTING 4",
-      "sponsor": "BraderParts Indonesia",
-      "tier": "PLATINUM",
-      "image": "assets/images/banner_braderparts.png",
-      "media_type": "video",
-      "link": "https://shopee.co.id",
-    },
-    {
-      "id": 15,
-      "title": "UHUYYY TESTING BANNER HORIZONTAL",
-      "sponsor": "BraderParts Indonesia",
-      "tier": "PLATINUM",
-      "image": "assets/images/banner_braderparts.png",
-      "media_type": "image",
-      "link": "https://shopee.co.id",
-    },
-  ];
+  // CW-09: banner sponsor horizontal hanya diisi dari API. Tidak ada banner,
+  // sponsor, atau judul uji yang dipatok di kode.
+  List<Map<String, dynamic>> _horizontalSponsorBanners = [];
 
   // POIN 12: Konfigurasi admin - jumlah sponsor yang muncul (3-6)
   final int _adminSponsorCount = 4;
@@ -189,7 +77,7 @@ class _HomePageState extends State<HomePage> {
       "type": "product",
       "name": "LCD iPhone 11 Pro Max Original Pull",
       "price": "Rp 1.250.000",
-      "rating": "4.9",
+      "rating": "",
       "sold": "120",
       "image": "assets/images/product_lcd.png",
       "isMitra": true,
@@ -219,7 +107,7 @@ class _HomePageState extends State<HomePage> {
       "type": "product",
       "name": "Flux Amtech RMA-223 Original 100g",
       "price": "Rp 85.000",
-      "rating": "4.9",
+      "rating": "",
       "sold": "210",
       "image": "assets/images/product_1.png",
       "isMitra": true,
@@ -259,7 +147,7 @@ class _HomePageState extends State<HomePage> {
       "type": "product",
       "name": "Isopropil Alkohol 99.9% 500ml Pembersih PCB",
       "price": "Rp 55.000",
-      "rating": "4.9",
+      "rating": "",
       "sold": "310",
       "image": "assets/images/product_1.png",
       "isMitra": false,
@@ -279,7 +167,7 @@ class _HomePageState extends State<HomePage> {
       "type": "product",
       "name": "Solder Wick Goot Wick 2.5mm 1.5m",
       "price": "Rp 18.000",
-      "rating": "4.9",
+      "rating": "",
       "sold": "780",
       "image": "assets/images/product_1.png",
       "isMitra": true,
@@ -424,13 +312,13 @@ class _HomePageState extends State<HomePage> {
                   "id": item['id'],
                   "title": item['title'] ?? '',
                   "description": item['description'] ?? '',
-                  "image": item['media_path'] ?? 'assets/images/banner_braderparts.png',
+                  "image": item['media_path'] ?? '',
                   "thumbnail": item['thumbnail_url'] ?? '',
-                  "sponsor": item['sponsor_name'] ?? item['sponsor']?['name'] ?? 'Sponsor Vbat',
-                  "tier": (item['tier'] ?? item['sponsor']?['tier'] ?? 'PLATINUM').toString().toUpperCase(),
-                  "logo": item['sponsor']?['logo'] ?? 'assets/images/logo_braderparts.png',
-                  "target_url": item['target_url'] ?? 'https://shopee.co.id',
-                  "link": item['target_url'] ?? 'https://shopee.co.id',
+                  "sponsor": item['sponsor_name'] ?? item['sponsor']?['name'] ?? '',
+                  "tier": (item['tier'] ?? item['sponsor']?['tier'] ?? '').toString().toUpperCase(),
+                  "logo": item['sponsor']?['logo'] ?? '',
+                  "target_url": item['target_url'] ?? '',
+                  "link": item['target_url'] ?? '',
                   "media_type": item['media_type'] ?? 'image',
                 };
               }).toList();
@@ -463,13 +351,13 @@ class _HomePageState extends State<HomePage> {
                   "id": item['id'],
                   "title": item['title'] ?? '',
                   "description": item['description'] ?? '',
-                  "image": item['media_path'] ?? 'assets/images/banner_braderparts.png',
+                  "image": item['media_path'] ?? '',
                   "thumbnail": item['thumbnail_url'] ?? '',
-                  "sponsor": item['sponsor_name'] ?? item['sponsor']?['name'] ?? 'Sponsor Vbat',
-                  "tier": (item['tier'] ?? item['sponsor']?['tier'] ?? 'PLATINUM').toString().toUpperCase(),
-                  "logo": item['sponsor']?['logo'] ?? 'assets/images/logo_braderparts.png',
-                  "target_url": item['target_url'] ?? 'https://shopee.co.id',
-                  "link": item['target_url'] ?? 'https://shopee.co.id',
+                  "sponsor": item['sponsor_name'] ?? item['sponsor']?['name'] ?? '',
+                  "tier": (item['tier'] ?? item['sponsor']?['tier'] ?? '').toString().toUpperCase(),
+                  "logo": item['sponsor']?['logo'] ?? '',
+                  "target_url": item['target_url'] ?? '',
+                  "link": item['target_url'] ?? '',
                   "media_type": item['media_type'] ?? 'image',
                 };
               }).toList();
@@ -506,10 +394,10 @@ class _HomePageState extends State<HomePage> {
                   "media_path": item['media_path'] ?? '',
                   "media_type": (item['media_type'] ?? 'image').toString().toLowerCase(),
                   "thumbnail_url": item['thumbnail_url'] ?? item['thumbnail_path'] ?? '',
-                  "sponsor": item['sponsor_name'] ?? item['sponsor']?['name'] ?? 'Sponsor Vbat',
+                  "sponsor": item['sponsor_name'] ?? item['sponsor']?['name'] ?? '',
                   "tier": (item['tier'] ?? item['sponsor']?['tier'] ?? 'PARTNER').toString().toUpperCase(),
-                  "target_url": item['target_url'] ?? 'https://shopee.co.id',
-                  "link": item['target_url'] ?? 'https://shopee.co.id',
+                  "target_url": item['target_url'] ?? '',
+                  "link": item['target_url'] ?? '',
                 };
               }).toList();
             }
@@ -1027,11 +915,11 @@ class _HomePageState extends State<HomePage> {
                   "type": "product",
                   "name": name,
                   "price": _formatRupiah(item['price'] ?? 0),
-                  "rating": "4.9",
-                  "sold": "500+",
-                  "image": item['image'] ?? "assets/images/product_1.png",
+                  "rating": "",
+                  "sold": "",
+                  "image": item['image'] ?? "",
                   "isMitra": true,
-                  "partner": item['sponsor']?['name'] ?? "Sponsor Resmi",
+                  "partner": item['sponsor']?['name'] ?? "",
                   "link": item['shopee_url'] ?? "https://shopee.co.id/brader_parts",
                 });
               }
@@ -3262,7 +3150,8 @@ class _HomePageState extends State<HomePage> {
             ),
             child: const Center(
               child: Text(
-                "BRADERPARTS OFFICIAL PARTNER",
+                // CW-09: nama mitra tidak lagi dipatok di kode.
+                "MITRA RESMI VBAT",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -3704,8 +3593,10 @@ class PartnerLogoCardWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
+            // CW-05: klaim "Mitra Terverifikasi" dihapus karena tidak
+            // berasal dari data.
             const Text(
-              "Mitra Terverifikasi",
+              "Mitra Resmi VBAT",
               style: TextStyle(fontSize: 9, color: Colors.grey),
             ),
             const SizedBox(height: 12),
@@ -3884,7 +3775,7 @@ class _SponsorSliderCardState extends State<SponsorSliderCard> {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: const Text(
-                      'SPONSOR',
+                      'SPONSORED',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 7,

@@ -222,63 +222,10 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
     },
   ];
 
-  final List<Map<String, dynamic>> _allBrands = [
-    {
-      "type": "brand",
-      "name": "BraderParts Indonesia",
-      "subtitle": "Official Partner Sparepart & LCD Bergaransi",
-      "tier": "PLATINUM SPONSOR",
-      "verified": true,
-      "rating": "4.9",
-      "productsCount": "120+ Produk",
-      "logo": "assets/images/logo_braderparts.png",
-      "link": "https://shopee.co.id/brader_parts",
-    },
-    {
-      "type": "brand",
-      "name": "TITAN Tools Official",
-      "subtitle": "Peralatan Solder, Blower & Toolkit Presisi Teknisi",
-      "tier": "GOLD SPONSOR",
-      "verified": true,
-      "rating": "4.9",
-      "productsCount": "85+ Produk",
-      "logo": "assets/images/logo_titan.png",
-      "link": "https://tokopedia.com/titantools",
-    },
-    {
-      "type": "brand",
-      "name": "BT-ACC Battery Super",
-      "subtitle": "Baterai Handphone Kapasitas Murni Garansi 1 Tahun",
-      "tier": "SILVER SPONSOR",
-      "verified": true,
-      "rating": "4.8",
-      "productsCount": "64+ Produk",
-      "logo": "assets/images/logo_btacc.png",
-      "link": "https://shopee.co.id",
-    },
-    {
-      "type": "brand",
-      "name": "Borneo Schematics",
-      "subtitle": "Software Skema & Solusi Jalur PCB Hardware",
-      "tier": "VERIFIED PARTNER",
-      "verified": true,
-      "rating": "5.0",
-      "productsCount": "Aktivasi Resmi",
-      "logo": "assets/images/logo_borneo.png",
-      "link": "https://borneoschematics.com",
-    },
-    {
-      "type": "brand",
-      "name": "Pragmafix",
-      "subtitle": "Panduan Interaktif Pelacakan Komponen Handphone",
-      "tier": "OFFICIAL PARTNER",
-      "verified": true,
-      "rating": "4.9",
-      "productsCount": "Aktivasi Resmi",
-      "logo": "assets/images/logo_pragmafix.png",
-      "link": "https://pragmafix.com",
-    },
-  ];
+  /// CW-09: daftar brand contoh dihapus. Data brand hanya datang dari API
+  /// (daftar mitra). Bila API tidak mengembalikan data, daftar ini kosong dan
+  /// bagian brand tidak ditampilkan.
+  List<Map<String, dynamic>> _allBrands = [];
 
   final List<Map<String, dynamic>> _allForums = [
     {
@@ -365,25 +312,65 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
           final List list = dealsRes.data['data'];
           if (list.isNotEmpty && mounted) {
             final mapped = list.map<Map<String, dynamic>>((item) {
+              // CW-09: tidak ada lagi nilai contoh. Harga, rating, jumlah
+              // terjual, gambar, dan tautan hanya diisi bila datanya benar-benar
+              // ada dari server.
               return {
                 "type": "product",
                 "id": item['id'],
                 "name": item['name'] ?? '',
-                "category": (item['category'] ?? 'ALAT SERVIS').toString().toUpperCase(),
+                "category": (item['category'] ?? '').toString().toUpperCase(),
                 "price": item['discount_price'] ?? item['price'] ?? 0,
                 "originalPrice": item['price'] ?? 0,
                 "partner": (item['sponsor'] != null && item['sponsor']['name'] != null)
                     ? item['sponsor']['name']
                     : 'Mitra VBAT',
-                "rating": (item['rating'] ?? '4.9').toString(),
-                "sold": (item['sold'] ?? '250+').toString(),
-                "image": (item['image'] ?? 'assets/images/product_1.png').toString(),
-                "link": (item['shopee_url'] ?? item['tokopedia_url'] ?? 'https://shopee.co.id').toString(),
+                "rating": (item['rating'] ?? '').toString(),
+                "sold": (item['sold'] ?? '').toString(),
+                "image": (item['image'] ?? '').toString(),
+                "link": (item['shopee_url'] ?? item['tokopedia_url'] ?? '').toString(),
               };
             }).toList();
 
             setState(() {
               _dynamicProducts = mapped;
+            });
+          }
+        }
+      } catch (_) {}
+
+      // 3. Fetch Partner Brands from Database (/sponsors/partners)
+      // CW-09: daftar brand diisi dari server, bukan dari contoh di kode.
+      try {
+        final brandRes = await dio.get('/sponsors/partners');
+        if (brandRes.data != null && brandRes.data['data'] != null) {
+          final List list = brandRes.data['data'];
+          if (list.isNotEmpty && mounted) {
+            final mapped = list.map<Map<String, dynamic>>((item) {
+              final prods = (item['products'] as List?) ?? [];
+              // APP-02: label tier dibersihkan lewat komponen badge.
+              final tierName = SponsorTierBadge.cleanTierName(
+                (item['tier_label'] ?? item['tier'] ?? '').toString(),
+              );
+              return {
+                "type": "brand",
+                "id": item['id'],
+                "name": item['name'] ?? '',
+                "subtitle": item['description'] ?? '',
+                "tier": tierName,
+                "verified": item['verified'] ?? false,
+                "rating": (item['rating'] ?? '').toString(),
+                "productsCount": prods.isEmpty
+                    ? ""
+                    : "${prods.length} Produk",
+                "logo": item['logo'] ?? '',
+                // WM-01: hanya tautan yang benar-benar ada isinya.
+                "link": item['website_url'] ?? '',
+              };
+            }).toList();
+
+            setState(() {
+              _allBrands = mapped;
             });
           }
         }

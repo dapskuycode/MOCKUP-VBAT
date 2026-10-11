@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
+import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
 
 class SponsorDetailPage extends StatefulWidget {
   final Map<String, dynamic>? sponsorData;
@@ -33,7 +34,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
   void initState() {
     super.initState();
     ThemeManager.themeModeNotifier.addListener(_onThemeChanged);
-    _sponsor = widget.sponsorData ?? _getDefaultSponsor();
+    _sponsor = widget.sponsorData ?? _getEmptySponsor();
     _initProducts();
   }
 
@@ -48,58 +49,28 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
     if (mounted) setState(() {});
   }
 
-  Map<String, dynamic> _getDefaultSponsor() {
+  /// Data cadangan saat halaman dibuka tanpa membawa data sponsor.
+  ///
+  /// Tidak ada nama, deskripsi, maupun produk palsu di sini. Halaman menampilkan
+  /// keadaan kosong dan menunggu data sebenarnya dari pemanggil (daftar mitra
+  /// atau API). Dengan demikian, aplikasi tidak pernah menampilkan mitra atau
+  /// produk yang tidak ada.
+  Map<String, dynamic> _getEmptySponsor() {
     return {
-      "name": "BraderParts Indonesia",
-      "short_name": "BraderParts",
-      "tier": "PLATINUM",
-      "tier_label": "PLATINUM SPONSOR",
-      "color": const Color(0xFF6C5CE7),
-      "verified": true,
-      "logo": "assets/images/logo_braderparts.png",
-      "description":
-          "Official Distributor suku cadang LCD OLED/Incell, fleksibel, baterai, dan komponen smartphone original bergaransi resmi se-Indonesia. Kualitas teruji untuk teknisi profesional.",
-      "website_url": "https://shopee.co.id/brader_parts",
-      "products": [
-        {
-          "name": "LCD Samsung Galaxy A51 Super AMOLED Frame Ori",
-          "price": 750000,
-          "category": "LCD & Layar",
-          "image": "assets/images/product_lcd.png",
-          "rating": "4.9",
-          "sold": "320+",
-          "link": "https://shopee.co.id/brader_parts",
-        },
-        {
-          "name": "Baterai Infinix Hot 9/10/11 Play BL-58BX Original",
-          "price": 145000,
-          "category": "Baterai",
-          "image": "assets/images/product_battery.png",
-          "rating": "4.9",
-          "sold": "580+",
-          "link": "https://shopee.co.id/brader_parts",
-        },
-        {
-          "name": "LCD iPhone 11 Pro Max Original Quality",
-          "price": 1250000,
-          "category": "LCD & Layar",
-          "image": "assets/images/product_lcd.png",
-          "rating": "5.0",
-          "sold": "190+",
-          "link": "https://shopee.co.id/brader_parts",
-        },
-        {
-          "name": "Travel Charger Fast Charging 20W Type-C 10 Pcs",
-          "price": 35000,
-          "category": "Aksesoris",
-          "image": "assets/images/product_1.png",
-          "rating": "4.8",
-          "sold": "410+",
-          "link": "https://shopee.co.id/brader_parts",
-        },
-      ],
+      "name": "",
+      "short_name": "",
+      "tier": "",
+      "tier_label": "",
+      "logo": "",
+      "description": "",
+      "website_url": "",
+      "products": const <Map<String, dynamic>>[],
     };
   }
+
+  /// True bila data sponsor belum tersedia.
+  bool get _hasSponsorData =>
+      (_sponsor["name"] ?? "").toString().trim().isNotEmpty;
 
   void _initProducts() {
     final List prods = (_sponsor["products"] as List?) ?? [];
@@ -203,13 +174,84 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Color brandColor = (_sponsor["color"] as Color?) ?? _primaryBlue;
-    final String tier = (_sponsor["tier"] ?? "PARTNER").toString().toUpperCase();
-    final String tierLabel = (_sponsor["tier_label"] ?? "$tier SPONSOR").toString();
+    // WR-01: warna tier TIDAK dipakai sebagai latar header. Header memakai
+    // palet aplikasi. Warna tier hanya untuk badge/label/ikon.
+    const Color appBlue = Color(0xFF1B4F9B);
+    final Color brandColor = appBlue;
+
+    // CW-02: tier selalu dibersihkan lewat SponsorTierBadge supaya tidak ada
+    // lagi tulisan "PLATINUM SPONSOR" di mana pun.
+    final String tierLabel = SponsorTierBadge.cleanTierName(
+      (_sponsor["tier_label"] ?? _sponsor["tier"] ?? "").toString(),
+    );
     final String sponsorName = (_sponsor["name"] ?? "Mitra Sponsor").toString();
     final String sponsorDesc = (_sponsor["description"] ?? "").toString();
-    final String websiteUrl = (_sponsor["website_url"] ?? "https://shopee.co.id").toString();
-    final String logo = (_sponsor["logo"] ?? "assets/images/logo_braderparts.png").toString();
+
+    // WM-01: Website dan Marketplace dipisah. Yang kosong tidak ditampilkan.
+    final String marketplaceUrl =
+        (_sponsor["marketplace_url"] ?? _sponsor["website_url"] ?? "")
+            .toString()
+            .trim();
+    final String websiteUrl =
+        (_sponsor["website_url"] ?? "").toString().trim();
+    final bool hasMarketplace = marketplaceUrl.isNotEmpty;
+    final bool hasWebsite = websiteUrl.isNotEmpty;
+
+    // WR-02: gambar header sponsor bila ada.
+    final String headerImage = (_sponsor["header_image_url"] ??
+            _sponsor["header_url"] ??
+            "")
+        .toString()
+        .trim();
+    final bool hasHeaderImage = headerImage.isNotEmpty;
+
+    final String logo = (_sponsor["logo"] ?? "").toString();
+
+    // CW-09: bila data sponsor tidak tersedia, tampilkan keadaan kosong yang
+    // jujur. Tidak ada mitra atau produk contoh yang ditampilkan.
+    if (!_hasSponsorData) {
+      return Scaffold(
+        backgroundColor: _bgLight,
+        appBar: AppBar(
+          backgroundColor: _bgLight,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_rounded, color: _textDark),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.storefront_outlined,
+                  size: 56,
+                  color: _textGray,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  "Data mitra tidak tersedia",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: _textDark,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "Silakan buka kembali dari daftar mitra.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 13, color: _textGray),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     // Extract categories
     final categories = <String>["Semua"];
@@ -270,22 +312,33 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                   ),
                   child: const Icon(Icons.open_in_browser_rounded, color: Colors.white, size: 18),
                 ),
-                onPressed: () => _launchUrl(websiteUrl),
+                onPressed: () => _launchUrl(
+                  hasMarketplace ? marketplaceUrl : websiteUrl,
+                ),
               ),
               const SizedBox(width: 8),
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  // WR-01: latar header memakai palet aplikasi, bukan warna tier.
+                  gradient: const LinearGradient(
                     colors: [
-                      brandColor,
-                      brandColor.withValues(alpha: 0.75),
-                      const Color(0xFF0F172A),
+                      Color(0xFF1B4F9B),
+                      Color(0xFF153F7D),
+                      Color(0xFF0F2C57),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
+                  // WR-02: gambar header sponsor menimpa gradient bila diisi.
+                  image: hasHeaderImage
+                      ? DecorationImage(
+                          image: NetworkImage(headerImage),
+                          fit: BoxFit.cover,
+                          onError: (_, _) {},
+                        )
+                      : null,
                 ),
                 child: Stack(
                   children: [
@@ -366,23 +419,23 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                                 ],
                               ),
                               const SizedBox(height: 5),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.25),
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
-                                ),
-                                child: Text(
-                                  tierLabel,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
+                              // CW-02 + APP-02: satu-satunya tempat label tier
+                              // ditampilkan. Komponen ini membersihkan "PLATINUM
+                              // SPONSOR" menjadi "Platinum" dan menyertakan ikon.
+                              if (tierLabel.isNotEmpty)
+                                SponsorTierBadge(
+                                  rawTier: tierLabel,
+                                  tierColor: _sponsor["tier_color"] is Color
+                                      ? _sponsor["tier_color"] as Color
+                                      : null,
+                                  isSolid: true,
+                                  fontSize: 10,
+                                  iconSize: 12,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
                                   ),
                                 ),
-                              ),
                             ],
                           ),
                         ],
@@ -406,65 +459,83 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _buildMetricItem(Icons.star_rounded, "4.9", "Rating Mitra", Colors.amber),
+                      // CW-05: klaim "Rating Mitra" tetap karena bisa dihitung
+                      // dari data; tapi bila belum ada data, tampilkan "-".
+                      _buildMetricItem(
+                        Icons.star_rounded,
+                        (_sponsor["rating"] ?? "").toString().isEmpty
+                            ? "-"
+                            : (_sponsor["rating"] ?? "").toString(),
+                        "Rating Mitra",
+                        Colors.amber,
+                      ),
                       _buildDivider(),
+                      // CW-07: label jumlah produk ditulis apa adanya, tanpa
+                      // klaim "Resmi" yang tidak bisa dibuktikan.
                       _buildMetricItem(
                         Icons.inventory_2_outlined,
                         "${_allProducts.length}",
-                        "Produk Resmi",
+                        "Produk",
                         _isDark ? Colors.blue.shade300 : brandColor,
                       ),
                       _buildDivider(),
+                      // CW-04: "Garansi Ori" dihapus (klaim tanpa dasar).
+                      // Digantikan status mitra yang bisa dibuktikan.
                       _buildMetricItem(
-                        Icons.security_rounded,
-                        "100%",
-                        "Garansi Ori",
-                        const Color(0xFF03AC0E),
+                        Icons.verified_rounded,
+                        "Resmi",
+                        "Mitra VBAT",
+                        const Color(0xFF1B4F9B),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
-                  // Button Row
+                  // Button Row — WM-01: tampilkan hanya tautan yang ada isinya.
                   Row(
                     children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
+                      if (hasMarketplace)
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () => _launchUrl(marketplaceUrl),
+                            icon: const Icon(Icons.shopping_bag_outlined, size: 16),
+                            // CW-08: teks tombol tidak lagi menyebut salah satu
+                            // marketplace, karena tautan bisa ke mana saja.
+                            label: const Text(
+                              "Kunjungi Toko",
+                              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              // CW-08: warna mengikuti palet aplikasi.
+                              backgroundColor: brandColor,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                          ),
+                        ),
+                      if (hasMarketplace && hasWebsite) const SizedBox(width: 10),
+                      if (hasWebsite)
+                        ElevatedButton.icon(
                           onPressed: () => _launchUrl(websiteUrl),
-                          icon: const Icon(Icons.shopping_bag_outlined, size: 16),
+                          icon: const Icon(Icons.public, size: 16),
                           label: const Text(
-                            "Kunjungi Toko di Shopee",
+                            "Website",
                             style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFEE4D2D), // Shopee Orange
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            backgroundColor: brandColor.withValues(alpha: _isDark ? 0.25 : 0.1),
+                            foregroundColor: _isDark ? Colors.white : brandColor,
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
+                              side: BorderSide(color: brandColor.withValues(alpha: 0.3)),
                             ),
                             elevation: 0,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton.icon(
-                        onPressed: () => _launchUrl(websiteUrl),
-                        icon: const Icon(Icons.public, size: 16),
-                        label: const Text(
-                          "Website",
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: brandColor.withValues(alpha: _isDark ? 0.25 : 0.1),
-                          foregroundColor: _isDark ? Colors.white : brandColor,
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(color: brandColor.withValues(alpha: 0.3)),
-                          ),
-                          elevation: 0,
-                        ),
-                      ),
                     ],
                   ),
                 ],
@@ -498,9 +569,11 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                   ),
                   const SizedBox(height: 10),
                   Text(
+                    // CW-03: tidak ada lagi deskripsi contoh yang dipatok di
+                    // kode. Deskripsi hanya muncul bila diisi Admin/Sponsor.
                     sponsorDesc.isNotEmpty
                         ? sponsorDesc
-                        : "Mitra resmi terpercaya penyedia perlengkapan dan suku cadang smartphone original bergaransi resmi.",
+                        : "Deskripsi mitra belum diisi.",
                     style: TextStyle(
                       fontSize: 13,
                       height: 1.5,
@@ -508,7 +581,10 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  // Keunggulan Badges
+                  // CW-05: tiga klaim ("Mitra Terverifikasi", "Pengiriman Cepat",
+                  // "Garansi Retur") dihapus karena tidak berasal dari data dan
+                  // bukan tanggung jawab VBAT. Diganti satu keterangan yang
+                  // benar-benar bisa dibuktikan sistem.
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -519,9 +595,14 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildFeatureChip(Icons.verified_user_outlined, "Mitra Terverifikasi"),
-                        _buildFeatureChip(Icons.local_shipping_outlined, "Pengiriman Cepat"),
-                        _buildFeatureChip(Icons.published_with_changes_rounded, "Garansi Retur"),
+                        _buildFeatureChip(
+                          Icons.storefront_outlined,
+                          "Mitra Resmi VBAT",
+                        ),
+                        _buildFeatureChip(
+                          Icons.open_in_new_rounded,
+                          "Transaksi di Marketplace",
+                        ),
                       ],
                     ),
                   ),

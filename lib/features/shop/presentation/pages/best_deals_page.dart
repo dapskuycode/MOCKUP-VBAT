@@ -743,9 +743,9 @@ class _BestDealsPageState extends State<BestDealsPage> {
                           ],
                         ),
                         child: Icon(
-                          SponsorTierBadge.getTierIcon(tier),
+                          SponsorTierBadge.getFallbackIcon(tier),
                           size: 13,
-                          color: SponsorTierBadge.getTierColor(tier),
+                          color: SponsorTierBadge.getFallbackColor(tier),
                         ),
                       ),
                     ),
