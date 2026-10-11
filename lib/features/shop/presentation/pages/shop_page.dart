@@ -11,6 +11,7 @@ import 'package:vbat_ponsel/core/widgets/event_promo_carousel.dart';
 import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
 import 'package:vbat_ponsel/features/home/presentation/pages/home_header_sliver.dart';
 import 'package:vbat_ponsel/features/shop/data/repositories/feed_repository.dart';
+import 'package:vbat_ponsel/core/utils/sponsor_tier_store.dart';
 
 class ShopPage extends StatefulWidget {
   const ShopPage({super.key});
@@ -1690,6 +1691,7 @@ class _BrandPartnerShowcaseState extends State<_BrandPartnerShowcase> {
                           fontSize: 8,
                           iconSize: 10,
                           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                          iconSource: SponsorTierStore.iconFor(pTier),
                         ),
                       ],
                     ),

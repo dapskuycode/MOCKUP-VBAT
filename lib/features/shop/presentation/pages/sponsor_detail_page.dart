@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
+import 'package:vbat_ponsel/core/utils/sponsor_tier_store.dart';
 
 class SponsorDetailPage extends StatefulWidget {
   final Map<String, dynamic>? sponsorData;
@@ -428,6 +429,7 @@ class _SponsorDetailPageState extends State<SponsorDetailPage> {
                                   tierColor: _sponsor["tier_color"] is Color
                                       ? _sponsor["tier_color"] as Color
                                       : null,
+                                  iconSource: SponsorTierStore.iconFor(tierLabel),
                                   isSolid: true,
                                   fontSize: 10,
                                   iconSize: 12,

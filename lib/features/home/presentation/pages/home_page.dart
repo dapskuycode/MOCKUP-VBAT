@@ -14,6 +14,8 @@ import 'package:vbat_ponsel/core/widgets/video_preview_widget.dart';
 import 'package:vbat_ponsel/core/widgets/horizontal_sponsor_slider.dart';
 import 'package:vbat_ponsel/core/widgets/event_promo_carousel.dart';
 import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
+import 'package:vbat_ponsel/core/utils/sponsor_tier_store.dart';
+import 'package:vbat_ponsel/core/utils/ad_link_handler.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -442,7 +444,9 @@ class _HomePageState extends State<HomePage> {
       if (res.data != null && res.data['data'] != null) {
         final List list = res.data['data'];
         if (list.isNotEmpty) {
-          popupList = list.map((item) => Map<String, dynamic>.from(item)).toList();
+          popupList = list
+              .map((item) => Map<String, dynamic>.from(item))
+              .toList();
         }
       }
     } catch (_) {}
@@ -454,326 +458,156 @@ class _HomePageState extends State<HomePage> {
 
     showGeneralDialog(
       context: context,
-      barrierDismissible: true,
-      barrierLabel: 'Ad',
-      barrierColor: Colors.black.withValues(alpha: 0.75),
-      transitionDuration: const Duration(milliseconds: 400),
+      barrierDismissible: false,
+      barrierLabel: 'Iklan',
+      barrierColor: Colors.black.withValues(alpha: 0.72),
+      transitionDuration: const Duration(milliseconds: 300),
       transitionBuilder: (ctx, anim, secondAnim, child) {
-        return ScaleTransition(
-          scale: CurvedAnimation(parent: anim, curve: Curves.easeOutBack),
-          child: FadeTransition(opacity: anim, child: child),
+        return FadeTransition(
+          opacity: anim,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.94, end: 1).animate(
+              CurvedAnimation(parent: anim, curve: Curves.easeOut),
+            ),
+            child: child,
+          ),
         );
       },
       pageBuilder: (ctx, anim, secondAnim) {
+        final Size screen = MediaQuery.of(ctx).size;
+        // Lebar kartu 88% layar, dibatasi supaya tetap rapi di layar lebar.
+        final double cardWidth = (screen.width * 0.88).clamp(260.0, 420.0);
+        final double maxImageHeight = screen.height * 0.58;
+
         return StatefulBuilder(
           builder: (context, setModalState) {
-            final currentItem = popupList[activeIndex];
-            final sponsorName = currentItem['sponsor_name'] ?? currentItem['sponsor']?['name'] ?? 'Sponsor VBat';
-            final sponsorTier = (currentItem['tier'] ?? currentItem['sponsor']?['tier'] ?? 'PARTNER').toString().toUpperCase();
-            final title = currentItem['title'] ?? '';
-            final description = currentItem['description'] ?? '';
-            final targetUrl = currentItem['target_url'] ?? '';
+            final bool hasMultiple = popupList.length > 1;
+
+            void closeAd() => Navigator.of(ctx).pop();
 
             return Center(
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  width: MediaQuery.of(ctx).size.width * 0.88,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color(0xFF0A1628),
-                        Color(0xFF0D2045),
-                        Color(0xFF0A1628),
-                      ],
-                    ),
-                    border: Border.all(color: const Color(0xFF1B4F9B), width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF1B4F9B).withValues(alpha: 0.5),
-                        blurRadius: 30,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Header label sponsor
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(19),
-                            topRight: Radius.circular(19),
-                          ),
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF1B4F9B), Color(0xFF0D6EFD)],
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.campaign_rounded,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                '$sponsorName ($sponsorTier)',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.3,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Kartu iklan: hanya gambar, seperti pop up aplikasi
+                    // marketplace. Seluruh kartu dapat diklik, dan bila ada
+                    // lebih dari satu iklan dapat digeser ke samping.
+                    SizedBox(
+                      width: cardWidth,
+                      height: (cardWidth * 4 / 3)
+                          .clamp(200.0, maxImageHeight),
+                      child: PageView.builder(
+                        controller: pageController,
+                        itemCount: popupList.length,
+                        onPageChanged: (idx) =>
+                            setModalState(() => activeIndex = idx),
+                        itemBuilder: (pageContext, index) {
+                          final Map<String, dynamic> item =
+                              popupList[index];
+                          final String itemMediaType =
+                              (item['media_type'] ?? 'image')
+                                  .toString()
+                                  .toLowerCase();
+                          final String itemMediaPath =
+                              (item['media_path'] ?? '')
+                                  .toString()
+                                  .trim();
+                          final String itemThumb =
+                              (item['thumbnail_url'] ??
+                                      item['thumbnail_path'] ??
+                                      '')
+                                  .toString()
+                                  .trim();
+                          final String itemTarget =
+                              (item['target_url'] ?? '')
+                                  .toString()
+                                  .trim();
+
+                          Future<void> openThis() async {
+                            if (itemTarget.isEmpty) return;
+                            try {
+                              Dio(
+                                BaseOptions(
+                                  baseUrl: SessionManager.apiBaseUrl,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            if (popupList.length > 1)
-                              Container(
-                                margin: const EdgeInsets.only(right: 8),
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Text(
-                                  '${activeIndex + 1}/${popupList.length}',
-                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            GestureDetector(
-                              onTap: () => Navigator.of(ctx).pop(),
+                              ).post('/track', data: {
+                                'campaign_id': item['id'],
+                                'event_type': 'click',
+                              });
+                            } catch (_) {}
+                            await AdLinkHandler.open(ctx, itemTarget);
+                          }
+
+                          return GestureDetector(
+                            onTap: openThis,
+                            child: Material(
+                              color: Colors.transparent,
                               child: Container(
-                                width: 26,
-                                height: 26,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.close_rounded,
                                   color: Colors.white,
-                                  size: 16,
+                                  borderRadius: BorderRadius.circular(14),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.35,
+                                      ),
+                                      blurRadius: 24,
+                                      offset: const Offset(0, 8),
+                                    ),
+                                  ],
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: AspectRatio(
+                                  // Ukuran seragam untuk semua iklan supaya
+                                  // poster berbeda bentuk tetap tampil rapi.
+                                  aspectRatio: 3 / 4,
+                                  child: itemMediaType == 'video' &&
+                                          itemMediaPath.isNotEmpty
+                                      ? VideoPreviewWidget(
+                                          videoUrl: itemMediaPath,
+                                          fallbackImage: itemThumb,
+                                        )
+                                      : _buildAdImage(
+                                          itemMediaPath.isNotEmpty
+                                              ? itemMediaPath
+                                              : itemThumb,
+                                        ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       ),
-                      // Slider media pop up
-                      SizedBox(
-                        height: 240,
-                        child: PageView.builder(
-                          controller: pageController,
-                          itemCount: popupList.length,
-                          onPageChanged: (idx) {
-                            setModalState(() {
-                              activeIndex = idx;
-                            });
-                          },
-                          itemBuilder: (context, index) {
-                            final item = popupList[index];
-                            final mediaType = (item['media_type'] ?? 'image').toString().toLowerCase();
-                            final mediaPath = (item['media_path'] ?? '').toString();
-                            final thumbUrl = (item['thumbnail_url'] ?? item['thumbnail_path'] ?? '').toString();
-                            final fallback = thumbUrl.isNotEmpty
-                                ? thumbUrl
-                                : 'assets/images/PHOTO-2026-07-22-20-21-55.jpg';
-
-                            if (mediaType == 'video' && mediaPath.isNotEmpty) {
-                              return ClipRRect(
-                                child: VideoPreviewWidget(
-                                  videoUrl: mediaPath,
-                                  fallbackImage: fallback,
-                                ),
-                              );
-                            }
-
-                            return ClipRRect(
-                              child: mediaPath.startsWith('http')
-                                  ? Image.network(
-                                      mediaPath,
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (ctx, err, stack) => Image.asset(
-                                        'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
-                                        fit: BoxFit.cover,
-                                      ),
-                                    )
-                                  : Image.asset(
-                                      mediaPath.isNotEmpty ? mediaPath : 'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
-                                      width: double.infinity,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (ctx, err, stack) => Image.asset(
-                                        'assets/images/PHOTO-2026-07-22-20-21-55.jpg',
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                            );
-                          },
-                        ),
-                      ),
-                      // Indikator dots slider jika > 1 pop up
-                      if (popupList.length > 1)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(
-                              popupList.length,
-                              (dotIdx) => AnimatedContainer(
-                                duration: const Duration(milliseconds: 250),
-                                margin: const EdgeInsets.symmetric(horizontal: 3),
-                                width: dotIdx == activeIndex ? 16 : 6,
-                                height: 6,
-                                decoration: BoxDecoration(
-                                  color: dotIdx == activeIndex ? const Color(0xFF0D6EFD) : Colors.white24,
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
-                              ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Satu-satunya tombol: X untuk menutup.
+                    _buildAdCloseButton(closeAd),
+                    if (hasMultiple) ...[
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          popupList.length,
+                          (dotIdx) => AnimatedContainer(
+                            duration: const Duration(milliseconds: 250),
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 3,
+                            ),
+                            width: dotIdx == activeIndex ? 16 : 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: dotIdx == activeIndex
+                                  ? Colors.white
+                                  : Colors.white38,
+                              borderRadius: BorderRadius.circular(3),
                             ),
                           ),
                         ),
-                      // Title & deskripsi pop up
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 4),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              title,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            if (description.isNotEmpty) ...[
-                              const SizedBox(height: 2),
-                              Text(
-                                description,
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 11,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ),
-                      // Footer tombol aksi
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => Navigator.of(ctx).pop(),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: const Color(0xFF1B4F9B).withValues(alpha: 0.5),
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: const Text(
-                                    'Tutup',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              flex: 2,
-                              child: GestureDetector(
-                                onTap: () async {
-                                  Navigator.of(ctx).pop();
-                                  if (targetUrl.isNotEmpty) {
-                                    try {
-                                      Dio(BaseOptions(baseUrl: SessionManager.apiBaseUrl)).post(
-                                        '/track',
-                                        data: {'campaign_id': currentItem['id'], 'event_type': 'click'},
-                                      );
-
-                                      final uri = Uri.parse(targetUrl);
-                                      if (await canLaunchUrl(uri)) {
-                                        await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                      }
-                                    } catch (_) {}
-                                  }
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 10),
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFF1B4F9B),
-                                        Color(0xFF0D6EFD),
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(0xFF0D6EFD).withValues(alpha: 0.4),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.storefront_rounded,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                      SizedBox(width: 6),
-                                      Text(
-                                        'Lihat Promo',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
               ),
             );
@@ -783,6 +617,57 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Gambar iklan pop up. Mendukung tautan `http` dan aset lokal.
+  Widget _buildAdImage(String path) {
+    if (path.isEmpty) return _adImagePlaceholder();
+
+    if (path.startsWith('http')) {
+      return Image.network(
+        path,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        errorBuilder: (context, error, stackTrace) =>
+            _adImagePlaceholder(),
+      );
+    }
+
+    return Image.asset(
+      path,
+      fit: BoxFit.cover,
+      width: double.infinity,
+      errorBuilder: (context, error, stackTrace) => _adImagePlaceholder(),
+    );
+  }
+
+  Widget _adImagePlaceholder() {
+    return Container(
+      color: const Color(0xFFF1F5F9),
+      alignment: Alignment.center,
+      child: const Icon(
+        Icons.image_not_supported_outlined,
+        color: Color(0xFF94A3B8),
+        size: 36,
+      ),
+    );
+  }
+
+  /// Tombol X putih pada lingkaran gelap, di bawah kartu iklan.
+  Widget _buildAdCloseButton(VoidCallback onClose) {
+    return GestureDetector(
+      onTap: onClose,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.55),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white24, width: 1),
+        ),
+        child: const Icon(Icons.close_rounded, color: Colors.white, size: 22),
+      ),
+    );
+  }
   @override
   void dispose() {
     ThemeManager.themeModeNotifier.removeListener(_onThemeChanged);
@@ -1803,6 +1688,7 @@ class _HomePageState extends State<HomePage> {
                     fontSize: 11,
                     iconSize: 14,
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    iconSource: SponsorTierStore.iconFor(tier),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),

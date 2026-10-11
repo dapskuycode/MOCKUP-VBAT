@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Tier Free: tunas daun, garis sederhana menandakan tahap awal. -->
+  <path d="M16 27V15" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M16 18.5C11.8 18.5 9 15.4 9 11.6c4.2 0 7 3.1 7 6.9Z" fill="#FFFFFF"/>
+  <path d="M16 16.5c4.2 0 7-3.1 7-6.9-4.2 0-7 3.1-7 6.9Z" fill="#FFFFFF"/>
+</svg>

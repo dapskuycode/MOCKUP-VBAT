@@ -8,6 +8,7 @@ import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
+import 'package:vbat_ponsel/core/utils/sponsor_tier_store.dart';
 
 class BestDealsPage extends StatefulWidget {
   const BestDealsPage({super.key});
@@ -780,6 +781,7 @@ class _BestDealsPageState extends State<BestDealsPage> {
                           fontSize: 7.5,
                           iconSize: 9,
                           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          iconSource: SponsorTierStore.iconFor(tier),
                         ),
                       ],
                     ),

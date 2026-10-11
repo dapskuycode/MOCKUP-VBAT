@@ -5,6 +5,7 @@ import 'package:vbat_ponsel/core/theme/theme_manager.dart';
 import 'package:vbat_ponsel/core/utils/session_manager.dart';
 import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
+import 'package:vbat_ponsel/core/utils/sponsor_tier_store.dart';
 
 class GlobalSearchPage extends StatefulWidget {
   const GlobalSearchPage({super.key});
@@ -1569,6 +1570,7 @@ class _GlobalSearchPageState extends State<GlobalSearchPage> {
                   isSolid: true,
                   fontSize: 8.5,
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  iconSource: SponsorTierStore.iconFor(tier),
                 ),
               ),
               Positioned(

@@ -4,6 +4,7 @@ import 'package:vbat_ponsel/core/utils/wishlist_helper.dart';
 import 'package:vbat_ponsel/core/widgets/video_preview_widget.dart';
 import 'package:vbat_ponsel/core/widgets/skeleton_loading.dart';
 import 'package:vbat_ponsel/core/widgets/sponsor_tier_badge.dart';
+import 'package:vbat_ponsel/core/utils/sponsor_tier_store.dart';
 
 class HorizontalSponsorSlider extends StatefulWidget {
   final List<Map<String, dynamic>> banners;
@@ -203,6 +204,9 @@ class _HorizontalSponsorSliderState extends State<HorizontalSponsorSlider> {
                               isSolid: true,
                               fontSize: 10,
                               iconSize: 12,
+                              // Ikon dan warna dari server bila Admin sudah
+                              // mengunggahnya (halaman ini tidak perlu diubah).
+                              iconSource: SponsorTierStore.iconFor(tier),
                             ),
                           ),
 

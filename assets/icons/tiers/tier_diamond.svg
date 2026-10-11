@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Tier Diamond: berlian bersudut dengan kilau di sudut kanan atas. -->
+  <path d="m4 11 5-6h14l5 6-12 17L4 11Z" fill="none" stroke="#FFFFFF" stroke-linejoin="round" stroke-width="2.5"/>
+  <path d="m4 11 12 17 12-17M9 5l7 23 7-23m-19 6h24L16 5 9 11" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"/>
+  <path d="M26.5 2v4M24.5 4h4" fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-width="2"/>
+</svg>
