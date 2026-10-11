@@ -75,48 +75,9 @@ class PushNotificationService {
   static Stream<PushNotificationItem> get onNotificationReceived =>
       _notificationStreamController.stream;
 
-  static final List<PushNotificationItem> _history = [
-    PushNotificationItem(
-      id: 'demo-1',
-      title: 'Diskon 30% Sparepart LCD BraderParts',
-      body: 'Khusus member VbatPonsel! Dapatkan potongan langsung LCD iPhone & Samsung hari ini.',
-      sponsorName: 'BraderParts Indonesia',
-      targetUrl: 'https://shopee.co.id/brader_parts',
-      category: 'promo',
-      receivedAt: DateTime.now().subtract(const Duration(hours: 2)),
-    ),
-    PushNotificationItem(
-      id: 'demo-2',
-      title: 'Toolkit Titan Tools Bergaransi Resmi',
-      body: 'Paket solder T12 dan mikroskop presisi siap dikirim ke alamat Anda.',
-      sponsorName: 'TITAN Tools Official',
-      targetUrl: 'https://tokopedia.com',
-      category: 'promo',
-      receivedAt: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    PushNotificationItem(
-      id: 'demo-trx-1',
-      title: 'Pesanan Anda telah dikirim',
-      body: 'Paket berisi "Obeng Set Pro" dan 2 item lainnya sedang dalam perjalanan menuju alamat Anda.',
-      category: 'transaksi',
-      receivedAt: DateTime.now().subtract(const Duration(hours: 5)),
-    ),
-    PushNotificationItem(
-      id: 'demo-forum-1',
-      title: 'Balasan Baru di Diskusi Anda',
-      body: 'Budi Teknisi membalas pertanyaan Anda di topik "Cara Mengatasi Layar Bergaris pada Seri X".',
-      category: 'forum',
-      receivedAt: DateTime.now().subtract(const Duration(hours: 7)),
-    ),
-    PushNotificationItem(
-      id: 'demo-class-1',
-      title: 'Jadwal Kelas Belajar',
-      body: 'Jangan lupa, modul "Dasar Mikrosolder" Anda siap dilanjutkan. Selesaikan materi untuk membuka sertifikat.',
-      category: 'pengingat_belajar',
-      targetRoute: '/learning',
-      receivedAt: DateTime.now().subtract(const Duration(days: 1, hours: 3)),
-    ),
-  ];
+  // CW-09: riwayat notifikasi contoh dihapus. Notifikasi hanya berasal dari
+  // server, sehingga aplikasi tidak menampilkan promo atau tautan yang tidak ada.
+  static final List<PushNotificationItem> _history = <PushNotificationItem>[];
 
   static List<PushNotificationItem> get notifications {
     syncHardwareUnlockNotification();

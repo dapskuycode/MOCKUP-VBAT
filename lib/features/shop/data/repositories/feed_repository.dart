@@ -53,11 +53,14 @@ class FeedRepository {
         );
       }
     } catch (e) {
-      debugPrint("getHomeFeed API notice: $e, falling back to local dataset");
+      debugPrint("getHomeFeed gagal: $e");
     }
 
-    return FeedResult(
-      items: _fallbackHomeFeed,
+    // CW-09: tidak ada data contoh. Bila server tidak dapat dihubungi, feed
+    // dikembalikan kosong supaya aplikasi tidak menayangkan produk atau mitra
+    // yang sebenarnya tidak ada.
+    return const FeedResult(
+      items: [],
       nextCursor: null,
       hasMore: false,
     );
@@ -90,109 +93,17 @@ class FeedRepository {
         );
       }
     } catch (e) {
-      debugPrint("getShopFeed API notice: $e, falling back to local dataset");
+      debugPrint("getShopFeed gagal: $e");
     }
 
-    return FeedResult(
-      items: _fallbackShopFeed,
+    // CW-09: tidak ada data contoh untuk Shop juga.
+    return const FeedResult(
+      items: [],
       nextCursor: null,
       hasMore: false,
     );
   }
 
-  static final List<Map<String, dynamic>> _fallbackHomeFeed = [
-    {
-      "content_type": "material",
-      "id": 5,
-      "title": "Mendeteksi Komponen Panas dengan Rosin & Thermal Cam",
-      "description": "Metode praktis melacak short circuit pada logic board HP",
-      "material_type": "youtube_video",
-      "thumbnail": "assets/images/product_1.png",
-      "youtube_url": "https://www.youtube.com/watch?v=drcMv73jEGE",
-    },
-    {
-      "content_type": "product",
-      "id": 16,
-      "name": "Mesin Pemisah LCD Separator Sunshine S-918F Plus",
-      "description": "Rotari 360 derajat untuk pemisah layar edge dan flat.",
-      "price": 890000,
-      "discount_price": 890000,
-      "image": "assets/images/product_1.png",
-      "shopee_url": "https://shopee.co.id/brader_parts",
-      "sponsor": {"name": "BraderParts Indonesia", "tier": "platinum"},
-    },
-    {
-      "content_type": "material",
-      "id": 4,
-      "title": "Diagram Skematik Jalur Charger & Pengisian Cepat (PDF)",
-      "description": "Panduan tracing jalur VBUS, CC1, CC2 tipe C",
-      "material_type": "pdf_document",
-      "thumbnail": "assets/images/product_battery.png",
-      "pdf_path": "https://vbat.id/docs/skema_pmic_android.pdf",
-    },
-    {
-      "content_type": "product",
-      "id": 17,
-      "name": "LCD iPhone 11 Pro Max OLED Original Quality",
-      "price": 1250000,
-      "discount_price": 1250000,
-      "image": "assets/images/product_lcd.png",
-      "shopee_url": "https://shopee.co.id/brader_parts",
-      "sponsor": {"name": "BraderParts Indonesia", "tier": "platinum"},
-    },
-  ];
+  // CW-09: daftar data contoh dihapus. Feed hanya berisi data dari server.
 
-  static final List<Map<String, dynamic>> _fallbackShopFeed = [
-    {
-      "content_type": "product",
-      "id": 16,
-      "name": "Mesin Pemisah LCD Separator Sunshine S-918F Plus",
-      "description": "Rotari 360 derajat untuk pemisah layar edge dan flat.",
-      "price": 890000,
-      "discount_price": 890000,
-      "image": "assets/images/product_1.png",
-      "shopee_url": "https://shopee.co.id/brader_parts",
-      "sponsor": {"name": "BraderParts Indonesia", "tier": "platinum"},
-    },
-    {
-      "content_type": "product",
-      "id": 17,
-      "name": "LCD iPhone 11 Pro Max OLED Original Quality",
-      "price": 1250000,
-      "discount_price": 1250000,
-      "image": "assets/images/product_lcd.png",
-      "shopee_url": "https://shopee.co.id/brader_parts",
-      "sponsor": {"name": "BraderParts Indonesia", "tier": "platinum"},
-    },
-    {
-      "content_type": "product",
-      "id": 18,
-      "name": "Baterai Infinix Hot 9/10/11 Play BL-58BX Original",
-      "price": 145000,
-      "discount_price": 145000,
-      "image": "assets/images/product_battery.png",
-      "shopee_url": "https://shopee.co.id/brader_parts",
-      "sponsor": {"name": "TITAN Tools", "tier": "gold"},
-    },
-    {
-      "content_type": "product",
-      "id": 19,
-      "name": "Obeng Set Magnetik 24 in 1 Presisi S2 Steel",
-      "price": 45000,
-      "discount_price": 45000,
-      "image": "assets/images/product_1.png",
-      "shopee_url": "https://shopee.co.id/titan_tools",
-      "sponsor": {"name": "TITAN Tools", "tier": "gold"},
-    },
-    {
-      "content_type": "product",
-      "id": 20,
-      "name": "Flux Amtech NC-559-ASM 10cc",
-      "price": 85000,
-      "discount_price": 85000,
-      "image": "assets/images/product_1.png",
-      "shopee_url": "https://shopee.co.id/titan_tools",
-      "sponsor": {"name": "TITAN Tools", "tier": "gold"},
-    },
-  ];
 }
